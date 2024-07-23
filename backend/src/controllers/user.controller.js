@@ -5,7 +5,7 @@ import {ApiResponse} from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
 
-const generateAccessAndRefereshTokens = async (userId) => {
+const generateAccessAndRefreshTokens = async (userId) => {
     try {
         const user = await User.findById(userId);
         const accessToken = user.generateAccessToken();
@@ -18,7 +18,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
     } catch (error) {
         throw new ApiError(
             500,
-            "Something went wrong while generating referesh and access token"
+            "Something went wrong while generating refresh and access token"
         );
     }
 };
@@ -106,7 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
 
@@ -151,7 +151,7 @@ export const verifyToken = asyncHandler(async (req, res) => {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     // Find user by id
     const user = await User.findById(decoded.id).select("-password");
@@ -250,7 +250,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         };
 
         const {accessToken, newRefreshToken} =
-            await generateAccessAndRefereshTokens(user._id);
+            await generateAccessAndRefreshTokens(user._id);
 
         return res
             .status(200)
