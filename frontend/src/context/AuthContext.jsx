@@ -1,19 +1,18 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import Cookies from "js-cookie";
-import axios from "axios"; // Make sure to import axios
+import axios from "axios";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-   axios.defaults.baseURL = "http://127.0.0.1:8000";
-   axios.defaults.withCredentials = true;
+  axios.defaults.baseURL = "http://127.0.0.1:8000";
+  axios.defaults.withCredentials = true;
 
   useEffect(() => {
     const checkUserAuth = async () => {
-      const accessToken = Cookies.get("accessToken");
+      const accessToken = localStorage.getItem("accessToken");
       if (accessToken) {
         try {
           const response = await axios.get("/api/users/verify-token", {
@@ -24,12 +23,12 @@ export const AuthProvider = ({ children }) => {
             setUser(response.data.user);
             localStorage.setItem("user", JSON.stringify(response.data.user));
           } else {
-            Cookies.remove("accessToken");
+            localStorage.removeItem("accessToken");
             localStorage.removeItem("user");
           }
         } catch (error) {
           console.error("Error verifying token:", error);
-          Cookies.remove("accessToken");
+          localStorage.removeItem("accessToken");
           localStorage.removeItem("user");
         }
       }
@@ -43,34 +42,29 @@ export const AuthProvider = ({ children }) => {
     console.log("Login called with userData:", userData);
     console.log("Login called with token:", token);
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(user));
-    Cookies.set("token", token, {
-      secure: true,
-      sameSite: "strict",
-    });
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("accessToken", token);
   };
 
- const logout = async () => {
-   const accessToken = Cookies.get("accessToken");
-   try {
-     await axios.post(
-       "/api/users/logout",
-       {},
-       {
-         withCredentials: true,
-         headers: {
-           Authorization: `Bearer ${Cookies.get("accessToken")}`,
-         },
-       }
-     );
-     setUser(null);
-    //  localStorage.removeItem("user");
-    //  Cookies.remove("accessToken");
-    //  Cookies.remove("refreshToken");
-   } catch (error) {
-    //  console.error("Logout failed:", error);
-   }
- };
+  const logout = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      await axios.post(
+        "/api/users/logout",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>; // Or any loading component

@@ -25,7 +25,7 @@ const Sidebar = () => {
         <SidebarItem
           icon={<IoAddCircleSharp />}
           text="Data-in-board"
-          link="/databoard"
+          link="/datainboard"
         />
         <SidebarItem icon={<FaBullseye />} text="Targets" />
         <SidebarItem icon={<FaDatabase />} text="CRM Data" link="/crm" />

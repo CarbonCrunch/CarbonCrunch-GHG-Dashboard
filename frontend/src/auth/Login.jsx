@@ -50,8 +50,9 @@ const Login = () => {
         password: password,
         facilityName: facilityName, // Include facility name in the request
       });
-      const { user: userData, token, companyName } = res.data;
-      login(userData, token, companyName);
+      // console.log("res.data", res.data)
+      const { user, accessToken } = res.data.data;
+      login(user, accessToken);
       navigate("/dashboard");
     } catch (error) {
       setError("Invalid Username/Password or Facility Name");

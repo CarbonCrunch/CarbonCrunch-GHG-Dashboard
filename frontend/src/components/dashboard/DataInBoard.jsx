@@ -8,7 +8,7 @@ import NavbarD from "./NavbarD";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const DataBoard = () => {
+const DataInBoard = () => {
   const [startDate, setStartDate] = useState(new Date("2023-05-16"));
   const [endDate, setEndDate] = useState(new Date("2024-05-16"));
   const [category, setCategory] = useState("Fuels");
@@ -145,4 +145,4 @@ const DataBoard = () => {
   );
 };
 
-export default DataBoard;
+export default DataInBoard;
