@@ -4,9 +4,16 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createNewReport = asyncHandler(async (req, res) => {
-  const { companyName } = req.body;
-  if (!req.user || !companyName) {
+  const { reportName, facilityName, timePeriod, companyName, username } =
+    req.body;
+
+  if (!req.user || !companyName || !username) {
     throw new ApiError(401, "Unauthorized Request to create new report");
+  }
+
+  // Verify that the username in the request matches the authenticated user
+  if (req.user.username !== username) {
+    throw new ApiError(403, "Username mismatch");
   }
 
   const lastReport = await Report.findOne().sort({ reportId: -1 }).exec();
@@ -19,10 +26,13 @@ export const createNewReport = asyncHandler(async (req, res) => {
 
   const report = await Report.create({
     reportId,
-    username: req.user.username,
+    reportName,
+    facilityName,
+    timePeriod,
     companyName,
+    username,
   });
-
+  console.log(report);
   if (!report) {
     throw new ApiError(500, "Could not create report");
   }
@@ -37,7 +47,10 @@ export const createNewReport = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: reportId,
+    data: {
+      reportId: report.reportId,
+      reportName: report.reportName,
+    },
   });
 });
 
@@ -51,9 +64,10 @@ export const getReport = asyncHandler(async (req, res) => {
   if (!report) {
     throw new ApiError(401, "Invalid report id!");
   }
-  // if (report.username !== req.user.username) {
-  //     throw new ApiError(401, "Invalid access of report!");
-  // }
+  console.log(report);
+  if (report.username !== req.user.username) {
+    throw new ApiError(401, "Invalid access of report!");
+  }
   res.status(201).json({
     success: true,
     data: report,
@@ -72,6 +86,8 @@ export const deleteReport = asyncHandler(async (req, res) => {
       throw new ApiError(404, "No report found with the provided ID.");
     }
     if (report.username !== req.user.username) {
+      console.log("report.username", report.username);
+      console.log("req.user.username", req.user.username);
       throw new ApiError(401, "Invalid user request");
     }
     const ordered_by_username = report.username;
@@ -100,15 +116,20 @@ export const deleteReport = asyncHandler(async (req, res) => {
 
 export const getUserReports = asyncHandler(async (req, res) => {
   const user = req.user;
+  console.log("getUser", user);
   if (!user) {
     throw new ApiError(401, "Cannot access reports");
   }
   try {
-    const userReports = await Report.find(
-      { username: user.username },
-      { reportId: 1, companyName: 1, createdAt: 1, current_tab: 1 }
-    );
-    console.log(userReports);
+    const userReports = await Report.find({
+      $or: [
+        { userName: user.username },
+        { companyName: user.companyName },
+        { facilityName: user.facilityName },
+      ],
+    }).select("username reportId companyName timePeriod reportName facilityName");
+
+    console.log("getUserReports", userReports);
     if (!userReports || userReports.length === 0) {
       return res.status(404).json({
         message: "No reports found for the user.",
@@ -126,7 +147,7 @@ export const getUserReports = asyncHandler(async (req, res) => {
       "Something went wrong while fetching user reports."
     );
   }
-});
+}); 
 
 export const changeCurrentTab = asyncHandler(async (req, res) => {
   const { current_tab } = req.body;

@@ -43,11 +43,14 @@ import {
 const router = Router();
 
 router
-  .route("/create")
-  .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
+.route("/create")
+.post(verifyJWT, restrictTo("FacAdmin", "Admin", "Employee"), createNewReport);
 router
-  .route("/get")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), getUserReports);
+.route("/get")
+.get(verifyJWT, getUserReports);
+router
+  .route("/:reportId/delete")
+  .delete(verifyJWT , deleteReport);
 
 router.route("/:reportId/get").get(getReport);
 
@@ -105,9 +108,6 @@ router
   .route("/:reportId/tab/get")
   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), getCurrentTab);
 
-router
-  .route("/:reportId/delete")
-  .delete(verifyJWT, restrictTo("FacAdmin", "Admin"), deleteReport);
 
 // date wise data getting
 
