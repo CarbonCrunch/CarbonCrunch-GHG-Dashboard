@@ -44,7 +44,7 @@ const router = Router();
 
 router
 .route("/create")
-.post(verifyJWT, restrictTo("FacAdmin", "Admin", "Employee"), createNewReport);
+.post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
 router
 .route("/get")
 .get(verifyJWT, getUserReports);
