@@ -21,7 +21,7 @@ const reportSchema = new Schema(
     food: { type: Object, default: {} },
     bioenergy: { type: Object, default: {} },
     refrigerants: { type: Object, default: {} },
-    ehctd: { type: Object, default: { total: "20" } },
+    ehctd: { type: Object, default: {} },
     wttfuels: { type: Object, default: {} },
     material: { type: Object, default: {} },
     waste: { type: Object, default: {} },

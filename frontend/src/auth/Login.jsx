@@ -17,7 +17,7 @@ const Login = () => {
 
   useEffect(() => {
     const checkExistingToken = async () => {
-      const token = Cookies.get("token");
+      const token = Cookies.get("accessToken");
       if (token) {
         axios.defaults.baseURL = "http://127.0.0.1:8000";
         axios.defaults.withCredentials = true;

@@ -57,48 +57,48 @@ router.route("/:reportId/get").get(getReport);
 router
   .route("/:reportId/fuel/put")
   .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFuelData);
-// router
-//   .route("/:reportId/fuell/put")
-//   .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFoodData);
+router
+  .route("/:reportId/food/put")
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFoodData);
 router
   .route("/:reportId/bioenergy/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateBioenergyData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateBioenergyData);
 router
   .route("/:reportId/refrigerants/put")
-  .put(verifyJWT, updateRefrigerantsData);
+  .patch(verifyJWT, updateRefrigerantsData);
 router
   .route("/:reportId/ehctd/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateEHCTDData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateEHCTDData);
 router
   .route("/:reportId/wtt-fuels/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateWTTFuelData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateWTTFuelData);
 router
   .route("/:reportId/material/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateMaterialUseData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateMaterialUseData);
 router
   .route("/:reportId/waste/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateWasteDisposalData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateWasteDisposalData);
 router
   .route("/:reportId/btls/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateBTLSData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateBTLSData);
 router
   .route("/:reportId/ec/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateECData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateECData);
 router
   .route("/:reportId/water/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateWaterData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateWaterData);
 router
   .route("/:reportId/fg/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFGData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFGData);
 router
   .route("/:reportId/home-office/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateHomeOfficeData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateHomeOfficeData);
 router
   .route("/:reportId/owned-vehicles/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateOwnedVehiclesData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateOwnedVehiclesData);
 router
   .route("/:reportId/fa/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFAData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFAData);
 
 router
   .route("/:reportId/tab/change")
