@@ -56,7 +56,7 @@ router.route("/:reportId/get").get(getReport);
 
 router
   .route("/:reportId/fuel/put")
-  .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFuelData);
+  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFuelData);
 // router
 //   .route("/:reportId/fuell/put")
 //   .put(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFoodData);

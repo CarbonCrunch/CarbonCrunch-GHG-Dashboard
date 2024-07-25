@@ -1,21 +1,74 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 import Sidebar from "./Sidebar";
 import NavbarD from "./NavbarD";
+import { useAuth } from "../../context/AuthContext";
+import Fuel from "../reports/Fuel";
+import Bioenergy from "../reports/Bioenergy";
+import Refrigerants from "../reports/Refrigerants";
+import Ec from "../reports/Ec";
+import Ov from "../reports/Ov";
+import Wttfuels from "../reports/Wttfuels";
+import Materials from "../reports/Materials";
+import Waste from "../reports/Waste";
+import Fa from "../reports/Fa";
+import Btls from "../reports/Btls";
+import Fg from "../reports/Fg";
+import Ehctd from "../reports/Ehctd";
+import Food from "../reports/Food";
+import HomeOffice from "../reports/HomeOffice";
+import Water from "../reports/Water";
+import { ToastContainer } from "react-toastify";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const DataInBoard = () => {
-const today = new Date();
-const tenYearsAgo = new Date(today);
-tenYearsAgo.setFullYear(today.getFullYear() - 10);
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("Fuels");
+  const { user } = useAuth();
+  const today = new Date();
+  const tenYearsAgo = new Date(today);
+  tenYearsAgo.setFullYear(today.getFullYear() - 10);
 
-const [startDate, setStartDate] = useState(tenYearsAgo);
-const [endDate, setEndDate] = useState(today);
-  const [category, setCategory] = useState("Fuels");
+  const [startDate, setStartDate] = useState(tenYearsAgo);
+  const [endDate, setEndDate] = useState(today);
+
+  useEffect(() => {
+    const fetchReport = async () => {
+      if (!user) {
+        setError("User not authenticated");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/reports/get`);
+        if (response.data.data === "zero") {
+          setReport([]);
+        } else {
+          setReport(response.data.data);
+        }
+        setError(null);
+      } catch (err) {
+        setError(
+          err.response?.data?.message ||
+            "An error occurred while fetching the report."
+        );
+        setReport(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReport();
+  }, [user]);
 
   const categories = [
     "Fuels",
@@ -34,6 +87,24 @@ const [endDate, setEndDate] = useState(today);
     "Home",
     "Water",
   ];
+
+  const componentMap = {
+    Fuels: Fuel,
+    Bioenergy: Bioenergy,
+    Refrigerants: Refrigerants,
+    Electricity: Ec,
+    OwnedVehicles: Ov,
+    WTTFuel: Wttfuels,
+    MaterialsUsed: Materials,
+    WasteDisposal: Waste,
+    "Flights & Accomodations": Fa,
+    BusinessTravel: Btls,
+    FreightingGoods: Fg,
+    EmployCommuting: Ehctd,
+    Food: Food,
+    Home: HomeOffice,
+    Water: Water,
+  };
 
   const pieData = {
     labels: ["Diesel", "Petrol", "Natural Gas", "LPG", "Coal", "Other"],
@@ -54,13 +125,16 @@ const [endDate, setEndDate] = useState(today);
     ],
   };
 
+  const SelectedComponent = componentMap[selectedCategory];
+
   return (
     <div className="flex flex-col min-h-screen">
-      <NavbarD /> {/* Add the Header component here */}
+      <NavbarD />
+      <ToastContainer />
       <div className="flex flex-1">
         <Sidebar />
         <div className="flex-1 p-6 bg-white">
-          <h1 className="text-2xl font-bold mb-4">{category}</h1>
+          <h1 className="text-2xl font-bold mb-4">{selectedCategory}</h1>
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center space-x-4">
               <DatePicker
@@ -97,18 +171,6 @@ const [endDate, setEndDate] = useState(today);
                 </svg>
               </button>
             </div>
-            <h3 className="text-xl font-semibold mb-4">Category</h3>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="border p-2 rounded"
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div className="flex">
@@ -143,6 +205,41 @@ const [endDate, setEndDate] = useState(today);
               + Add Activity
             </button>
           </div>
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+            {loading ? (
+              <p>Loading report...</p>
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
+            ) : report ? (
+              <div>
+                <div className="flex flex-row items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold">
+                    Edit Report: {report.reportName}
+                  </h2>
+                  <div className="flex items-center">
+                    <label htmlFor="category" className="mr-2">
+                      Category:
+                    </label>
+                    <select
+                      id="category"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="p-2 border rounded"
+                    >
+                      {categories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {SelectedComponent && <SelectedComponent report={report} />}
+              </div>
+            ) : (
+              <p>No report data available.</p>
+            )}
+          </main>
         </div>
       </div>
     </div>

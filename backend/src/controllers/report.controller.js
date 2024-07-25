@@ -89,7 +89,7 @@ export const getReport = asyncHandler(async (req, res) => {
       )
       .lean();
 
-    console.log("getReport", report);
+    // console.log("getReport", report);
 
     if (!report || report.length === 0) {
       return res.status(404).json({
@@ -166,7 +166,7 @@ export const getUserReports = asyncHandler(async (req, res) => {
         { facilityName: user.facilityName },
       ],
     }).select(
-      "username reportId companyName timePeriod reportName facilityName"
+      "fuel food username bioenergy refrigerants ehctd wttfuels material waste btls ec water fg homeOffice ov fa reportId companyName timePeriod reportName facilityName"
     );
 
     // console.log("getUserReports", userReports);
@@ -228,7 +228,7 @@ export const getCurrentTab = asyncHandler(async (req, res) => {
 export const updateFuelData = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const { fuel } = req.body;
-  console.log("updateFuelData", fuel);
+  // console.log("updateFuelData", reportId);
   console.log("Query", reportId, companyName, facilityName);
   if (!reportId || !companyName || !facilityName || !fuel) {
     throw new ApiError(

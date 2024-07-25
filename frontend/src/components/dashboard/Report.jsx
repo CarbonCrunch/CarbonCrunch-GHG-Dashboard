@@ -20,7 +20,7 @@ const [openDropdown, setOpenDropdown] = useState(null);
         if (response.data.data === "zero") {
           setReports([]);
         } else {
-          console.log(response.data.data);
+          console.log("ReportComponent", response.data.data);
 
           setReports(response.data.data);
         }
@@ -68,7 +68,7 @@ const [openDropdown, setOpenDropdown] = useState(null);
     try {
       await axios.delete(`/api/reports/${reportId}/delete`);
       toast.success("Report deleted successfully");
-      // fetchReports(); // Refresh the reports list
+      fetchReports(); // Refresh the reports list
       setOpenDropdown(null);
     } catch (err) {
       toast.error("Failed to delete report");

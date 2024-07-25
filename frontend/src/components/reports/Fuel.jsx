@@ -1,85 +1,130 @@
-import React, { useState } from "react";
-import { FaPlus, FaSave } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaPlus, FaSave, FaTrash, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const Fuel = ({ report }) => {
-  const [fuelData, setFuelData] = useState(report.fuel || []);
+  const [fuelData, setFuelData] = useState([]);
   const [newFuel, setNewFuel] = useState({
+    date: null,
     type: "",
     fuelType: "",
     unit: "",
     amount: "",
   });
+  const [editIndex, setEditIndex] = useState(-1);
 
-  const typeOptions = ["Biofuel", "Biomass", "Biogas"];
+  const typeOptions = ["Gaseous fuels", "Liquid fuels", "Solid fuels"];
   const fuelOptions = [
-    "Bioethanol",
-    "Biodiesel ME",
-    "Biodiesel ME (from used cooking oil)",
-    "Biodiesel ME (from tallow)",
-    "Wood logs",
-    "Wood chips",
-    "Wood pellets",
-    "Grass/straw",
-    "Biogas",
-    "Landfill gas",
+    "CNG",
+    "LNG",
+    "LPG",
+    "Natural gas",
+    "Natural gas (100% mineral blend)",
+    "Other petroleum gas",
+    "Aviation spirit",
+    "Aviation turbine fuel",
+    "Burning oil",
+    "Diesel (average biofuel blend)",
+    "Diesel (100% mineral diesel)",
+    "Fuel oil",
+    "Gas oil",
+    "Lubricants",
+    "Naphtha",
+    "Petrol (average biofuel blend)",
+    "Petrol (100% mineral petrol)",
+    "Processed fuel oils - residual oil",
+    "Processed fuel oils - distillate oil",
+    "Waste oils",
+    "Marine gas oil",
+    "Marine fuel oil",
+    "Coal (industrial)",
+    "Coal (electricity generation)",
+    "Coal (domestic)",
+    "Coking coal",
+    "Petroleum coke",
+    "Coal (electricity generation - home produced)",
   ];
-  const unitOptions = ["Litres", "Tonnes"];
-  const reportData = Array.isArray(report) ? report[0] : report;
-  const { timePeriod, reportId, companyName, facilityName } = reportData;
-  
+  const unitOptions = ["Litres", "Tonnes", "Cubic Metre"];
+  const reportData = report[0];
+  const {
+    companyName,
+    facilityName,
+    fuel,
+    reportId,
+    timePeriod,
+  } = reportData;
 
-  const formatTimePeriod = () => {
-    // console.log("fuel",timePeriod);
-    // console.log("fuelR",report);
 
+  useEffect(() => {
+    if (fuel) {
+      setFuelData(
+        fuel.map((fuel) => ({
+          ...fuel,
+          date: new Date(fuel.date),
+        }))
+      );
+    }
+  }, [report]);
 
+  const getDateRange = () => {
     if (!timePeriod || typeof timePeriod !== "object") {
-      return "Invalid time period";
+      return { start: new Date(), end: new Date() };
     }
 
-    const { type, start, end } = timePeriod;
-
-    switch (type) {
-      case "monthly":
-        return new Date(start).toLocaleString("default", {
-          month: "short",
-          year: "numeric",
-        });
-      case "quarterly":
-        const quarter = Math.floor(new Date(start).getMonth() / 3) + 1;
-        return `Q${quarter} ${new Date(start).getFullYear()}`;
-      case "yearly":
-        return new Date(start).getFullYear().toString();
-      case "custom":
-        return `${new Date(start).toLocaleDateString()} - ${new Date(
-          end
-        ).toLocaleDateString()}`;
-      default:
-        return "Invalid time period";
-    }
+    const { start, end } = timePeriod;
+    return { start: new Date(start), end: new Date(end) };
   };
 
+  const { start, end } = getDateRange();
+
   const handleAddFuel = () => {
-    if (newFuel.type && newFuel.fuelType && newFuel.unit && newFuel.amount) {
-      setFuelData([...fuelData, newFuel]);
-      setNewFuel({ type: "", fuelType: "", unit: "", amount: "" });
+    if (
+      newFuel.date &&
+      newFuel.type &&
+      newFuel.fuelType &&
+      newFuel.unit &&
+      newFuel.amount
+    ) {
+      if (editIndex === -1) {
+        setFuelData([...fuelData, newFuel]);
+      } else {
+        const updatedFuelData = [...fuelData];
+        updatedFuelData[editIndex] = newFuel;
+        setFuelData(updatedFuelData);
+        setEditIndex(-1);
+      }
+      setNewFuel({ date: null, type: "", fuelType: "", unit: "", amount: "" });
     } else {
       toast.error("Please fill all fields");
     }
   };
 
+  const handleEdit = (index) => {
+    setNewFuel(fuelData[index]);
+    setEditIndex(index);
+  };
+
+ const handleDelete = (index) => {
+   const updatedFuelData = fuelData.filter((_, i) => i !== index);
+   setFuelData(updatedFuelData);
+   toast.info("Now click on save to permanently delete", {
+     position: "top-right",
+     autoClose: 5000,
+     hideProgressBar: false,
+     closeOnClick: true,
+     pauseOnHover: true,
+     draggable: true,
+     progress: undefined,
+   });
+ };
+
   const handleSave = async () => {
     try {
-        // console.log("fuelData", fuelData);
-        // // console.log("report", report);
-        // console.log("reportId:", reportId);
-        // console.log("companyName:", companyName);
-        // console.log("facilityName:", facilityName);
-        
-      const response = await axios.put(
+      const response = await axios.patch(
         `/api/reports/:reportId/fuel/put`,
         { fuel: fuelData },
         {
@@ -106,11 +151,12 @@ const Fuel = ({ report }) => {
       <table className="min-w-full bg-white">
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">Time Period</th>
+            <th className="py-3 px-6 text-left">Date</th>
             <th className="py-3 px-6 text-left">Type</th>
             <th className="py-3 px-6 text-left">Fuel</th>
             <th className="py-3 px-6 text-left">Unit</th>
             <th className="py-3 px-6 text-left">Amount</th>
+            <th className="py-3 px-6 text-left">Action</th>
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm font-light">
@@ -120,17 +166,38 @@ const Fuel = ({ report }) => {
               className="border-b border-gray-200 hover:bg-gray-100"
             >
               <td className="py-3 px-6 text-left">
-                {formatTimePeriod()}
+                {fuel.date.toLocaleDateString()}
               </td>
               <td className="py-3 px-6 text-left">{fuel.type}</td>
               <td className="py-3 px-6 text-left">{fuel.fuelType}</td>
               <td className="py-3 px-6 text-left">{fuel.unit}</td>
               <td className="py-3 px-6 text-left">{fuel.amount}</td>
+              <td className="py-3 px-6 text-left">
+                <button
+                  onClick={() => handleEdit(index)}
+                  className="text-blue-500 hover:text-blue-700 mr-2"
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  onClick={() => handleDelete(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <FaTrash />
+                </button>
+              </td>
             </tr>
           ))}
           <tr>
-            <td className="py-3 px-6 text-left">
-              {formatTimePeriod()}
+            <td className="py-3 px-6">
+              <DatePicker
+                selected={newFuel.date}
+                onChange={(date) => setNewFuel({ ...newFuel, date })}
+                minDate={start}
+                maxDate={end}
+                placeholderText="Select Date"
+                className="border p-1 w-full"
+              />
             </td>
             <td className="py-3 px-6">
               <select
@@ -191,16 +258,18 @@ const Fuel = ({ report }) => {
                 className="border p-1 w-full"
               />
             </td>
+            <td className="py-3 px-6">
+              <button
+                onClick={handleAddFuel}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                {editIndex === -1 ? <FaPlus /> : <FaEdit />}
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
       <div className="mt-4 flex justify-end space-x-2">
-        <button
-          onClick={handleAddFuel}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-        >
-          <FaPlus className="mr-2" /> Add
-        </button>
         <button
           onClick={handleSave}
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"

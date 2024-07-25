@@ -5,13 +5,64 @@ import NavbarD from "./NavbarD";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../../context/AuthContext";
 import Fuel from "../reports/Fuel";
+import Bioenergy from "../reports/Bioenergy";
+import Btls from "../reports/Btls";
+import Ec from "../reports/Ec";
+import Ehctd from "../reports/Ehctd";
+import Fa from "../reports/Fa";
+import Fg from "../reports/Fg";
+import Food from "../reports/Food";
+import HomeOffice from "../reports/HomeOffice";
+import Materials from "../reports/Materials";
+import Ov from "../reports/Ov";
+import Refrigerants from "../reports/Refrigerants";
+import Waste from "../reports/Waste";
+import Water from "../reports/Water";
+import Wttfuels from "../reports/Wttfuels";
+
+const categories = [
+  "Fuels",
+  "Bioenergy",
+  "Refrigerants",
+  "Electricity",
+  "OwnedVehicles",
+  "WTTFuel",
+  "MaterialsUsed",
+  "WasteDisposal",
+  "Flights & Accomodations",
+  "BusinessTravel",
+  "FreightingGoods",
+  "EmployCommuting",
+  "Food",
+  "Home",
+  "Water",
+];
+
+const componentMap = {
+  Fuels: Fuel,
+  Bioenergy: Bioenergy,
+  Refrigerants: Refrigerants,
+  Electricity: Ec,
+  OwnedVehicles: Ov,
+  WTTFuel: Wttfuels,
+  MaterialsUsed: Materials,
+  WasteDisposal: Waste,
+  "Flights & Accomodations": Fa,
+  BusinessTravel: Btls,
+  FreightingGoods: Fg,
+  EmployCommuting: Ehctd,
+  Food: Food,
+  Home: HomeOffice,
+  Water: Water,
+};
 
 const EditReport = () => {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("Fuels");
   const { reportId } = useParams();
-  const { user } = useAuth(); 
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -30,7 +81,6 @@ const EditReport = () => {
           },
         });
         setReport(response.data.data);
-        console.log(response.data.data);
         setError(null);
       } catch (err) {
         setError(
@@ -50,6 +100,8 @@ const EditReport = () => {
     return <p>Please log in to view this page.</p>;
   }
 
+  const SelectedComponent = componentMap[selectedCategory];
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
@@ -62,10 +114,29 @@ const EditReport = () => {
             <p className="text-red-500">{error}</p>
           ) : report ? (
             <div>
-              <h2 className="text-2xl font-bold mb-4">
-                Edit Report: {report.reportName}
-              </h2>
-              <Fuel report={report} />  
+              <div className="flex flex-row items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold">
+                  Edit Report: {report.reportName}
+                </h2>
+                <div className="flex items-center">
+                  <label htmlFor="category" className="mr-2">
+                    Category:
+                  </label>
+                  <select
+                    id="category"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="p-2 border rounded"
+                  >
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {SelectedComponent && <SelectedComponent report={report} />}
             </div>
           ) : (
             <p>No report data available.</p>

@@ -4,14 +4,14 @@
   "description": "backend for ghg-cc",
   "type": "module",
   "main": "index.js",
-  "scripts": {  
+  "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "start": "node --experimental-json-modules src/index.js"
+    "start": "nodemon --experimental-json-modules src/index.js"
   },
   "author": "Pujan Modha",
   "license": "UNLICENSED",
   "devDependencies": {
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.1.4",
     "prettier": "^3.0.3"
   },
   "dependencies": {
