@@ -51,7 +51,7 @@ const Wttfuels = ({ report }) => {
     reportData;
 
   useEffect(() => {
-    if (wttfuels) {
+    if (wttfuel && Array.isArray(wttfuels)) {
       setWttfuelsData(
         wttfuels.map((wttfuel) => ({
           ...wttfuel,

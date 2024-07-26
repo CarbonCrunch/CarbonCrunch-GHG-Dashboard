@@ -25,7 +25,7 @@ const HomeOffice = ({ report }) => {
     reportData;
 
   useEffect(() => {
-    if (homeOffice) {
+    if (homeOffice && Array.isArray(homeOffice)) {
       setHomeOfficeData(
         homeOffice.map((item) => ({
           ...item,

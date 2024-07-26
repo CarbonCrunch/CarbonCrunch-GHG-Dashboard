@@ -77,7 +77,7 @@ const Materials = ({ report }) => {
     reportData;
 
   useEffect(() => {
-    if (material) {
+    if (material && Array.isArray(material)) {
       setMaterialsData(
         material.map((item) => ({
           ...item,

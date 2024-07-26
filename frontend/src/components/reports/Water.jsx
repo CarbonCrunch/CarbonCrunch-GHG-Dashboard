@@ -22,7 +22,7 @@ const Water = ({ report }) => {
   const { companyName, facilityName, water, reportId, timePeriod } = reportData;
 
   useEffect(() => {
-    if (water) {
+    if (water && Array.isArray(water)) {
       setWaterData(
         water.map((water) => ({
           ...water,

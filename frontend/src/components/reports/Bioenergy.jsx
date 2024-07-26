@@ -36,15 +36,19 @@ const Bioenergy = ({ report }) => {
     reportData;
 
   useEffect(() => {
-    if (bioenergy) {
-      setBioenergyData(
-        bioenergy.map((item) => ({
-          ...item,
-          date: new Date(item.date),
-        }))
-      );
-    }
-  }, [report]);
+  if (bioenergy && Array.isArray(bioenergy)) {
+    setBioenergyData(
+      bioenergy.map((item) => ({
+        ...item,
+        date: new Date(item.date),
+      }))
+    );
+  } else {
+    // Handle the case where bioenergy is not an array
+    console.log("Bioenergy data is not in the expected format");
+    setBioenergyData([]);
+  }
+}, [report]);
 
   const getDateRange = () => {
     if (!timePeriod || typeof timePeriod !== "object") {

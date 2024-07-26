@@ -48,7 +48,7 @@ const Ec = ({ report }) => {
   const { companyName, facilityName, ec, reportId, timePeriod } = reportData;
 
   useEffect(() => {
-    if (ec) {
+    if (ec && Array.isArray(ec)) {
       setEcData(
         ec.map((item) => ({
           ...item,

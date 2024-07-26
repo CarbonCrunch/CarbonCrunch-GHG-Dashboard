@@ -46,7 +46,7 @@ const Btls = ({ report }) => {
   const { companyName, facilityName, btls, reportId, timePeriod } = reportData;
 
   useEffect(() => {
-    if (btls) {
+    if (btls && Array.isArray(btls)) {
       setBtlsData(
         btls.map((item) => ({
           ...item,

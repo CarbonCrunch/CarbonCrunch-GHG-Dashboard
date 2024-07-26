@@ -11,6 +11,7 @@ import {
 } from "chart.js";
 import Sidebar from "./Sidebar";
 import NavbarD from "./NavbarD";
+import EmissionBreakdown from "./scopeChart/EmissionBreakdown";
 
 ChartJS.register(
   CategoryScale,
@@ -132,16 +133,16 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="bg-gray-100 p-4 rounded-lg">
+            <div className="bg-gray-100 p-4 rounded-lg mb-6">
               <h3 className="font-semibold mb-2">Additional Information</h3>
               {/* Content for the full-width box */}
             </div>
+            <EmissionBreakdown />
           </div>
         </div>
       </div>
     </div>
   );
 };
-
 
 export default Dashboard;

@@ -120,6 +120,7 @@ const Ov = ({ report }) => {
   };
 
   const handleSave = async () => {
+    console.log("ovData", ovData);
     try {
       const response = await axios.patch(
         `/api/reports/:reportId/owned-vehicles/put`,
@@ -134,6 +135,7 @@ const Ov = ({ report }) => {
       );
       if (response.data.success) {
         toast.success(response.data.message);
+        
       } else {
         toast.error("Failed to update owned vehicles data");
       }

@@ -78,7 +78,7 @@ const Waste = ({ report }) => {
   const { companyName, facilityName, waste, reportId, timePeriod } = reportData;
 
   useEffect(() => {
-    if (waste) {
+    if (waste && Array.isArray(waste)) {
       setWasteData(
         waste.map((wasteItem) => ({
           ...wasteItem,

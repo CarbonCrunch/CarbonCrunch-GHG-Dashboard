@@ -80,7 +80,7 @@ const Fg = ({ report }) => {
   const { companyName, facilityName, fg, reportId, timePeriod } = reportData;
 
   useEffect(() => {
-    if (fg) {
+    if (fg && Array.isArray(fg)) {
       setFgData(
         fg.map((item) => ({
           ...item,

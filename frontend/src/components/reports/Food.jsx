@@ -38,7 +38,7 @@ const Food = ({ report }) => {
   const { companyName, facilityName, food, reportId, timePeriod } = reportData;
 
   useEffect(() => {
-    if (food) {
+    if (food && Array.isArray(food)) {
       setFoodData(
         food.map((item) => ({
           ...item,
