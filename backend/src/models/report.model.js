@@ -17,11 +17,23 @@ const reportSchema = new Schema(
       start: { type: Date },
       end: { type: Date },
     },
-    fuel: { type: Object, default: {} },
+    fuel: {
+      type: Object,
+      default: {},
+    },
+    bioenergy: {
+      type: Object,
+      default: {},
+    },
     food: { type: Object, default: {} },
-    bioenergy: { type: Object, default: {} },
-    refrigerants: { type: Object, default: {} },
-    ehctd: { type: Object, default: {} },
+    refrigerants: {
+      type: Object,
+      default: {},
+    },
+    ehctd: {
+      type: Object,
+      default: {},
+    },
     wttfuels: { type: Object, default: {} },
     material: { type: Object, default: {} },
     waste: { type: Object, default: {} },
@@ -30,7 +42,10 @@ const reportSchema = new Schema(
     water: { type: Object, default: {} },
     fg: { type: Object, default: {} },
     homeOffice: { type: Object, default: {} },
-    ov: { type: Object, default: {} },
+    ownedVehicles: {
+      type: Object,
+      default: {},
+    },
     fa: { type: Object, default: {} },
   },
   {

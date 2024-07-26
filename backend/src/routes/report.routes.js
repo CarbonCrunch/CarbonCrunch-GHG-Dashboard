@@ -40,17 +40,14 @@ import {
   getWttReport,
   getDateRange,
 } from "../controllers/reportgets.controller.js";
+import { CO2eBioenergy, CO2eEhctd, CO2eFuel, CO2eOv, CO2eRefrigerants } from "../controllers/factor.controller.js";
 const router = Router();
 
 router
-.route("/create")
-.post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
-router
-.route("/get")
-.get(verifyJWT, getUserReports);
-router
-  .route("/:reportId/delete")
-  .delete(verifyJWT , deleteReport);
+  .route("/create")
+  .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
+router.route("/get").get(verifyJWT, getUserReports);
+router.route("/:reportId/delete").delete(verifyJWT, deleteReport);
 
 router.route("/:reportId/get").get(getReport);
 
@@ -100,14 +97,29 @@ router
   .route("/:reportId/fa/put")
   .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFAData);
 
+// router
+//   .route("/:reportId/tab/change")
+//   .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), changeCurrentTab);
+
+// router
+//   .route("/:reportId/tab/get")
+//   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), getCurrentTab);
 router
-  .route("/:reportId/tab/change")
-  .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), changeCurrentTab);
+  .route("/:reportId/CO2eFuel")
+  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFuel);
 
 router
-  .route("/:reportId/tab/get")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), getCurrentTab);
-
+  .route("/:reportId/CO2eBioenergy")
+  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eBioenergy);
+router
+  .route("/:reportId/CO2eRefrigerants")
+  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eRefrigerants);
+router
+  .route("/:reportId/CO2eEhtdc")
+  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eEhctd);
+  router
+    .route(":/reportId/CO2eOv")
+    .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eOv);
 
 // date wise data getting
 

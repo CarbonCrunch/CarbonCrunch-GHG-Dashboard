@@ -1,0 +1,47 @@
+[33mcommit c915b9bc79c0b8198dc9f0262440c55415958d43[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Fri Jul 26 12:03:21 2024 +0530
+
+    Updated CORS for deployment
+
+[33mcommit 16639d45b68f88a293bd6d2526275d60d0dd06f5[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Thu Jul 25 23:48:41 2024 +0530
+
+    All CRUD Operations are working
+
+[33mcommit e4fa7c4665c2531d44da5c0cc2b5afb15562c60b[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Thu Jul 25 16:48:54 2024 +0530
+
+    Added edit option in DataInBoard
+
+[33mcommit ee0068bfd02149ffd627b4b9d3bde358f30527f0[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Thu Jul 25 03:16:12 2024 +0530
+
+    CRUD for reports for Fuel added
+
+[33mcommit b949d3f88616de84465abcf126571b8b5968a938[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Wed Jul 24 21:13:05 2024 +0530
+
+    Added CRUD for reports
+
+[33mcommit 2806f3733c2564f950c0dda4b1c9be8fd05e224f[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Wed Jul 24 12:20:34 2024 +0530
+
+    Auth working perfectly fine
+
+[33mcommit 47162fc9b48b590f0ed32ebd27e4fd3adf676209[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Tue Jul 23 19:48:36 2024 +0530
+
+    changed JWT Secret
+
+[33mcommit 1edc0da6fc2bfdf4a3211a832698d15840369419[m
+Author: Harmeet10000 <harmeetsinghfbd@gmail.com>
+Date:   Tue Jul 23 19:44:11 2024 +0530
+
+    auth Done

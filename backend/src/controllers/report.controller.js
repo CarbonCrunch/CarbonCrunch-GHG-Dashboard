@@ -2,6 +2,7 @@ import { Report } from "../models/report.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+
 export const createNewReport = asyncHandler(async (req, res) => {
   const { reportName, facilityName, timePeriod, companyName, username } =
     req.body;
@@ -142,7 +143,7 @@ export const deleteReport = asyncHandler(async (req, res) => {
     await user.save();
     await Report.deleteOne({ reportId });
     res.status(200).json({ message: "Report deleted successfully." });
-  } catch (error) {
+  CSSMediaRule} catch (error) {
     throw new ApiError(
       500,
       "An error occurred while deleting the report.",
@@ -257,7 +258,7 @@ export const updateFuelData = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Fuel data updated successfully",
-    data: report.fuel,
+    data: report.fuel
   });
 });
 // if (datatype == "food") {
@@ -850,8 +851,9 @@ export const updateOwnedVehiclesData = asyncHandler(async (req, res) => {
   }
 
   report.ownedVehicles = ownedVehicles;
-
+  
   await report.save();
+  console.log("ownedVehicles", report.ownedVehicles);
 
   res.status(200).json({
     success: true,
