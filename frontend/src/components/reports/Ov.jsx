@@ -19,7 +19,7 @@ const Ov = ({ report }) => {
   });
   const [editIndex, setEditIndex] = useState(-1);
 
-  const Level1Options = ["Passenger vehicles"];
+  const Level1Options = ["Passenger vehicles", "Delivery vehicles"];
   const Level2Options = ["Cars (by size)", "Motorbikes", "Taxis", "Vans"];
   const Level3Options = [
     "Small car",
@@ -135,7 +135,6 @@ const Ov = ({ report }) => {
       );
       if (response.data.success) {
         toast.success(response.data.message);
-        
       } else {
         toast.error("Failed to update owned vehicles data");
       }

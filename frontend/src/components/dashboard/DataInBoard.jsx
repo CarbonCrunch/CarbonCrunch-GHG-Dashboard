@@ -93,7 +93,6 @@ const DataInBoard = () => {
     Fuels: Fuel,
     Bioenergy: Bioenergy,
     Refrigerants: Refrigerants,
-    Electricity: Ec,
     OwnedVehicles: Ov,
     WTTFuel: Wttfuels,
     MaterialsUsed: Materials,

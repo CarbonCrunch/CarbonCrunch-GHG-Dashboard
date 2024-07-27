@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 export const CO2eFuel = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const fuel = JSON.parse(req.query.fuel);
-    console.log("fuel", fuel, reportId, companyName, facilityName);
+  // console.log("fuel", fuel, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !fuel) {
     throw new ApiError(
@@ -70,8 +70,8 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
   // Update the report's fuel data and store CO2e
   report.fuel = updatedFuelData;
   report.CO2eFuel = updatedFuelData.reduce((acc, curr) => acc + curr.CO2e, 0);
-  console.log("fuel", report.fuel);
-  console.log("CO2eFuel", report.CO2eFuel);
+  // console.log("fuel", report.fuel);
+  // console.log("CO2eFuel", report.CO2eFuel);
   await report.save();
 
   res.status(200).json({
@@ -80,7 +80,6 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
     data: report.fuel,
   });
 });
-
 
 export const CO2eBioenergy = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
@@ -274,10 +273,10 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eEhctd = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
-  const { ehctd } = req.body;
+  const ehctd = JSON.parse(req.query.ehctd);
+  console.log("ehctd", ehctd, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !ehctd) {
     throw new ApiError(
@@ -309,36 +308,35 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
   };
 
   // Update the EHCTD data with calculated CO2e amounts
-  const updatedEhctdData = ehctd.map((ehctdEntry) => {
-    const conversionRate = conversionRates[ehctdEntry.fuelType];
-    const CO2e = ehctdEntry.amount * conversionRate;
-    return { ...ehctdEntry, CO2e };
+  const updatedEhctdData = ehctd.map((entry) => {
+    const conversionRate = conversionRates[entry.type];
+    const CO2e = entry.amount * conversionRate;
+    return { ...entry, CO2e };
   });
 
   // Update the report's EHCTD data and store CO2e
   report.ehctd = updatedEhctdData;
   report.CO2eEhctd = updatedEhctdData.reduce((acc, curr) => acc + curr.CO2e, 0);
-
+  console.log("ehctd", report.ehctd);
+  console.log("CO2eEhctd", report.CO2eEhctd);
   await report.save();
 
   res.status(200).json({
     success: true,
-    message: "CO2e for EHCTD calculated successfully",
-    data: {
-      ehctd: report.ehctd,
-      CO2eEhctd: report.CO2eEhctd,
-    },
+    message: "CO2e calculated successfully for EHCTD",
+    data: report.ehctd,
   });
 });
 
-export const CO2eOv = asyncHandler(async (req, res) => {
+export const CO2eEc = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
-  const ownedVehicles = JSON.parse(req.query.ownedVehicles);
+  const ec = JSON.parse(req.query.ec);
+  console.log("ec", ec, reportId, companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !ownedVehicles) {
+  if (!reportId || !companyName || !facilityName || !ec) {
     throw new ApiError(
       400,
-      "Report ID, company name, facility name, and OV data are required."
+      "Report ID, company name, facility name, and employee commuting data are required."
     );
   }
 
@@ -353,101 +351,887 @@ export const CO2eOv = asyncHandler(async (req, res) => {
   }
 
   if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update OV data.");
+    throw new ApiError(
+      401,
+      "Unauthorized access to update employee commuting data."
+    );
   }
 
-  // Define conversion rates
   const conversionRates = {
-    "Small car - Plug-in Hybrid Electric Vehicle": 0.022,
-    "Small car - Diesel": 0.138,
-    "Small car - Hybrid": 0.105,
-    "Small car - Petrol": 0.149,
-    "Small car - Unknown": 0.145,
-    "Medium car - Plug-in Hybrid Electric Vehicle": 0.069,
-    "Medium car - Hybrid": 0.11,
-    "Medium car - Diesel": 0.165,
-    "Medium car - Petrol": 0.188,
-    "Medium car - CNG": 0.159,
-    "Medium car - LPG": 0.179,
-    "Medium car - Unknown": 0.176,
-    "Large car - Plug-in Hybrid Electric Vehicle": 0.077,
-    "Large car - Hybrid": 0.152,
-    "Large car - Diesel": 0.207,
-    "Large car - Petrol": 0.279,
-    "Large car - CNG": 0.236,
-    "Large car - LPG": 0.266,
-    "Large car - Unknown": 0.226,
-    "Average car - Plug-in Hybrid Electric Vehicle": 0.071,
-    "Average car - Hybrid": 0.114,
-    "Average car - Diesel": 0.168,
-    "Average car - Petrol": 0.174,
-    "Average car - CNG": 0.165,
-    "Average car - LPG": 0.177,
-    "Average car - Unknown": 0.178,
-    "Average motorbike - Diesel": 0.103,
-    "Average motorbike - Petrol": 0.103,
-    "Average motorbike - Hybrid": 0.103,
-    "Average motorbike - CNG": 0.103,
-    "Average motorbike - LPG": 0.103,
-    "Average motorbike - Unknown": 0.103,
-    "Average taxi - Diesel": 0.198,
-    "Average taxi - Petrol": 0.225,
-    "Average taxi - Hybrid": 0.149,
-    "Average taxi - CNG": 0.196,
-    "Average taxi - LPG": 0.218,
-    "Average taxi - Unknown": 0.211,
-    "Large van - Diesel": 0.307,
-    "Large van - Petrol": 0.323,
-    "Large van - Hybrid": 0.207,
-    "Large van - CNG": 0.284,
-    "Large van - LPG": 0.29,
-    "Large van - Unknown": 0.317,
-    "Medium van - Diesel": 0.258,
-    "Medium van - Petrol": 0.275,
-    "Medium van - Hybrid": 0.203,
-    "Medium van - CNG": 0.243,
-    "Medium van - LPG": 0.253,
-    "Medium van - Unknown": 0.271,
-    "Small van - Diesel": 0.202,
-    "Small van - Petrol": 0.218,
-    "Small van - Hybrid": 0.138,
-    "Small van - CNG": 0.186,
-    "Small van - LPG": 0.2,
-    "Small van - Unknown": 0.219,
-    "Small car - Battery Electric Vehicle": 0.087,
-    "Medium car - Battery Electric Vehicle": 0.138,
-    "Large car - Battery Electric Vehicle": 0.16,
-    "Average car - Battery Electric Vehicle": 0.144,
-    "Small car - Plug-in Hybrid Electric Vehicle - ev": 0.087,
-    "Small car - Battery Electric Vehicle - ev": 0.12,
-    "Medium car - Plug-in Hybrid Electric Vehicle - ev": 0.057,
-    "Medium car - Battery Electric Vehicle - ev": 0.138,
-    "Large car - Plug-in Hybrid Electric Vehicle - ev": 0.074,
-    "Large car - Battery Electric Vehicle - ev": 0.16,
-    "Average car - Plug-in Hybrid Electric Vehicle - ev": 0.068,
-    "Average car - Battery Electric Vehicle - ev": 0.144,
+    "Cars (by size)": {
+      "Small car": {
+        "Battery Electric Vehicle": 0.05,
+        CNG: 0,
+        Diesel: 0.14,
+        Hybrid: 0.1,
+        LPG: 0,
+        Petrol: 0.15,
+        "Plug-in Hybrid Electric Vehicle": 0.06,
+        Unknown: 0.15,
+      },
+      "Medium car": {
+        "Battery Electric Vehicle": 0.05,
+        CNG: 0.16,
+        Diesel: 0.16,
+        Hybrid: 0.11,
+        LPG: 0.18,
+        Petrol: 0.19,
+        "Plug-in Hybrid Electric Vehicle": 0.09,
+        Unknown: 0.18,
+      },
+      "Large car": {
+        "Battery Electric Vehicle": 0.06,
+        CNG: 0.24,
+        Diesel: 0.21,
+        Hybrid: 0.15,
+        LPG: 0.27,
+        Petrol: 0.28,
+        "Plug-in Hybrid Electric Vehicle": 0.1,
+        Unknown: 0.23,
+      },
+      "Average car": {
+        "Battery Electric Vehicle": 0.05,
+        CNG: 0.18,
+        Diesel: 0.17,
+        Hybrid: 0.12,
+        LPG: 0.2,
+        Petrol: 0.17,
+        "Plug-in Hybrid Electric Vehicle": 0.1,
+        Unknown: 0.17,
+      },
+    },
+    Ferry: {
+      "Foot passenger": 0.02,
+      "Car passenger": 0.13,
+      "Average (all passenger)": 0.11,
+    },
+    Motorbike: {
+      Small: 0.08,
+      Medium: 0.1,
+      Large: 0.13,
+      Average: 0.11,
+    },
+    Taxis: {
+      "Regular taxi": {
+        km: 0.21,
+        "passenger.km": 0.15,
+      },
+      "Black cab": {
+        km: 0.31,
+        "passenger.km": 0.2,
+      },
+    },
+    Bus: {
+      "Local bus (not London)": 0.12,
+      "Local London bus": 0.08,
+      "Average local bus": 0.1,
+      Coach: 0.03,
+    },
+    Rail: {
+      "National rail": 0.04,
+      "International rail": 0.0,
+      "Light rail and tram": 0.03,
+      "London Underground": 0.03,
+    },
   };
 
-  // Update the OV data with calculated CO2e amounts
-  const updatedOvData = ownedVehicles.map((ovEntry) => {
-    const key = `${ovEntry.level3} - ${ovEntry.fuel}`;
-    const conversionRate = conversionRates[key];
-    const CO2e = ovEntry.amount * conversionRate;
-    return { ...ovEntry, CO2e };
+  const updatedEcData = ec.map((entry) => {
+    let conversionRate;
+
+    if (entry.vehicle === "car") {
+      conversionRate =
+        conversionRates["Cars (by size)"]["Average car"][entry.fuel];
+    } else if (entry.vehicle === "Motorbike") {
+      conversionRate = conversionRates["Motorbike"]["Average"];
+    } else if (entry.type === "Regular taxi" || entry.type === "Black cab") {
+      conversionRate =
+        conversionRates["Taxis"][entry.type][entry.unit.toLowerCase()];
+    } else {
+      conversionRate = conversionRates[entry.vehicle]?.[entry.type] || 0;
+    }
+
+    if (conversionRate === undefined) {
+      console.warn(`No conversion rate found for: ${JSON.stringify(entry)}`);
+      conversionRate = 0;
+    }
+
+    const CO2e = parseFloat(entry.distance) * conversionRate;
+    return { ...entry, CO2e };
   });
 
-  // Update the report's OV data and store CO2e
-  report.ownedVehicles = updatedOvData;
-  report.CO2eOv = updatedOvData.reduce((acc, curr) => acc + curr.CO2e, 0);
+  report.employeeCommuting = updatedEcData;
+  report.CO2eEc = updatedEcData.reduce(
+    (acc, curr) => acc + (curr.CO2e || 0),
+    0
+  );
 
   await report.save();
 
   res.status(200).json({
     success: true,
-    message: "CO2e for OV calculated successfully",
-    data: {
-      ownedVehicles: report.ownedVehicles,
-      CO2eOv: report.CO2eOv,
+    message: "CO2e calculated successfully for employee commuting",
+    data: report.employeeCommuting,
+  });
+});
+
+export const CO2eBtls = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const btls = JSON.parse(req.query.btls);
+  console.log("btls", btls, reportId, companyName, facilityName);
+
+  if (!reportId || !companyName || !facilityName || !btls) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and BTLS data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(401, "Unauthorized access to update BTLS data.");
+  }
+
+  // Update the BTLS data with calculated CO2e amounts
+  const updatedBtlsData = btls.map((btlsEntry) => {
+    const { category, subcategory, type, distance, unit } = btlsEntry;
+    let conversionRate = 0;
+
+    if (conversionRates[category]) {
+      if (conversionRates[category][subcategory]) {
+        if (conversionRates[category][subcategory][type]) {
+          conversionRate = conversionRates[category][subcategory][type][unit];
+        } else if (conversionRates[category][subcategory][unit]) {
+          conversionRate = conversionRates[category][subcategory][unit];
+        }
+      } else if (conversionRates[category][type]) {
+        conversionRate = conversionRates[category][type][unit];
+      }
+    }
+
+    const CO2e = distance * conversionRate;
+    return { ...btlsEntry, CO2e };
+  });
+
+  // Update the report's BTLS data and store CO2e
+  report.btls = updatedBtlsData;
+  report.CO2eBtls = updatedBtlsData.reduce((acc, curr) => acc + curr.CO2e, 0);
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for BTLS",
+    data: report.btls,
+  });
+});
+
+export const CO2eFg = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const fg = JSON.parse(req.query.fg);
+  console.log("fg", fg, reportId, companyName, facilityName);
+
+  if (!reportId || !companyName || !facilityName || !fg) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and freighting goods data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(
+      401,
+      "Unauthorized access to update freighting goods data."
+    );
+  }
+
+  // Define conversion rates based on the provided information
+  const conversionRates = {
+    Vans: {
+      "Class I (up to 1.305 tonnes)": {
+        Diesel: 0.81,
+        Petrol: 1.07,
+        "Battery Electric Vehicle": 0.19,
+      },
+      "Class II (1.305 to 1.74 tonnes)": {
+        Diesel: 0.63,
+        Petrol: 0.72,
+        "Battery Electric Vehicle": 0.25,
+      },
+      "Class III (1.74 to 3.5 tonnes)": {
+        Diesel: 0.59,
+        Petrol: 0.78,
+        "Battery Electric Vehicle": 0.23,
+      },
+      "Average (up to 3.5 tonnes)": {
+        Diesel: 0.6,
+        Petrol: 0.72,
+        CNG: 0.62,
+        LPG: 0.68,
+        Unknown: 0.61,
+        "Battery Electric Vehicle": 0.25,
+      },
     },
+    "HGV (all diesel)": {
+      "Rigid (>3.5 - 7.5 tonnes)": 0.49,
+      "Rigid (>7.5 tonnes-17 tonnes)": 0.34,
+      "Rigid (>17 tonnes)": 0.18,
+      "All rigids": 0.21,
+      "Articulated (>3.5 - 33t)": 0.13,
+      "Articulated (>33t)": 0.08,
+      "All artics": 0.08,
+      "All HGVs": 0.11,
+    },
+    "HGV refrigerated (all diesel)": {
+      "Rigid (>3.5 - 7.5 tonnes)": 0.58,
+      "Rigid (>7.5 tonnes-17 tonnes)": 0.4,
+      "Rigid (>17 tonnes)": 0.22,
+      "All rigids": 0.25,
+      "Articulated (>3.5 - 33t)": 0.15,
+      "Articulated (>33t)": 0.09,
+      "All artics": 0.09,
+      "All HGVs": 0.13,
+    },
+    "Freight flights": {
+      "Domestic, to/from UK": {
+        "With RF": 4.49,
+        "Without RF": 2.38,
+      },
+      "Short-haul, to/from UK": {
+        "With RF": 2.3,
+        "Without RF": 1.22,
+      },
+      "Long-haul, to/from UK": {
+        "With RF": 1.02,
+        "Without RF": 0.54,
+      },
+      "International, to/from non-UK": {
+        "With RF": 1.02,
+        "Without RF": 0.54,
+      },
+    },
+    Rail: {
+      "Freight train": 0.03,
+    },
+  };
+
+  // Update the freighting goods data with calculated CO2e amounts
+  const updatedFgData = fg.map((fgEntry) => {
+    const { vehicle, type, fuel, weight, distance } = fgEntry;
+    let conversionRate = 0;
+
+    if (conversionRates[vehicle]) {
+      if (conversionRates[vehicle][type]) {
+        if (typeof conversionRates[vehicle][type] === "object") {
+          conversionRate = conversionRates[vehicle][type][fuel] || 0;
+        } else {
+          conversionRate = conversionRates[vehicle][type];
+        }
+      }
+    }
+
+    const CO2e = weight * distance * conversionRate;
+    return { ...fgEntry, CO2e };
+  });
+
+  // Update the report's freighting goods data and store CO2e
+  report.fg = updatedFgData;
+  report.CO2eFg = updatedFgData.reduce((acc, curr) => acc + curr.CO2e, 0);
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for freighting goods",
+    data: report.fg,
+  });
+});
+
+export const CO2eWttFuels = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const wttFuels = JSON.parse(req.query.wttFuels);
+  console.log("wttFuels", wttFuels, reportId, companyName, facilityName);
+
+  if (!reportId || !companyName || !facilityName || !wttFuels) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and WTT fuels data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(401, "Unauthorized access to update WTT fuels data.");
+  }
+
+  // Define conversion rates based on the provided information
+  const conversionRates = {
+    "WTT- gaseous fuels": {
+      Butane: 0.19686,
+      CNG: 0.09487,
+      LNG: 0.39925,
+      LPG: 0.18383,
+      "Natural Gas": 0.34593,
+      "Other Petroleum Gas": 0.11154,
+      Propane: 0.18046,
+      "Natural gas (100% mineral blend)": 0.34593,
+    },
+    "WTT- liquid fuels": {
+      "Aviation Spirit": 0.59512,
+      "Aviation Turbine Fuel": 0.52686,
+      "Burning Oil": 0.52807,
+      "Diesel (average biofuel blend)": 0.60986,
+      "Diesel (100% mineral diesel)": 0.62874,
+      "Fuel Oil": 0.69723,
+      "Gas Oil": 0.63253,
+      "Petrol (average biofuel blend)": 0.61328,
+      "Petrol (100% mineral petrol)": 0.60283,
+      "Processed fuel oils - residual oil": 0.82185,
+      "Processed fuel oils - distillate oil": 0.70791,
+      "Marine gas oil": 0.63253,
+      "Marine fuel oil": 0.69723,
+    },
+  };
+
+  // Update the WTT fuels data with calculated CO2e amounts
+  const updatedWttFuelsData = wttFuels.map((fuelEntry) => {
+    const { type, fuel, amount } = fuelEntry;
+    let conversionRate = 0;
+
+    if (conversionRates[type] && conversionRates[type][fuel]) {
+      conversionRate = conversionRates[type][fuel];
+    }
+
+    const CO2e = amount * conversionRate;
+    return { ...fuelEntry, CO2e };
+  });
+
+  // Update the report's WTT fuels data and store CO2e
+  report.wttFuels = updatedWttFuelsData;
+  report.CO2eWttFuels = updatedWttFuelsData.reduce(
+    (acc, curr) => acc + curr.CO2e,
+    0
+  );
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for WTT fuels",
+    data: report.wttFuels,
+  });
+});
+
+export const CO2eMaterialUse = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const materialUse = JSON.parse(req.query.materialUse);
+  console.log("materialUse", materialUse, reportId, companyName, facilityName);
+
+  if (!reportId || !companyName || !facilityName || !materialUse) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and material use data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(401, "Unauthorized access to update material use data.");
+  }
+
+  // Define conversion rates based on the provided information
+  const conversionRates = {
+    Construction: {
+      Aggregates: 7.76,
+      "Average construction": 79.97,
+      Asbestos: 27.0,
+      Asphalt: 39.21,
+      Bricks: 241.76,
+      Concrete: 131.76,
+      Insulation: 1861.76,
+      Metals: 3975.82,
+      "Mineral oil": 1401.0,
+      Plasterboard: 120.05,
+      Tyres: 3335.57,
+      Wood: 312.61,
+    },
+    Other: {
+      Glass: 1402.77,
+      Clothing: 22310.0,
+      "Food and drink": 3701.4,
+    },
+    Organic: {
+      "Compost derived from garden waste": 113.31,
+      "Compost derived from food and garden waste": 116.13,
+    },
+    "Electrical items": {
+      "Electrical items - fridges and freezers": 4363.33,
+      "Electrical items - large": 3267.0,
+      "Electrical items - IT": 24865.48,
+      "Electrical items - small": 5647.95,
+      "Batteries - Alkaline": 4633.48,
+      "Batteries - Li ion": 6308.0,
+      "Batteries - NiMh": 28380.0,
+    },
+    Metal: {
+      "Metal: aluminium cans and foil (excl. forming)": 9122.64,
+      "Metal: mixed cans": 5268.56,
+      "Metal: scrap metal": 3682.68,
+      "Metal: steel cans": 3100.64,
+    },
+    Plastic: {
+      "Plastics: average plastics": 3116.29,
+      "Plastics: average plastic film": 2574.16,
+      "Plastics: average plastic rigid": 3276.71,
+      "Plastics: HDPE (incl. forming)": 3269.84,
+      "Plastics: LDPE and LLDPE (incl. forming)": 2600.64,
+      "Plastics: PET (incl. forming)": 4032.39,
+      "Plastics: PP (incl. forming)": 3104.73,
+      "Plastics: PS (incl. forming)": 3777.95,
+      "Plastics: PVC (incl. forming)": 3413.08,
+    },
+    Paper: {
+      "Paper and board: board": 821.23,
+      "Paper and board: mixed": 881.19,
+      "Paper and board: paper": 919.4,
+    },
+  };
+
+  // Update the material use data with calculated CO2e amounts
+  const updatedMaterialUseData = materialUse.map((materialEntry) => {
+    const { category, material, amount } = materialEntry;
+    let conversionRate = 0;
+
+    if (conversionRates[category] && conversionRates[category][material]) {
+      conversionRate = conversionRates[category][material];
+    }
+
+    const CO2e = amount * conversionRate;
+    return { ...materialEntry, CO2e };
+  });
+
+  // Update the report's material use data and store CO2e
+  report.materialUse = updatedMaterialUseData;
+  report.CO2eMaterialUse = updatedMaterialUseData.reduce(
+    (acc, curr) => acc + curr.CO2e,
+    0
+  );
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for material use",
+    data: report.materialUse,
+  });
+});
+
+export const CO2eWaste = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const wasteDisposal = JSON.parse(req.query.wasteDisposal);
+  console.log(
+    "wasteDisposal",
+    wasteDisposal,
+    reportId,
+    companyName,
+    facilityName
+  );
+
+  if (!reportId || !companyName || !facilityName || !wasteDisposal) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and waste disposal data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(
+      401,
+      "Unauthorized access to update waste disposal data."
+    );
+  }
+
+  // Define conversion rates based on the provided information
+  const conversionRates = {
+    Construction: {
+      Aggregates: 1.24,
+      Asbestos: 5.92,
+      Asphalt: 1.24,
+      Bricks: 1.24,
+      Concrete: 1.24,
+      Insulation: 1.24,
+      Metals: 1.26,
+      Soils: 17.58,
+      Plasterboard: 71.95,
+      Wood: 828.03,
+    },
+    Other: {
+      Books: 1041.8,
+      Glass: 8.9,
+      Clothing: 444.94,
+    },
+    Refuse: {
+      "Household residual waste": 446.24,
+      "Organic: food and drink waste": 626.87,
+      "Organic: garden waste": 578.96,
+      "Organic: mixed food and garden waste": 587.34,
+      "Commercial and industrial waste": 467.05,
+    },
+    "Electrical items": {
+      "WEEE - fridges and freezers": 8.9,
+      "WEEE - large": 8.9,
+      "WEEE - mixed": 8.9,
+      "WEEE - small": 8.9,
+      Batteries: 8.9,
+    },
+    Metal: {
+      "Metal: aluminium cans and foil (excl. forming)": 8.9,
+      "Metal: mixed cans": 8.9,
+      "Metal: scrap metal": 8.9,
+      "Metal: steel cans": 8.9,
+    },
+    Plastic: {
+      "Plastics: average plastics": 8.9,
+      "Plastics: average plastic film": 8.9,
+      "Plastics: average plastic rigid": 8.9,
+      "Plastics: HDPE (incl. forming)": 8.9,
+      "Plastics: LDPE and LLDPE (incl. forming)": 8.9,
+      "Plastics: PET (incl. forming)": 8.9,
+      "Plastics: PP (incl. forming)": 8.9,
+      "Plastics: PS (incl. forming)": 8.9,
+      "Plastics: PVC (incl. forming)": 8.9,
+    },
+    Paper: {
+      "Paper and board: board": 1041.8,
+      "Paper and board: mixed": 1041.8,
+      "Paper and board: paper": 1041.8,
+    },
+  };
+
+  // Update the waste disposal data with calculated CO2e amounts
+  const updatedWasteDisposalData = wasteDisposal.map((wasteEntry) => {
+    const { category, wasteType, amount } = wasteEntry;
+    let conversionRate = 0;
+
+    if (conversionRates[category] && conversionRates[category][wasteType]) {
+      conversionRate = conversionRates[category][wasteType];
+    }
+
+    const CO2e = amount * conversionRate;
+    return { ...wasteEntry, CO2e };
+  });
+
+  // Update the report's waste disposal data and store CO2e
+  report.wasteDisposal = updatedWasteDisposalData;
+  report.CO2eWasteDisposal = updatedWasteDisposalData.reduce(
+    (acc, curr) => acc + curr.CO2e,
+    0
+  );
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for waste disposal",
+    data: report.wasteDisposal,
+  });
+});
+
+export const CO2eFood = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const wasteDisposal = JSON.parse(req.query.wasteDisposal);
+  console.log(
+    "wasteDisposal",
+    wasteDisposal,
+    reportId,
+    companyName,
+    facilityName
+  );
+
+  if (!reportId || !companyName || !facilityName || !wasteDisposal) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and waste disposal data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(
+      401,
+      "Unauthorized access to update waste disposal data."
+    );
+  }
+
+  const conversionRates = {
+    "standard breakfast": { unit: "breakfast", factor: 0.84 },
+    "gourmet breakfast": { unit: "breakfast", factor: 2.33 },
+    "cold or hot snack": { unit: "hot snack", factor: 2.02 },
+    "average meal": { unit: "meal", factor: 4.7 },
+    "Non-alcoholic beverage": { unit: "litre", factor: 0.2 },
+    "Alcoholic beverage": { unit: "litre", factor: 1.87 },
+    "hot snack (burger + frites)": { unit: "hot snack", factor: 2.77 },
+    sandwich: { unit: "sandwich", factor: 1.27 },
+    "Meal, vegan": { unit: "meal", factor: 1.69 },
+    "Meal, vegetarian": { unit: "meal", factor: 2.85 },
+    "Meal, with beef": { unit: "meal", factor: 6.93 },
+    "Meal, with chicken": { unit: "meal", factor: 3.39 },
+  };
+
+  // Update the waste disposal data with calculated CO2e amounts
+  const updatedWasteDisposalData = wasteDisposal.map((wasteEntry) => {
+    const { wasteType, amount } = wasteEntry;
+    let conversionRate = 0;
+
+    if (conversionRates[wasteType]) {
+      conversionRate = conversionRates[wasteType].factor;
+    }
+
+    const CO2e = amount * conversionRate;
+    return { ...wasteEntry, CO2e };
+  });
+
+  // Update the report's waste disposal data and store CO2e
+  report.wasteDisposal = updatedWasteDisposalData;
+  report.CO2eWasteDisposal = updatedWasteDisposalData.reduce(
+    (acc, curr) => acc + curr.CO2e,
+    0
+  );
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for waste disposal",
+    data: report.wasteDisposal,
+  });
+});
+
+export const CO2eOv = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const ownedVehicles = JSON.parse(req.query.ownedVehicles);
+  console.log(
+    "ownedVehicles",
+    ownedVehicles,
+    reportId,
+    companyName,
+    facilityName
+  );
+
+  if (!reportId || !companyName || !facilityName || !ownedVehicles) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and vehicle data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(401, "Unauthorized access to update vehicle data.");
+  }
+
+  const conversionRates = {
+    "Passenger vehicles": {
+      "Cars (by size)": {
+        "Small car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.022 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.138 },
+          Petrol: { unit: "km", factor: 0.149 },
+          Hybrid: { unit: "km", factor: 0.105 },
+          Unknown: { unit: "km", factor: 0.145 },
+        },
+        "Medium car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.069 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.165 },
+          Petrol: { unit: "km", factor: 0.188 },
+          Hybrid: { unit: "km", factor: 0.11 },
+          CNG: { unit: "km", factor: 0.159 },
+          LPG: { unit: "km", factor: 0.179 },
+          Unknown: { unit: "km", factor: 0.176 },
+        },
+        "Large car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.077 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.207 },
+          Petrol: { unit: "km", factor: 0.279 },
+          Hybrid: { unit: "km", factor: 0.152 },
+          CNG: { unit: "km", factor: 0.236 },
+          LPG: { unit: "km", factor: 0.266 },
+          Unknown: { unit: "km", factor: 0.226 },
+        },
+        "Average car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.071 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.168 },
+          Petrol: { unit: "km", factor: 0.174 },
+          Hybrid: { unit: "km", factor: 0.12 },
+          CNG: { unit: "km", factor: 0.176 },
+          LPG: { unit: "km", factor: 0.198 },
+          Unknown: { unit: "km", factor: 0.171 },
+        },
+      },
+      Motorbike: {
+        Small: { unit: "km", factor: 0.083 },
+        Medium: { unit: "km", factor: 0.101 },
+        Large: { unit: "km", factor: 0.132 },
+        Average: { unit: "km", factor: 0.114 },
+      },
+    },
+    "Delivery vehicles": {
+      Vans: {
+        "Class I (up to 1.305 tonnes)": {
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.147 },
+          Petrol: { unit: "km", factor: 0.2 },
+          CNG: { unit: "km", factor: 0 },
+          LPG: { unit: "km", factor: 0 },
+          Unknown: { unit: "km", factor: 0 },
+        },
+        "Class II (1.305 to 1.74 tonnes)": {
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.183 },
+          Petrol: { unit: "km", factor: 0.198 },
+          CNG: { unit: "km", factor: 0 },
+          LPG: { unit: "km", factor: 0 },
+          Unknown: { unit: "km", factor: 0 },
+        },
+        "Class III (1.74 to 3.5 tonnes)": {
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.265 },
+          Petrol: { unit: "km", factor: 0.313 },
+          CNG: { unit: "km", factor: 0 },
+          LPG: { unit: "km", factor: 0 },
+          Unknown: { unit: "km", factor: 0 },
+        },
+        "Average (up to 3.5 tonnes)": {
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.241 },
+          Petrol: { unit: "km", factor: 0.21 },
+          CNG: { unit: "km", factor: 0.245 },
+          LPG: { unit: "km", factor: 0.27 },
+          Unknown: { unit: "km", factor: 0.24 },
+        },
+      },
+      "HGV (all diesel)": {
+        "Rigid (>3.5 - 7.5 tonnes)": { unit: "km", factor: 0.481 },
+        "Rigid (>7.5 tonnes-17 tonnes)": { unit: "km", factor: 0.587 },
+        "Rigid (>17 tonnes)": { unit: "km", factor: 0.958 },
+        "All rigids": { unit: "km", factor: 0.803 },
+        "Articulated (>3.5 - 33t)": { unit: "km", factor: 0.77 },
+        "Articulated (>33t)": { unit: "km", factor: 0.916 },
+        "All artics": { unit: "km", factor: 0.91 },
+        "All HGVs": { unit: "km", factor: 0.864 },
+      },
+      "HGVs refrigerated (all diesel)": {
+        "Rigid (>3.5 - 7.5 tonnes)": { unit: "km", factor: 0.572 },
+        "Rigid (>7.5 tonnes-17 tonnes)": { unit: "km", factor: 0.699 },
+        "Rigid (>17 tonnes)": { unit: "km", factor: 1.14 },
+        "All rigids": { unit: "km", factor: 0.956 },
+        "Articulated (>3.5 - 33t)": { unit: "km", factor: 0.89 },
+        "Articulated (>33t)": { unit: "km", factor: 1.06 },
+        "All artics": { unit: "km", factor: 1.053 },
+        "All HGVs": { unit: "km", factor: 1.012 },
+      },
+    },
+    "UK electricity": { unit: "kWh", factor: 0.21233 },
+  };
+
+  // Update the vehicle data with calculated CO2e amounts
+  const updatedVehicleData = ownedVehicles.map((vehicleEntry) => {
+    const { level1, level2, level3, fuel, distance } = vehicleEntry; // Changed amount to distance
+    let conversionRate = 0;
+
+    if (
+      conversionRates[level1] &&
+      conversionRates[level1][level2] &&
+      conversionRates[level1][level2][level3] &&
+      conversionRates[level1][level2][level3][fuel]
+    ) {
+      conversionRate = conversionRates[level1][level2][level3][fuel].factor;
+    }
+
+    const CO2e = distance * conversionRate; // Changed amount to distance
+    return { ...vehicleEntry, CO2e };
+  });
+
+  // Update the report's vehicle data and store CO2e
+  report.ownedVehicles = updatedVehicleData;
+  report.CO2eVehicle = updatedVehicleData.reduce(
+    (acc, curr) => acc + curr.CO2e,
+    0
+  );
+
+  await report.save();
+  console.log("report.vehicleData", report.ownedVehicles);
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for vehicles",
+    data: report.ownedVehicles,
   });
 });

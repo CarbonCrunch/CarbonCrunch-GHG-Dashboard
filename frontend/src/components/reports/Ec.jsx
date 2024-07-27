@@ -120,6 +120,7 @@ const Ec = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      // console.log("ecData", ecData);
       const response = await axios.patch(
         `/api/reports/:reportId/ec/put`,
         { ec: ecData },

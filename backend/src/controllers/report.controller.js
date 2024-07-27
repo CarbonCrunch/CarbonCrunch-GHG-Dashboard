@@ -167,7 +167,7 @@ export const getUserReports = asyncHandler(async (req, res) => {
         { facilityName: user.facilityName },
       ],
     }).select(
-      "fuel food username bioenergy refrigerants ehctd wttfuels material waste btls ec water fg homeOffice ov fa reportId companyName timePeriod reportName facilityName"
+      "fuel food username bioenergy refrigerants ehctd wttfuels material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
     );
 
     // console.log("getUserReports", userReports);
