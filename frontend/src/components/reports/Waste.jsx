@@ -142,6 +142,7 @@ const Waste = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      // console.log("wasteData", wasteData);
       const response = await axios.patch(
         `/api/reports/:reportId/waste/put`,
         { waste: wasteData },

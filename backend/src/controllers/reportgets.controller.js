@@ -187,7 +187,7 @@ export const getWttReport = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: "Report not found" });
         }
 
-        const fuelData = report.wttfuels;
+        const fuelData = report.wttfuel;
         let total = 0;
 
         fuelData.forEach((value) => {

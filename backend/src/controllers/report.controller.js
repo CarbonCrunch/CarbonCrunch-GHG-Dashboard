@@ -36,7 +36,7 @@ export const createNewReport = asyncHandler(async (req, res) => {
     bioenergy: {},
     refrigerants: {},
     ehctd: {},
-    wttfuels: {},
+    wttfuel: {},
     material: {},
     waste: {},
     btls: {},
@@ -69,6 +69,7 @@ export const createNewReport = asyncHandler(async (req, res) => {
     },
   });
 });
+
 export const getReport = asyncHandler(async (req, res) => {
   const { reportId } = req.params;
   const { companyName, facilityName } = req.query;
@@ -86,7 +87,7 @@ export const getReport = asyncHandler(async (req, res) => {
 
     const report = await Report.find(query)
       .select(
-        "fuel username reportId companyName timePeriod reportName facilityName"
+        "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
       )
       .lean();
 
@@ -167,7 +168,7 @@ export const getUserReports = asyncHandler(async (req, res) => {
         { facilityName: user.facilityName },
       ],
     }).select(
-      "fuel food username bioenergy refrigerants ehctd wttfuels material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
+      "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
     );
 
     // console.log("getUserReports", userReports);
@@ -550,10 +551,13 @@ export const updateEHCTDData = asyncHandler(async (req, res) => {
 
 export const updateWTTFuelData = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
-  const { wttfuels } = req.body;
-
-  if (!reportId || !companyName || !facilityName || !wttfuels) {
-    throw new ApiError(400, "Report ID, amounts, and total are required.");
+  const { wttfuel } = req.body;
+  
+  if (!reportId || !companyName || !facilityName || !wttfuel) {
+    throw new ApiError(
+      400,
+      "Report ID, facilityName, CO2eWttFuels, and wttfuel are required."
+    );
   }
 
   const report = await Report.findOne({ reportId, companyName, facilityName });
@@ -564,22 +568,23 @@ export const updateWTTFuelData = asyncHandler(async (req, res) => {
   if (report.username !== req.user.username) {
     throw new ApiError(401, "Unauthorized access to update WTTFuel data.");
   }
-
-  report.wttfuels = wttfuels;
-
+  
+  report.wttfuel = wttfuel;
+  
   await report.save();
-
+  // console.log("updateWTTFuelData", report.wttfuel);
+  
   res.status(200).json({
     success: true,
     message: "WTTFuel data updated successfully",
-    data: report.wttfuels,
+    data: report.wttfuel,
   });
 });
 
 export const updateMaterialUseData = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const { material } = req.body;
-
+  
   if (!reportId || !companyName || !facilityName || !material) {
     throw new ApiError(
       400,

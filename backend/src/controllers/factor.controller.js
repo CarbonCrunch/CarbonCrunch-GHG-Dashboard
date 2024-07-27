@@ -272,11 +272,10 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
     data: report.refrigerants,
   });
 });
-
 export const CO2eEhctd = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const ehctd = JSON.parse(req.query.ehctd);
-  console.log("ehctd", ehctd, reportId, companyName, facilityName);
+  // console.log("ehctd", ehctd, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !ehctd) {
     throw new ApiError(
@@ -309,16 +308,16 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
 
   // Update the EHCTD data with calculated CO2e amounts
   const updatedEhctdData = ehctd.map((entry) => {
-    const conversionRate = conversionRates[entry.type];
-    const CO2e = entry.amount * conversionRate;
+    const conversionRate = conversionRates[entry.activity];
+    const CO2e = parseFloat(entry.amount) * conversionRate;
     return { ...entry, CO2e };
   });
 
   // Update the report's EHCTD data and store CO2e
   report.ehctd = updatedEhctdData;
   report.CO2eEhctd = updatedEhctdData.reduce((acc, curr) => acc + curr.CO2e, 0);
-  console.log("ehctd", report.ehctd);
-  console.log("CO2eEhctd", report.CO2eEhctd);
+  // console.log("ehctd", report.ehctd);
+  // console.log("CO2eEhctd", report.CO2eEhctd);
   await report.save();
 
   res.status(200).json({
@@ -331,7 +330,7 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
 export const CO2eEc = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const ec = JSON.parse(req.query.ec);
-  console.log("ec", ec, reportId, companyName, facilityName);
+  // console.log("ec", ec, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !ec) {
     throw new ApiError(
@@ -436,7 +435,7 @@ export const CO2eEc = asyncHandler(async (req, res) => {
   };
 
   const updatedEcData = ec.map((entry) => {
-    let conversionRate;
+    let conversionRate = 0;
 
     if (entry.vehicle === "car") {
       conversionRate =
@@ -446,8 +445,12 @@ export const CO2eEc = asyncHandler(async (req, res) => {
     } else if (entry.type === "Regular taxi" || entry.type === "Black cab") {
       conversionRate =
         conversionRates["Taxis"][entry.type][entry.unit.toLowerCase()];
-    } else {
-      conversionRate = conversionRates[entry.vehicle]?.[entry.type] || 0;
+    } else if (entry.vehicle === "Ferry") {
+      conversionRate = conversionRates["Ferry"][entry.type];
+    } else if (entry.vehicle === "Bus") {
+      conversionRate = conversionRates["Bus"][entry.type];
+    } else if (entry.vehicle === "Rail") {
+      conversionRate = conversionRates["Rail"][entry.type];
     }
 
     if (conversionRate === undefined) {
@@ -459,7 +462,7 @@ export const CO2eEc = asyncHandler(async (req, res) => {
     return { ...entry, CO2e };
   });
 
-  report.employeeCommuting = updatedEcData;
+  report.ec = updatedEcData;
   report.CO2eEc = updatedEcData.reduce(
     (acc, curr) => acc + (curr.CO2e || 0),
     0
@@ -470,14 +473,14 @@ export const CO2eEc = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully for employee commuting",
-    data: report.employeeCommuting,
+    data: report.ec,
   });
 });
 
 export const CO2eBtls = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const btls = JSON.parse(req.query.btls);
-  console.log("btls", btls, reportId, companyName, facilityName);
+  // console.log("btls", btls, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !btls) {
     throw new ApiError(
@@ -500,24 +503,88 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized access to update BTLS data.");
   }
 
+  const conversionRates = {
+    "Cars (by size)": {
+      "Small car": {
+        "Battery Electric Vehicle": 0.05,
+        CNG: 0,
+        Diesel: 0.14,
+        Hybrid: 0.1,
+        LPG: 0,
+        Petrol: 0.15,
+        "Plug-in Hybrid Electric Vehicle": 0.06,
+        Unknown: 0.15,
+      },
+      "Medium car": {
+        "Battery Electric Vehicle": 0.05,
+        CNG: 0.16,
+        Diesel: 0.16,
+        Hybrid: 0.11,
+        LPG: 0.18,
+        Petrol: 0.19,
+        "Plug-in Hybrid Electric Vehicle": 0.09,
+        Unknown: 0.18,
+      },
+      "Large car": {
+        "Battery Electric Vehicle": 0.06,
+        CNG: 0.24,
+        Diesel: 0.21,
+        Hybrid: 0.15,
+        LPG: 0.27,
+        Petrol: 0.28,
+        "Plug-in Hybrid Electric Vehicle": 0.1,
+        Unknown: 0.23,
+      },
+      "Average car": {
+        "Battery Electric Vehicle": 0.05,
+        CNG: 0.18,
+        Diesel: 0.17,
+        Hybrid: 0.12,
+        LPG: 0.2,
+        Petrol: 0.17,
+        "Plug-in Hybrid Electric Vehicle": 0.1,
+        Unknown: 0.17,
+      },
+    },
+    Taxis: {
+      "Regular taxi": {
+        km: 0.21,
+        "passenger.km": 0.15,
+      },
+      "Black cab": {
+        km: 0.31,
+        "passenger.km": 0.2,
+      },
+    },
+    Motorbike: {
+      Small: 0.08,
+      Medium: 0.1,
+      Large: 0.13,
+      Average: 0.11,
+    },
+  };
+
   // Update the BTLS data with calculated CO2e amounts
   const updatedBtlsData = btls.map((btlsEntry) => {
-    const { category, subcategory, type, distance, unit } = btlsEntry;
+    const { vehicle, type, fuel, distance, unit } = btlsEntry;
     let conversionRate = 0;
 
-    if (conversionRates[category]) {
-      if (conversionRates[category][subcategory]) {
-        if (conversionRates[category][subcategory][type]) {
-          conversionRate = conversionRates[category][subcategory][type][unit];
-        } else if (conversionRates[category][subcategory][unit]) {
-          conversionRate = conversionRates[category][subcategory][unit];
-        }
-      } else if (conversionRates[category][type]) {
-        conversionRate = conversionRates[category][type][unit];
-      }
+    if (vehicle === "Cars (by size)") {
+      conversionRate = conversionRates[vehicle]["Average car"][fuel];
+    } else if (vehicle === "Motorbike") {
+      conversionRate = conversionRates[vehicle]["Average"];
+    } else if (vehicle === "Taxis" && conversionRates[vehicle][type]) {
+      conversionRate = conversionRates[vehicle][type][unit.toLowerCase()];
     }
 
-    const CO2e = distance * conversionRate;
+    if (conversionRate === undefined) {
+      console.warn(
+        `No conversion rate found for: ${JSON.stringify(btlsEntry)}`
+      );
+      conversionRate = 0;
+    }
+
+    const CO2e = parseFloat(distance) * conversionRate;
     return { ...btlsEntry, CO2e };
   });
 
@@ -537,7 +604,6 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
 export const CO2eFg = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const fg = JSON.parse(req.query.fg);
-  console.log("fg", fg, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !fg) {
     throw new ApiError(
@@ -569,16 +635,28 @@ export const CO2eFg = asyncHandler(async (req, res) => {
       "Class I (up to 1.305 tonnes)": {
         Diesel: 0.81,
         Petrol: 1.07,
+        CNG: 0,
+        LPG: 0,
+        Unknown: 0,
+        "Plug-in Hybrid Electric Vehicle": 0,
         "Battery Electric Vehicle": 0.19,
       },
       "Class II (1.305 to 1.74 tonnes)": {
         Diesel: 0.63,
         Petrol: 0.72,
+        CNG: 0,
+        LPG: 0,
+        Unknown: 0,
+        "Plug-in Hybrid Electric Vehicle": 0,
         "Battery Electric Vehicle": 0.25,
       },
       "Class III (1.74 to 3.5 tonnes)": {
         Diesel: 0.59,
         Petrol: 0.78,
+        CNG: 0,
+        LPG: 0,
+        Unknown: 0,
+        "Plug-in Hybrid Electric Vehicle": 0,
         "Battery Electric Vehicle": 0.23,
       },
       "Average (up to 3.5 tonnes)": {
@@ -587,55 +665,121 @@ export const CO2eFg = asyncHandler(async (req, res) => {
         CNG: 0.62,
         LPG: 0.68,
         Unknown: 0.61,
+        "Plug-in Hybrid Electric Vehicle": 0,
         "Battery Electric Vehicle": 0.25,
       },
     },
     "HGV (all diesel)": {
-      "Rigid (>3.5 - 7.5 tonnes)": 0.49,
-      "Rigid (>7.5 tonnes-17 tonnes)": 0.34,
-      "Rigid (>17 tonnes)": 0.18,
-      "All rigids": 0.21,
-      "Articulated (>3.5 - 33t)": 0.13,
-      "Articulated (>33t)": 0.08,
-      "All artics": 0.08,
-      "All HGVs": 0.11,
+      "Rigid (>3.5 - 7.5 tonnes)": { "Average laden": 0.49 },
+      "Rigid (>7.5 tonnes-17 tonnes)": { "Average laden": 0.34 },
+      "Rigid (>17 tonnes)": { "Average laden": 0.18 },
+      "All rigids": { "Average laden": 0.21 },
+      "Articulated (>3.5 - 33t)": { "Average laden": 0.13 },
+      "Articulated (>33t)": { "Average laden": 0.08 },
+      "All artics": { "Average laden": 0.08 },
+      "All HGVs": { "Average laden": 0.11 },
     },
     "HGV refrigerated (all diesel)": {
-      "Rigid (>3.5 - 7.5 tonnes)": 0.58,
-      "Rigid (>7.5 tonnes-17 tonnes)": 0.4,
-      "Rigid (>17 tonnes)": 0.22,
-      "All rigids": 0.25,
-      "Articulated (>3.5 - 33t)": 0.15,
-      "Articulated (>33t)": 0.09,
-      "All artics": 0.09,
-      "All HGVs": 0.13,
+      "Rigid (>3.5 - 7.5 tonnes)": { "Average laden": 0.58 },
+      "Rigid (>7.5 tonnes-17 tonnes)": { "Average laden": 0.4 },
+      "Rigid (>17 tonnes)": { "Average laden": 0.22 },
+      "All rigids": { "Average laden": 0.25 },
+      "Articulated (>3.5 - 33t)": { "Average laden": 0.15 },
+      "Articulated (>33t)": { "Average laden": 0.09 },
+      "All artics": { "Average laden": 0.09 },
+      "All HGVs": { "Average laden": 0.13 },
     },
     "Freight flights": {
-      "Domestic, to/from UK": {
-        "With RF": 4.49,
-        "Without RF": 2.38,
-      },
-      "Short-haul, to/from UK": {
-        "With RF": 2.3,
-        "Without RF": 1.22,
-      },
-      "Long-haul, to/from UK": {
-        "With RF": 1.02,
-        "Without RF": 0.54,
-      },
-      "International, to/from non-UK": {
-        "With RF": 1.02,
-        "Without RF": 0.54,
-      },
+      "Domestic, to/from UK": { "With RF": 4.49, "Without RF": 2.38 },
+      "Short-haul, to/from UK": { "With RF": 2.3, "Without RF": 1.22 },
+      "Long-haul, to/from UK": { "With RF": 1.02, "Without RF": 0.54 },
+      "International, to/from non-UK": { "With RF": 1.02, "Without RF": 0.54 },
     },
     Rail: {
       "Freight train": 0.03,
+    },
+    "Sea tanker": {
+      "Crude tanker": {
+        "200,000+ dwt": 0,
+        "120,000–199,999 dwt": 0,
+        "80,000–119,999 dwt": 0.01,
+        "60,000–79,999 dwt": 0.01,
+        "10,000–59,999 dwt": 0.01,
+        "0–9999 dwt": 0.03,
+        Average: 0,
+      },
+      "Products tanker": {
+        "60,000+ dwt": 0.01,
+        "20,000–59,999 dwt": 0.01,
+        "10,000–19,999 dwt": 0.02,
+        "5000–9999 dwt": 0.03,
+        "0–4999 dwt": 0.05,
+        Average: 0.01,
+      },
+      "Chemical tanker": {
+        "20,000+ dwt": 0.01,
+        "10,000–19,999 dwt": 0.01,
+        "5000–9999 dwt": 0.02,
+        "0–4999 dwt": 0.02,
+        Average: 0.01,
+      },
+      "LNG tanker": {
+        "200,000+ m3": 0.01,
+        "0–199,999 m3": 0.01,
+        Average: 0.01,
+      },
+      "LPG Tanker": {
+        "50,000+ m3": 0.01,
+        "0–49,999 m3": 0.04,
+        Average: 0.01,
+      },
+    },
+    "Cargo ship": {
+      "Bulk carrier": {
+        "200,000+ dwt": 0,
+        "100,000–199,999 dwt": 0,
+        "60,000–99,999 dwt": 0,
+        "35,000–59,999 dwt": 0.01,
+        "10,000–34,999 dwt": 0.01,
+        "0–9999 dwt": 0.03,
+        Average: 0,
+      },
+      "General cargo": {
+        "10,000+ dwt": 0.01,
+        "5000–9999 dwt": 0.02,
+        "0–4999 dwt": 0.01,
+        "10,000+ dwt 100+ TEU": 0.01,
+        "5000–9999 dwt 100+ TEU": 0.02,
+        "0–4999 dwt 100+ TEU": 0.02,
+        Average: 0.01,
+      },
+      "Container ship": {
+        "8000+ TEU": 0.01,
+        "5000–7999 TEU": 0.02,
+        "3000–4999 TEU": 0.02,
+        "2000–2999 TEU": 0.02,
+        "1000–1999 TEU": 0.03,
+        "0–999 TEU": 0.04,
+        Average: 0.02,
+      },
+      "Vehicle transport": {
+        "4000+ CEU": 0.03,
+        "0–3999 CEU": 0.06,
+        Average: 0.04,
+      },
+      "RoRo-Ferry": {
+        "2000+ LM": 0.05,
+        "0–1999 LM": 0.06,
+        Average: 0.05,
+      },
+      "Large RoPax ferry": { Average: 0.38 },
+      "Refrigerated cargo": { "All dwt": 0.01 },
     },
   };
 
   // Update the freighting goods data with calculated CO2e amounts
   const updatedFgData = fg.map((fgEntry) => {
-    const { vehicle, type, fuel, weight, distance } = fgEntry;
+    const { vehicle, type, fuel, distance, unit } = fgEntry;
     let conversionRate = 0;
 
     if (conversionRates[vehicle]) {
@@ -648,7 +792,7 @@ export const CO2eFg = asyncHandler(async (req, res) => {
       }
     }
 
-    const CO2e = weight * distance * conversionRate;
+    const CO2e = parseFloat(distance) * conversionRate;
     return { ...fgEntry, CO2e };
   });
 
@@ -657,6 +801,7 @@ export const CO2eFg = asyncHandler(async (req, res) => {
   report.CO2eFg = updatedFgData.reduce((acc, curr) => acc + curr.CO2e, 0);
 
   await report.save();
+  // console.log("fg", report.fg );
 
   res.status(200).json({
     success: true,
@@ -665,12 +810,13 @@ export const CO2eFg = asyncHandler(async (req, res) => {
   });
 });
 
+
 export const CO2eWttFuels = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
-  const wttFuels = JSON.parse(req.query.wttFuels);
-  console.log("wttFuels", wttFuels, reportId, companyName, facilityName);
+  const wttfuel = JSON.parse(req.query.wttfuel);
+  console.log("wttFuel", wttfuel, reportId, companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !wttFuels) {
+  if (!reportId || !companyName || !facilityName || !wttfuel) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and WTT fuels data are required."
@@ -721,7 +867,7 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
   };
 
   // Update the WTT fuels data with calculated CO2e amounts
-  const updatedWttFuelsData = wttFuels.map((fuelEntry) => {
+  const updatedWttFuelsData = wttfuel.map((fuelEntry) => {
     const { type, fuel, amount } = fuelEntry;
     let conversionRate = 0;
 
@@ -729,12 +875,12 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
       conversionRate = conversionRates[type][fuel];
     }
 
-    const CO2e = amount * conversionRate;
+    const CO2e = parseFloat(amount) * conversionRate;
     return { ...fuelEntry, CO2e };
   });
 
   // Update the report's WTT fuels data and store CO2e
-  report.wttFuels = updatedWttFuelsData;
+  report.wttfuel = updatedWttFuelsData;
   report.CO2eWttFuels = updatedWttFuelsData.reduce(
     (acc, curr) => acc + curr.CO2e,
     0
@@ -745,16 +891,16 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully for WTT fuels",
-    data: report.wttFuels,
+    data: report.wttfuel,
   });
 });
 
 export const CO2eMaterialUse = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
-  const materialUse = JSON.parse(req.query.materialUse);
-  console.log("materialUse", materialUse, reportId, companyName, facilityName);
+  const material = JSON.parse(req.query.material);
+  // console.log("material", material, reportId, companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !materialUse) {
+  if (!reportId || !companyName || !facilityName || !material) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and material use data are required."
@@ -834,20 +980,20 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
   };
 
   // Update the material use data with calculated CO2e amounts
-  const updatedMaterialUseData = materialUse.map((materialEntry) => {
-    const { category, material, amount } = materialEntry;
+  const updatedMaterialUseData = material.map((materialEntry) => {
+    const { type, fuel, amount } = materialEntry;
     let conversionRate = 0;
 
-    if (conversionRates[category] && conversionRates[category][material]) {
-      conversionRate = conversionRates[category][material];
+    if (conversionRates[type] && conversionRates[type][fuel]) {
+      conversionRate = conversionRates[type][fuel];
     }
 
-    const CO2e = amount * conversionRate;
+    const CO2e = parseFloat(amount) * conversionRate;
     return { ...materialEntry, CO2e };
   });
 
   // Update the report's material use data and store CO2e
-  report.materialUse = updatedMaterialUseData;
+  report.material = updatedMaterialUseData;
   report.CO2eMaterialUse = updatedMaterialUseData.reduce(
     (acc, curr) => acc + curr.CO2e,
     0
@@ -858,22 +1004,17 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully for material use",
-    data: report.materialUse,
+    data: report.material,
   });
 });
 
+
 export const CO2eWaste = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
-  const wasteDisposal = JSON.parse(req.query.wasteDisposal);
-  console.log(
-    "wasteDisposal",
-    wasteDisposal,
-    reportId,
-    companyName,
-    facilityName
-  );
+  const waste = JSON.parse(req.query.waste);
+  // console.log("waste", waste, reportId, companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !wasteDisposal) {
+  if (!reportId || !companyName || !facilityName || !waste) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and waste disposal data are required."
@@ -955,20 +1096,20 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
   };
 
   // Update the waste disposal data with calculated CO2e amounts
-  const updatedWasteDisposalData = wasteDisposal.map((wasteEntry) => {
-    const { category, wasteType, amount } = wasteEntry;
+  const updatedWasteDisposalData = waste.map((wasteEntry) => {
+    const { type, fuel, amount } = wasteEntry;
     let conversionRate = 0;
 
-    if (conversionRates[category] && conversionRates[category][wasteType]) {
-      conversionRate = conversionRates[category][wasteType];
+    if (conversionRates[type] && conversionRates[type][fuel]) {
+      conversionRate = conversionRates[type][fuel];
     }
 
-    const CO2e = amount * conversionRate;
+    const CO2e = parseFloat(amount) * conversionRate;
     return { ...wasteEntry, CO2e };
   });
 
   // Update the report's waste disposal data and store CO2e
-  report.wasteDisposal = updatedWasteDisposalData;
+  report.waste = updatedWasteDisposalData;
   report.CO2eWasteDisposal = updatedWasteDisposalData.reduce(
     (acc, curr) => acc + curr.CO2e,
     0
@@ -979,25 +1120,20 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully for waste disposal",
-    data: report.wasteDisposal,
+    data: report.waste,
   });
 });
 
+
 export const CO2eFood = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
-  const wasteDisposal = JSON.parse(req.query.wasteDisposal);
-  console.log(
-    "wasteDisposal",
-    wasteDisposal,
-    reportId,
-    companyName,
-    facilityName
-  );
+  const food = JSON.parse(req.query.food);
+  // console.log("food", food, reportId, companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !wasteDisposal) {
+  if (!reportId || !companyName || !facilityName || !food) {
     throw new ApiError(
       400,
-      "Report ID, company name, facility name, and waste disposal data are required."
+      "Report ID, company name, facility name, and food disposal data are required."
     );
   }
 
@@ -1014,41 +1150,41 @@ export const CO2eFood = asyncHandler(async (req, res) => {
   if (report.username !== req.user.username) {
     throw new ApiError(
       401,
-      "Unauthorized access to update waste disposal data."
+      "Unauthorized access to update food disposal data."
     );
   }
 
   const conversionRates = {
-    "standard breakfast": { unit: "breakfast", factor: 0.84 },
-    "gourmet breakfast": { unit: "breakfast", factor: 2.33 },
-    "cold or hot snack": { unit: "hot snack", factor: 2.02 },
-    "average meal": { unit: "meal", factor: 4.7 },
+    "1 standard breakfast": { unit: "breakfast", factor: 0.84 },
+    "1 gourmet breakfast": { unit: "breakfast", factor: 2.33 },
+    "1 cold or hot snack": { unit: "hot snack", factor: 2.02 },
+    "1 average meal": { unit: "meal", factor: 4.7 },
     "Non-alcoholic beverage": { unit: "litre", factor: 0.2 },
     "Alcoholic beverage": { unit: "litre", factor: 1.87 },
-    "hot snack (burger + frites)": { unit: "hot snack", factor: 2.77 },
-    sandwich: { unit: "sandwich", factor: 1.27 },
+    "1 hot snack (burger + frites)": { unit: "hot snack", factor: 2.77 },
+    "1 sandwich": { unit: "sandwich", factor: 1.27 },
     "Meal, vegan": { unit: "meal", factor: 1.69 },
     "Meal, vegetarian": { unit: "meal", factor: 2.85 },
     "Meal, with beef": { unit: "meal", factor: 6.93 },
     "Meal, with chicken": { unit: "meal", factor: 3.39 },
   };
 
-  // Update the waste disposal data with calculated CO2e amounts
-  const updatedWasteDisposalData = wasteDisposal.map((wasteEntry) => {
-    const { wasteType, amount } = wasteEntry;
+  // Update the food disposal data with calculated CO2e amounts
+  const updatedFoodDisposalData = food.map((foodEntry) => {
+    const { fuel, amount } = foodEntry; // Using 'fuel' based on provided example
     let conversionRate = 0;
 
-    if (conversionRates[wasteType]) {
-      conversionRate = conversionRates[wasteType].factor;
+    if (conversionRates[fuel]) {
+      conversionRate = conversionRates[fuel].factor;
     }
 
-    const CO2e = amount * conversionRate;
-    return { ...wasteEntry, CO2e };
+    const CO2e = parseFloat(amount) * conversionRate;
+    return { ...foodEntry, CO2e };
   });
 
-  // Update the report's waste disposal data and store CO2e
-  report.wasteDisposal = updatedWasteDisposalData;
-  report.CO2eWasteDisposal = updatedWasteDisposalData.reduce(
+  // Update the report's food disposal data and store CO2e
+  report.food = updatedFoodDisposalData;
+  report.CO2eFoodDisposal = updatedFoodDisposalData.reduce(
     (acc, curr) => acc + curr.CO2e,
     0
   );
@@ -1057,21 +1193,22 @@ export const CO2eFood = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "CO2e calculated successfully for waste disposal",
-    data: report.wasteDisposal,
+    message: "CO2e calculated successfully for food disposal",
+    data: report.food,
   });
 });
+
 
 export const CO2eOv = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const ownedVehicles = JSON.parse(req.query.ownedVehicles);
-  console.log(
-    "ownedVehicles",
-    ownedVehicles,
-    reportId,
-    companyName,
-    facilityName
-  );
+  // console.log(
+  //   "ownedVehicles",
+  //   ownedVehicles,
+  //   reportId,
+  //   companyName,
+  //   facilityName
+  // );
 
   if (!reportId || !companyName || !facilityName || !ownedVehicles) {
     throw new ApiError(
@@ -1228,10 +1365,67 @@ export const CO2eOv = asyncHandler(async (req, res) => {
   );
 
   await report.save();
-  console.log("report.vehicleData", report.ownedVehicles);
+  // console.log("report.vehicleData", report.ownedVehicles);
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully for vehicles",
     data: report.ownedVehicles,
+  });
+});
+
+export const CO2eWater = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const water = JSON.parse(req.query.water);
+  // console.log("water", water, reportId, companyName, facilityName);
+
+  if (!reportId || !companyName || !facilityName || !water) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and water data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(401, "Unauthorized access to update water data.");
+  }
+
+  const conversionRates = {
+    "Water Supply": { unit: "cubic meter", factor: 0.149 },
+    "Water Treatment": { unit: "cubic meter", factor: 0.272 },
+  };
+
+  // Update the water data with calculated CO2e amounts
+  const updatedWaterData = water.map((waterEntry) => {
+    const { emission, amount } = waterEntry;
+    let conversionRate = 0;
+
+    if (conversionRates[emission]) {
+      conversionRate = conversionRates[emission].factor;
+    }
+
+    const CO2e = parseFloat(amount) * conversionRate;
+    return { ...waterEntry, CO2e };
+  });
+
+  // Update the report's water data and store CO2e
+  report.water = updatedWaterData;
+  report.CO2eWater = updatedWaterData.reduce((acc, curr) => acc + curr.CO2e, 0);
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for water data",
+    data: report.water,
   });
 });

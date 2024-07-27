@@ -41,7 +41,7 @@ const Scope1 = ({ reports }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("ovData", ovData);
+      // console.log("ovData", ovData);
       try {
         const [
           fuelResponse,
@@ -95,7 +95,7 @@ const Scope1 = ({ reports }) => {
     fetchData();
   }, [reportId, companyName, facilityName, fuel, bioenergy, refrigerants]);
 
-  const chartHeight = 600;
+  const chartHeight = 450; // Reduced height by 25%
   const fuelChartData = {
     labels: fuelData.map((item) => item.fuelType),
     datasets: [
@@ -205,7 +205,7 @@ const Scope1 = ({ reports }) => {
         sources that use fossil fuels and/or emit fugitive emissions
       </h3>
       <div className="flex flex-col gap-4">
-        <div className="flex gap-4 h-[600px]">
+        <div className="flex gap-4 h-[450px]">
           <div className="w-1/3">
             <Bar
               data={fuelChartData}
@@ -228,11 +228,12 @@ const Scope1 = ({ reports }) => {
             />
           </div>
         </div>
-        <div className="h-[600px]">
+        <div className="h-[450px]">
           <Bar data={ovChartData} options={ovOptions} height={chartHeight} />
         </div>
       </div>
     </div>
   );
 };
+
 export default Scope1;

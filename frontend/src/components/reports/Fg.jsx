@@ -154,6 +154,7 @@ const Fg = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      console.log("fgData", fgData);
       const response = await axios.patch(
         `/api/reports/:reportId/fg/put`,
         { fg: fgData },

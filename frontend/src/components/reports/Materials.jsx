@@ -141,6 +141,7 @@ const Materials = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      console.log("materialsData", materialsData);
       const response = await axios.patch(
         `/api/reports/:reportId/material/put`,
         { material: materialsData },

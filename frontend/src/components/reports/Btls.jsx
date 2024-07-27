@@ -118,6 +118,7 @@ const Btls = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      // console.log("btlsData", btlsData);
       const response = await axios.patch(
         `/api/reports/:reportId/btls/put`,
         { btls: btlsData },

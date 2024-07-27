@@ -71,22 +71,22 @@ const DataInBoard = () => {
   }, [user]);
 
   const categories = [
-    "Fuels",
     "Bioenergy",
-    "Refrigerants",
-    "Electricity",
-    "OwnedVehicles",
-    "WTTFuel",
-    "Electricity_Heating",
-    "MaterialsUsed",
-    "WasteDisposal",
-    "Flights & Accomodations",
     "BusinessTravel",
-    "FreightingGoods",
+    "Electricity_Heating",
     "EmployCommuting",
+    "Flights & Accomodations",
     "Food",
+    "FreightingGoods",
+    "Fuels",
     "Home",
+    "MaterialsUsed",
+    "OwnedVehicles",
+    "Refrigerants",
+    "WTTFuel",
+    "WasteDisposal",
     "Water",
+    
   ];
 
   const componentMap = {

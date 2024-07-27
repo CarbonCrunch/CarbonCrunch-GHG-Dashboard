@@ -90,6 +90,7 @@ const Water = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      // console.log("waterData", waterData);
       const response = await axios.patch(
         `/api/reports/:reportId/water/put`,
         { water: waterData },

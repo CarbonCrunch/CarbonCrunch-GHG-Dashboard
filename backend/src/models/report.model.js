@@ -34,7 +34,7 @@ const reportSchema = new Schema(
       type: Object,
       default: {},
     },
-    wttfuels: { type: Object, default: {} },
+    wttfuel: { type: Object, default: {} },
     material: { type: Object, default: {} },
     waste: { type: Object, default: {} },
     btls: { type: Object, default: {} },

@@ -21,20 +21,20 @@ import Water from "../reports/Water";
 import Wttfuels from "../reports/Wttfuels";
 
 const categories = [
-  "Fuels",
   "Bioenergy",
-  "Refrigerants",
-  "Electricity_Heating",
-  "OwnedVehicles",
-  "WTTFuel",
-  "MaterialsUsed",
-  "WasteDisposal",
-  "Flights & Accomodations",
   "BusinessTravel",
-  "FreightingGoods",
+  "Electricity_Heating",
   "EmployCommuting",
+  "Flights & Accomodations",
   "Food",
+  "FreightingGoods",
+  "Fuels",
   "Home",
+  "MaterialsUsed",
+  "OwnedVehicles",
+  "Refrigerants",
+  "WTTFuel",
+  "WasteDisposal",
   "Water",
 ];
 
@@ -80,6 +80,7 @@ const EditReport = () => {
             facilityName: user.facilityName,
           },
         });
+        // console.log("ER", response.data.data);
         setReport(response.data.data);
         setError(null);
       } catch (err) {

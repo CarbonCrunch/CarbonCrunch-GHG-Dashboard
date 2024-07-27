@@ -20,7 +20,6 @@ const Ehctd = ({ report }) => {
     "Electricity",
     "Heating and Steam",
     "District Cooling",
-    "R502",
   ];
   const unitOptions = ["kWh", "Ton of refrigeration", "KG"];
 
@@ -28,6 +27,8 @@ const Ehctd = ({ report }) => {
   const { companyName, facilityName, ehctd, reportId, timePeriod } = reportData;
 
   useEffect(() => {
+    console.log("reportData", reportData);
+    console.log("ehctd", ehctd);
     if (report && report.ehctd && Array.isArray(report.ehctd)) {
       setEhctdData(
         report.ehctd.map((item) => ({
@@ -102,6 +103,7 @@ const Ehctd = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      // console.log("ehctdData", ehctdData);
       const response = await axios.patch(
         `/api/reports/:reportId/ehctd/put`,
         { ehctd: ehctdData },

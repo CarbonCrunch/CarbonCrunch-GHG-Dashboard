@@ -47,13 +47,14 @@ const Wttfuels = ({ report }) => {
   ];
   const unitOptions = ["litres", "cubic metres"];
   const reportData = report[0];
-  const { companyName, facilityName, wttfuels, reportId, timePeriod } =
+  const { companyName, facilityName, wttfuel, reportId, timePeriod } =
     reportData;
 
+
   useEffect(() => {
-    if (wttfuel && Array.isArray(wttfuels)) {
+    if (wttfuel && Array.isArray(wttfuel)) {
       setWttfuelsData(
-        wttfuels.map((wttfuel) => ({
+        wttfuel.map((wttfuel) => ({
           ...wttfuel,
           date: new Date(wttfuel.date),
         }))
@@ -115,9 +116,10 @@ const Wttfuels = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      // console.log("wttfuelsData", wttfuelsData);
       const response = await axios.patch(
         `/api/reports/:reportId/wtt-fuels/put`,
-        { wttfuels: wttfuelsData },
+        { wttfuel: wttfuelsData },
         {
           params: {
             reportId,

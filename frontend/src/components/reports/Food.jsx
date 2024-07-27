@@ -60,13 +60,7 @@ const Food = ({ report }) => {
   const { start, end } = getDateRange();
 
   const handleAddFood = () => {
-    if (
-      newFood.date &&
-      newFood.type &&
-      newFood.fuel &&
-      newFood.unit &&
-      newFood.amount
-    ) {
+    if (newFood.date && newFood.fuel && newFood.unit && newFood.amount) {
       if (editIndex === -1) {
         setFoodData([...foodData, newFood]);
       } else {
@@ -75,7 +69,7 @@ const Food = ({ report }) => {
         setFoodData(updatedFoodData);
         setEditIndex(-1);
       }
-      setNewFood({ date: null, type: "", fuel: "", unit: "", amount: "" });
+      setNewFood({ date: null, fuel: "", unit: "", amount: "" });
     } else {
       toast.error("Please fill all fields");
     }
@@ -102,6 +96,7 @@ const Food = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      console.log("foodData", foodData);
       const response = await axios.patch(
         `/api/reports/:reportId/food/put`,
         { food: foodData },
@@ -130,7 +125,7 @@ const Food = ({ report }) => {
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
             <th className="py-3 px-6 text-left">Date</th>
-            <th className="py-3 px-6 text-left">Type</th>
+            {/* <th className="py-3 px-6 text-left">Type</th> */}
             <th className="py-3 px-6 text-left">Fuel</th>
             <th className="py-3 px-6 text-left">Unit</th>
             <th className="py-3 px-6 text-left">Amount</th>
@@ -146,7 +141,7 @@ const Food = ({ report }) => {
               <td className="py-3 px-6 text-left">
                 {item.date.toLocaleDateString()}
               </td>
-              <td className="py-3 px-6 text-left">{item.type}</td>
+              {/* <td className="py-3 px-6 text-left">{item.type}</td> */}
               <td className="py-3 px-6 text-left">{item.fuel}</td>
               <td className="py-3 px-6 text-left">{item.unit}</td>
               <td className="py-3 px-6 text-left">{item.amount}</td>
@@ -177,7 +172,7 @@ const Food = ({ report }) => {
                 className="border p-1 w-full"
               />
             </td>
-            <td className="py-3 px-6">
+            {/* <td className="py-3 px-6">
               <input
                 type="text"
                 value={newFood.type}
@@ -187,7 +182,7 @@ const Food = ({ report }) => {
                 placeholder="Type"
                 className="border p-1 w-full"
               />
-            </td>
+            </td> */}
             <td className="py-3 px-6">
               <select
                 value={newFood.fuel}
