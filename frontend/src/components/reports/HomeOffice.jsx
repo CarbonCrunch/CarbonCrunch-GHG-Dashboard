@@ -97,6 +97,7 @@ const HomeOffice = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      console.log("homeOfficeData", homeOfficeData);
       const response = await axios.patch(
         `/api/reports/:reportId/home-office/put`,
         { homeOffice: homeOfficeData },
@@ -129,8 +130,12 @@ const HomeOffice = ({ report }) => {
             <th className="py-3 px-6 text-left">Date</th>
             <th className="py-3 px-6 text-left">Type</th>
             <th className="py-3 px-6 text-left">No. of Employees</th>
-            <th className="py-3 px-6 text-left">Working Regime (%)*</th>
-            <th className="py-3 px-6 text-left">Working from Home (%)^</th>
+            <th className="py-3 px-6 text-left">
+              Working Regime (%) eg 100% for full time{" "}
+            </th>
+            <th className="py-3 px-6 text-left">
+              % Working from Home eg 50% for remote{" "}
+            </th>
             <th className="py-3 px-6 text-left">Number of Months</th>
             <th className="py-3 px-6 text-left">Action</th>
           </tr>

@@ -897,4 +897,3 @@ export const updateFAData = asyncHandler(async (req, res) => {
   });
 });
 
-//  FHCTD

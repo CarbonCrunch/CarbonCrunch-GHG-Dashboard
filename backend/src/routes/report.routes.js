@@ -54,6 +54,8 @@ import {
   CO2eEc,
   CO2eFood,
   CO2eWater,
+  CO2eHome,
+  CO2eFa,
 } from "../controllers/factor.controller.js";
 const router = Router();
 
@@ -135,9 +137,9 @@ router
   .route("/:reportId/CO2eOv")
   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eOv);
 
-// router
-//   .route("/:reportId/CO2eFlightsAccomodations")
-//   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFa);
+router
+  .route("/:reportId/CO2eFlightsAccomodations")
+  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFa);
 
 router
   .route("/:reportId/CO2eBtls")
@@ -166,9 +168,9 @@ router
   .route("/:reportId/CO2eWasteDisposal")
   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eWaste);
 
-// router
-//   .route("/:reportId/CO2eHome")
-//   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), HomeOffice);
+router
+  .route("/:reportId/CO2eHome")
+  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eHome);
 
 router
   .route("/:reportId/CO2eWater")

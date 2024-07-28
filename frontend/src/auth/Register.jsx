@@ -12,7 +12,6 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [facilityName, setFacilityName] = useState("");
-  // const [personName, setPersonName] = useState("");
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
 
@@ -34,13 +33,12 @@ const Register = () => {
         password,
         companyName,
         facilityName,
-        // personName,
         role,
       });
-      console.log(res.data.data);
-      // console.log(res.data.data.user);
-    
+
       const { user, accessToken } = res.data.data;
+      localStorage.setItem("accessToken", accessToken); // Store accessToken in localStorage
+      // console.log("User from accessToken:", accessToken);
       login(user, accessToken);
       toast.success("Registration successful!");
       setTimeout(() => {
@@ -127,18 +125,6 @@ const Register = () => {
                   onChange={(e) => setFacilityName(e.target.value)}
                 />
               </div>
-              {/* <div>
-                <input
-                  id="personName"
-                  name="personName"
-                  type="text"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Your Name"
-                  value={personName}
-                  onChange={(e) => setPersonName(e.target.value)}
-                />
-              </div> */}
               <div>
                 <select
                   id="role"
@@ -165,11 +151,6 @@ const Register = () => {
             </div>
           </form>
 
-          {/* {response && (
-            <p className="mt-2 text-center text-sm text-green-600">
-              {response}
-            </p>
-          )} */}
           {error && (
             <p className="mt-2 text-center text-sm text-red-600">{error}</p>
           )}

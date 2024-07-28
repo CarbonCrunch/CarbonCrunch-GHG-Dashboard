@@ -814,7 +814,7 @@ export const CO2eFg = asyncHandler(async (req, res) => {
 export const CO2eWttFuels = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const wttfuel = JSON.parse(req.query.wttfuel);
-  console.log("wttFuel", wttfuel, reportId, companyName, facilityName);
+  // console.log("wttFuel", wttfuel, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !wttfuel) {
     throw new ApiError(
@@ -1427,5 +1427,144 @@ export const CO2eWater = asyncHandler(async (req, res) => {
     success: true,
     message: "CO2e calculated successfully for water data",
     data: report.water,
+  });
+});
+
+
+export const CO2eHome = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const homeOffice = JSON.parse(req.query.homeOffice);
+
+  if (!reportId || !companyName || !facilityName || !homeOffice) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and home office data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(401, "Unauthorized access to update home office data.");
+  }
+
+  // Define conversion rates
+  const conversionRates = {
+    "With Heating": 0.61,
+    "With Cooling": 0.61,
+    "No Heating/No Cooling": 0.61,
+  };
+
+  // Define consumption rates
+  const consumptionRates = {
+    "With Heating": 5.15,
+    "With Cooling": 3.65,
+    "No Heating/No Cooling": 0.15,
+  };
+
+  // Update the home office data with calculated CO2e amounts
+  const updatedHomeOfficeData = homeOffice.map((homeEntry) => {
+    const {
+      numberOfEmployees,
+      numberOfMonths,
+      type,
+      workingFromHome,
+      workingRegime,
+    } = homeEntry;
+    const conversionRate = conversionRates[type];
+    const consumption = consumptionRates[type];
+    const workingHoursPerMonth = 160; // 1920 working hours/year divided by 12 months
+    const hoursPerMonth = (workingRegime / 100) * workingHoursPerMonth;
+    const hoursWorkingFromHome = (workingFromHome / 100) * hoursPerMonth;
+    const CO2ePerEmployee = hoursWorkingFromHome * consumption * conversionRate;
+    const CO2e = numberOfEmployees * CO2ePerEmployee * numberOfMonths;
+
+    return { ...homeEntry, CO2e };
+  });
+
+  // Update the report's home office data and store CO2e
+  report.homeOffice = updatedHomeOfficeData;
+  report.CO2eHome = updatedHomeOfficeData.reduce(
+    (acc, curr) => acc + curr.CO2e,
+    0
+  );
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully",
+    data: report.homeOffice,
+  });
+});
+
+export const CO2eFa = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const hotelAccommodation = JSON.parse(req.query.hotelAccommodation);
+  // const flightAccommodation = JSON.parse(req.query.flightAccommodation); // Assuming this is also required
+
+  if (!reportId || !companyName || !facilityName || !hotelAccommodation) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and hotel accommodation data are required."
+    );
+  }
+
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  if (report.username !== req.user.username) {
+    throw new ApiError(
+      401,
+      "Unauthorized access to update accommodation data."
+    );
+  }
+
+  // Define conversion factors
+  const hotelFactor = 93.2;
+
+  // Update the hotel accommodation data with calculated CO2e amounts
+  const updatedHotelAccommodationData = hotelAccommodation.map((hotelEntry) => {
+    const { occupiedRooms, nightsPerRoom } = hotelEntry;
+    const CO2e = occupiedRooms * nightsPerRoom * hotelFactor;
+    return { ...hotelEntry, CO2e };
+  });
+
+  // Assuming similar logic applies for flight accommodation
+  // Define flight conversion factors if needed and update similarly
+
+  // Update the report's accommodation data and store CO2e
+  report.hotelAccommodation = updatedHotelAccommodationData;
+  report.CO2eHotel = updatedHotelAccommodationData.reduce(
+    (acc, curr) => acc + curr.CO2e,
+    0
+  );
+
+  // Add flight accommodation logic here if needed
+  // report.flightAccommodation = updatedFlightAccommodationData;
+  // report.CO2eFlight = updatedFlightAccommodationData.reduce((acc, curr) => acc + curr.CO2e, 0);
+
+  await report.save();
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully",
+    data: report.hotelAccommodation,
+    // data: { hotelAccommodation: report.hotelAccommodation, flightAccommodation: report.flightAccommodation } // If flight data is included
   });
 });

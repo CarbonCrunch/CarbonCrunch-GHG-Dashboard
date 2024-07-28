@@ -37,12 +37,14 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="font-bold text-xl">
-          Carbon Crunch
-        </Link>
-        <div className="space-x-4 flex items-center">
+    <header className="bg-white shadow-md w-full">
+      <div className="px-36 py-3 flex justify-between items-center">
+        <div className="flex items-center">
+          <Link to="/" className="font-bold text-xl px-4">
+            Carbon Crunch
+          </Link>
+        </div>
+        <div className="flex items-center space-x-4">
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
@@ -55,13 +57,6 @@ const Header = () => {
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                  {/* <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    Profile
-                  </Link> */}
                   <button
                     onClick={handleLogout}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

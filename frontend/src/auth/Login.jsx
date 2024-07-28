@@ -3,12 +3,11 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/landingPage/Header";
 import { useAuth } from "../context/AuthContext";
-import Cookies from "js-cookie";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [facilityName, setFacilityName] = useState("");  
+  const [facilityName, setFacilityName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -17,23 +16,22 @@ const Login = () => {
 
   useEffect(() => {
     const checkExistingToken = async () => {
-      const token = Cookies.get("accessToken");
+      const token = localStorage.getItem("accessToken");
+      // console.log("Token from localStorage:", token);
       if (token) {
         axios.defaults.baseURL = "http://127.0.0.1:8000";
-        axios.defaults.withCredentials = true;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         try {
-          const response = await axios.get("/api/users/verify-token", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const response = await axios.get("/api/users/verify-token");
           if (response.data.isValid) {
             login(response.data.user, token);
             navigate("/dashboard");
           } else {
-            Cookies.remove("token");
+            localStorage.removeItem("accessToken");
           }
         } catch (error) {
           console.error("Error verifying token:", error);
-          Cookies.remove("token");
+          localStorage.removeItem("accessToken");
         }
       }
       setIsLoading(false);
@@ -48,10 +46,10 @@ const Login = () => {
       const res = await axios.post("/api/users/login", {
         username: username,
         password: password,
-        facilityName: facilityName, // Include facility name in the request
+        facilityName: facilityName,
       });
-      // console.log("res.data", res.data)
       const { user, accessToken } = res.data.data;
+      localStorage.setItem("accessToken", accessToken); // Store accessToken in localStorage
       login(user, accessToken);
       navigate("/dashboard");
     } catch (error) {

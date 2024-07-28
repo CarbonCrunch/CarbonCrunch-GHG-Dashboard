@@ -42,17 +42,19 @@ const NavbarD = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <Link to="/" className="font-bold text-xl">
+    <header className="bg-white shadow-md w-full">
+      <div className="px-36 py-3 flex justify-between items-center">
+        <div className="flex items-center">
+          <Link to="/" className="font-bold text-xl px-4">
             Carbon Crunch
           </Link>
           {user && user.companyName && (
-            <span className="text-gray-600 text-sm">| {user.companyName}</span>
+            <span className="text-gray-600 text-sm ml-2">
+              | {user.companyName}
+            </span>
           )}
         </div>
-        <div className="space-x-4 flex items-center">
+        <div className="flex items-center space-x-4">
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button

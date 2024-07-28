@@ -72,8 +72,7 @@ const Fa = ({ report }) => {
       newFlight.origin &&
       newFlight.destination &&
       newFlight.class &&
-      newFlight.tripType &&
-      newFlight.kgCO2e
+      newFlight.tripType
     ) {
       if (editIndex === -1) {
         setFlightData([
@@ -91,7 +90,6 @@ const Fa = ({ report }) => {
         destination: "",
         class: "",
         tripType: "",
-        kgCO2e: "",
       });
     } else {
       toast.error("Please fill all fields");
@@ -121,7 +119,9 @@ const Fa = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      // console.log("reportId", reportId);
+      // console.log("hotelAccommodation", hotelData);
+      // console.log("flightAccommodation", flightData);
+
       const response = await axios.patch(
         `/api/reports/${reportId}/fa/put`,
         { hotelAccommodation: hotelData, flightAccommodation: flightData },
@@ -268,7 +268,6 @@ const Fa = ({ report }) => {
               <th className="py-3 px-6 text-left">Destination</th>
               <th className="py-3 px-6 text-left">Class</th>
               <th className="py-3 px-6 text-left">Single Way/Return</th>
-              <th className="py-3 px-6 text-left">kg CO2e</th>
               <th className="py-3 px-6 text-left">Action</th>
             </tr>
           </thead>

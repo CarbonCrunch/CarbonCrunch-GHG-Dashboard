@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Bar, Line } from "react-chartjs-2";
+import { Bar, Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,6 +31,7 @@ const Scope3 = ({ reports }) => {
   const [materialData, setMaterialData] = useState([]);
   const [wasteData, setWasteData] = useState([]);
   const [waterData, setWaterData] = useState([]);
+  const [hotelAccommodationData, setHotelAccommodationData] = useState([]);
 
   const reportData = reports[0];
   const {
@@ -45,8 +46,10 @@ const Scope3 = ({ reports }) => {
     material,
     waste,
     water,
+    fa,
   } = reportData;
-  console.log("reportData", reportData);
+  const { hotelAccommodation } = fa;
+  // console.log("reportData",reportData)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +63,7 @@ const Scope3 = ({ reports }) => {
           materialResponse,
           wasteResponse,
           waterResponse,
+          hotelAccommodationResponse,
         ] = await Promise.all([
           axios.get(`/api/reports/${reportId}/CO2eEc`, {
             params: {
@@ -125,6 +129,14 @@ const Scope3 = ({ reports }) => {
               water: JSON.stringify(water),
             },
           }),
+          axios.get(`/api/reports/${reportId}/CO2eFlightsAccomodations`, {
+            params: {
+              companyName,
+              facilityName,
+              reportId,
+              hotelAccommodation: JSON.stringify(hotelAccommodation),
+            },
+          }),
         ]);
 
         setEcData(ecResponse.data.data);
@@ -135,6 +147,7 @@ const Scope3 = ({ reports }) => {
         setMaterialData(materialResponse.data.data);
         setWasteData(wasteResponse.data.data);
         setWaterData(waterResponse.data.data);
+        setHotelAccommodationData(hotelAccommodationResponse.data.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -153,9 +166,44 @@ const Scope3 = ({ reports }) => {
     material,
     waste,
     water,
+    hotelAccommodation,
   ]);
 
   const chartHeight = 450;
+
+  const tooltipOptions = {
+    bodyFont: {
+      size: 24, // Increase font size by 4x
+    },
+    titleFont: {
+      size: 24, // Increase font size by 4x
+    },
+    padding: 16, // Increase padding for better visibility
+  };
+
+  // Chart data for hotelAccommodation
+  const hotelAccommodationChartData = {
+    labels: hotelAccommodationData.map((item) => item.index),
+    datasets: [
+      {
+        label: "CO2e Emissions",
+        data: hotelAccommodationData.map((item) => item.CO2e),
+        backgroundColor: "rgba(255, 159, 64, 0.6)",
+        borderColor: "rgba(255, 159, 64, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const hotelAccommodationOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "top" },
+      title: { display: true, text: "CO2e Emissions from Hotel Accommodation" },
+      tooltip: tooltipOptions,
+    },
+  };
 
   // Chart data for ec
   const ecChartData = {
@@ -177,6 +225,7 @@ const Scope3 = ({ reports }) => {
     plugins: {
       legend: { position: "top" },
       title: { display: true, text: "CO2e Emissions from Employee Commuting" },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -204,6 +253,7 @@ const Scope3 = ({ reports }) => {
         display: true,
         text: "CO2e Emissions from Business Travel and Lodging",
       },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -248,6 +298,7 @@ const Scope3 = ({ reports }) => {
     plugins: {
       legend: { position: "top" },
       title: { display: true, text: "CO2e Emissions from Freighting Goods" },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -272,30 +323,50 @@ const Scope3 = ({ reports }) => {
     plugins: {
       legend: { position: "top" },
       title: { display: true, text: "CO2e Emissions from WTT Fuel" },
+      tooltip: tooltipOptions,
     },
   };
 
-  // Chart data for food
-  const foodChartData = {
-    labels: foodData.map((item) => item.foodType),
+  const combinedLabels = [
+    ...foodData.map((item) => item.unit),
+    ...waterData.map((item) => item.emission),
+  ];
+  const combinedData = [
+    ...foodData.map((item) => item.CO2e),
+    ...waterData.map((item) => item.CO2e),
+  ];
+
+  // Chart data for combined food and water
+  const combinedChartData = {
+    labels: combinedLabels,
     datasets: [
       {
         label: "CO2e Emissions",
-        data: foodData.map((item) => item.CO2e),
-        backgroundColor: "rgba(54, 162, 235, 0.6)",
-        borderColor: "rgba(54, 162, 235, 1)",
+        data: combinedData,
+        backgroundColor: [
+          ...foodData.map(() => "rgba(54, 162, 235, 0.6)"),
+          ...waterData.map(() => "rgba(153, 102, 255, 0.6)"),
+        ],
+        borderColor: [
+          ...foodData.map(() => "rgba(54, 162, 235, 1)"),
+          ...waterData.map(() => "rgba(153, 102, 255, 1)"),
+        ],
         borderWidth: 1,
       },
     ],
   };
 
-  const foodOptions = {
+  const combinedOptions = {
     indexAxis: "y",
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Food" },
+      title: {
+        display: true,
+        text: "CO2e Emissions from Food and Water",
+      },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -333,30 +404,7 @@ const Scope3 = ({ reports }) => {
     plugins: {
       legend: { position: "top" },
       title: { display: true, text: "CO2e Emissions from Material and Waste" },
-    },
-  };
-
-  // Chart data for water
-  const waterChartData = {
-    labels: waterData.map((item) => item.emission),
-    datasets: [
-      {
-        label: "CO2e Emissions",
-        data: waterData.map((item) => item.CO2e),
-        backgroundColor: "rgba(153, 102, 255, 0.6)",
-        borderColor: "rgba(153, 102, 255, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const waterOptions = {
-    indexAxis: "y",
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Water" },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -389,8 +437,8 @@ const Scope3 = ({ reports }) => {
         </div>
         <div className="h-[450px]">
           <Bar
-            data={foodChartData}
-            options={foodOptions}
+            data={combinedChartData}
+            options={combinedOptions}
             height={chartHeight}
           />
         </div>
@@ -402,10 +450,9 @@ const Scope3 = ({ reports }) => {
           />
         </div>
         <div className="h-[450px]">
-          <Bar
-            data={waterChartData}
-            options={waterOptions}
-            height={chartHeight}
+          <Pie
+            data={hotelAccommodationChartData}
+            options={hotelAccommodationOptions}
           />
         </div>
       </div>

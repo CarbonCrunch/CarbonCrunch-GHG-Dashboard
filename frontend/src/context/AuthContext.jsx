@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get("/api/users/verify-token", {
             headers: { Authorization: `Bearer ${accessToken}` },
           });
-          console.log("Response from verify-token:", response.data);
+          // console.log("Response from verify-token:", response.data);
           if (response.data.isValid) {
             setUser(response.data.user);
             localStorage.setItem("user", JSON.stringify(response.data.user));
@@ -39,8 +39,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData, token) => {
-    console.log("Login called with userData:", userData);
-    console.log("Login called with token:", token);
+    // console.log("Login called with userData:", userData);
+    // console.log("Login called with token:", token);
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("accessToken", token);

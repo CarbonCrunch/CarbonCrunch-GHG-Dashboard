@@ -197,8 +197,7 @@ export const getWttReport = asyncHandler(async (req, res) => {
                 total += value[1] * conversionRates[value[0]];
             }
         });
-
-        res.json(total);
+     res.json(total);
 
 
     } catch (error) {
