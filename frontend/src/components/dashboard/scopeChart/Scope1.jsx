@@ -41,7 +41,6 @@ const Scope1 = ({ reports }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // console.log("ovData", ovData);
       try {
         const [
           fuelResponse,
@@ -95,43 +94,39 @@ const Scope1 = ({ reports }) => {
     fetchData();
   }, [reportId, companyName, facilityName, fuel, bioenergy, refrigerants]);
 
-  const chartHeight = 450; // Reduced height by 25%
+  const chartHeight = 510; // Reduced height by 15%
+  const barColor = "#2F4F4E";
+
   const fuelChartData = {
     labels: fuelData.map((item) => item.fuelType),
     datasets: [
       {
         label: "CO2e Emissions",
         data: fuelData.map((item) => item.CO2e),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: barColor,
+        borderColor: barColor,
         borderWidth: 1,
       },
     ],
   };
 
-  const bioenergyChartData = {
-    labels: bioenergyData.map((item) => item.fuelType),
-    datasets: [
-      {
-        data: bioenergyData.map((item) => item.CO2e),
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(54, 162, 235, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
-          "rgba(75, 192, 192, 0.6)",
-          "rgba(153, 102, 255, 0.6)",
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+ const bioenergyChartData = {
+   labels: bioenergyData.map((item) => item.fuelType),
+   datasets: [
+     {
+       data: bioenergyData.map((item) => item.CO2e),
+       backgroundColor: [
+         "#2F4F4F", // Dark Slate Gray
+         "#3D6666", // Lighter tone
+         "#4B7D7D", // Even lighter
+         "#598F8F", // Lighter still
+         "#67A0A0", // Lightest tone
+       ],
+       borderColor: "#1A2C2C", // Darker tone for borders
+       borderWidth: 1,
+     },
+   ],
+ };
 
   const refrigerantsChartData = {
     labels: refrigerantsData.map((item) => item.emission),
@@ -139,8 +134,8 @@ const Scope1 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: refrigerantsData.map((item) => item.CO2e),
-        backgroundColor: "rgba(255, 159, 64, 0.6)",
-        borderColor: "rgba(255, 159, 64, 1)",
+        backgroundColor: barColor,
+        borderColor: barColor,
         borderWidth: 1,
       },
     ],
@@ -154,11 +149,31 @@ const Scope1 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: ovData.map((item) => item.CO2e),
-        backgroundColor: "rgba(153, 102, 255, 0.6)",
-        borderColor: "rgba(153, 102, 255, 1)",
+        backgroundColor: barColor,
+        borderColor: barColor,
         borderWidth: 1,
       },
     ],
+  };
+
+  const tooltipOptions = {
+    callbacks: {
+      label: function (context) {
+        let label = context.dataset.label || "";
+        if (label) {
+          label += ": ";
+        }
+        label += `CO2e: ${context.raw}`;
+        return label;
+      },
+    },
+    bodyFont: {
+      size: 24, // Increase font size by 4x
+    },
+    titleFont: {
+      size: 24, // Increase font size by 4x
+    },
+    padding: 16, //
   };
 
   const ovOptions = {
@@ -166,7 +181,12 @@ const Scope1 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Owned Vehicles" },
+      title: {
+        display: true,
+        text: "Emissions from Owned Vehicles",
+        font: { size: 22 }, // Increase title font size by 5x
+      },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -176,7 +196,12 @@ const Scope1 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Fuel Emissions" },
+      title: {
+        display: true,
+        text: "Fuel Emissions",
+        font: { size: 22 }, // Increase title font size by 5x
+      },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -185,7 +210,12 @@ const Scope1 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Bioenergy Emissions" },
+      title: {
+        display: true,
+        text: "Bioenergy Emissions",
+        font: { size: 22 }, // Increase title font size by 5x
+      },
+      tooltip: tooltipOptions,
     },
   };
 
@@ -194,46 +224,54 @@ const Scope1 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Refrigerants Emissions" },
+      title: {
+        display: true,
+        text: "Refrigerants Emissions",
+        font: { size: 22 }, // Increase title font size by 5x
+      },
+      tooltip: tooltipOptions,
     },
   };
 
-  return (
-    <div>
-      <h3 className="text-sm font-semibold mb-2">
-        Scope 1: Direct emissions arising from owned or controlled stationary
-        sources that use fossil fuels and/or emit fugitive emissions
-      </h3>
-      <div className="flex flex-col gap-4">
-        <div className="flex gap-4 h-[450px]">
-          <div className="w-1/3">
-            <Bar
-              data={fuelChartData}
-              options={fuelOptions}
-              height={chartHeight}
-            />
-          </div>
-          <div className="w-1/3">
-            <Pie
-              data={bioenergyChartData}
-              options={bioenergyOptions}
-              height={chartHeight}
-            />
-          </div>
-          <div className="w-1/3">
-            <Bar
-              data={refrigerantsChartData}
-              options={refrigerantsOptions}
-              height={chartHeight}
-            />
-          </div>
+    return (
+  <div>
+    <h3 className="text-lg font-bold mb-2">
+      Scope 1: Direct emissions arising from owned or controlled stationary
+      sources that use fossil fuels and/or emit fugitive emissions
+    </h3>
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-4 h-[510px]">
+        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
+          <Bar
+            data={fuelChartData}
+            options={fuelOptions}
+            height={chartHeight}
+          />
         </div>
-        <div className="h-[450px]">
+        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
+          <Pie
+            data={bioenergyChartData}
+            options={bioenergyOptions}
+            height={chartHeight}
+          />
+        </div>
+      </div>
+      <div className="flex gap-4 h-[510px]">
+        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
+          <Bar
+            data={refrigerantsChartData}
+            options={refrigerantsOptions}
+            height={chartHeight}
+          />
+        </div>
+        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
           <Bar data={ovChartData} options={ovOptions} height={chartHeight} />
         </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Scope1;

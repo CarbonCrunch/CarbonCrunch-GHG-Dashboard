@@ -81,8 +81,8 @@ const Scope2 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: ehctdData.map((item) => item.CO2e),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(47, 79, 79, 1)", 
+        borderColor: "rgba(47, 79, 79, 1)", // Solid #2F4F4F
         borderWidth: 1,
         fill: false,
       },
@@ -96,7 +96,10 @@ const Scope2 = ({ reports }) => {
       legend: { position: "top" },
       title: {
         display: true,
-        text: "CO2e Emissions from Electricity, Heat & Steam, District Cooling",
+        text: "Emissions from Electricity, Heat & Steam, District Cooling",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
       },
       tooltip: tooltipOptions,
     },
@@ -113,13 +116,13 @@ const Scope2 = ({ reports }) => {
         },
       ],
       backgroundColor:
-        item.type === "With Heating"
-          ? "rgba(255, 99, 132, 0.6)"
-          : "rgba(54, 162, 235, 0.6)",
+        index % 2 === 0
+          ? "rgba(47, 79, 79, 1)"
+          : "rgba(75, 107, 107, 0.6)", // Lighter tone
       borderColor:
-        item.type === "With Heating"
-          ? "rgba(255, 99, 132, 1)"
-          : "rgba(54, 162, 235, 1)",
+        index % 2 === 0
+          ? "rgba(47, 79, 79, 1)" // Solid #2F4F4F
+          : "rgba(75, 107, 107, 1)", // Lighter tone
     })),
   };
 
@@ -128,7 +131,13 @@ const Scope2 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Home Office" },
+      title: {
+        display: true,
+        text: "Emissions from Home Office",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
+      },
       tooltip: tooltipOptions,
     },
     scales: {
@@ -146,23 +155,28 @@ const Scope2 = ({ reports }) => {
       },
     },
   };
-
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-2">
+      <h1 className="text-lg font-bold mb-2 pt-8">
         Scope 2: Indirect emissions from the generation of purchased
         electricity, steam, heating, and cooling consumed by the reporting
         company
-      </h3>
-      <div className="flex flex-col gap-4">
-        <div className="h-[450px]">
+      </h1>
+      <div className="flex gap-4 h-[450px]">
+        <div
+          className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+          style={{ backgroundColor: "#DDDCBD" }}
+        >
           <Line
             data={ehctdChartData}
             options={ehctdOptions}
             height={chartHeight}
           />
         </div>
-        <div className="h-[450px]">
+        <div
+          className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+          style={{ backgroundColor: "#DDDCBD" }}
+        >
           <Bubble
             data={homeOfficeChartData}
             options={homeOfficeOptions}

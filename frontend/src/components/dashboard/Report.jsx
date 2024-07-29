@@ -170,10 +170,13 @@ const Report = () => {
   );
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen">
       <NavbarD />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="w-1/6 sticky top-0 h-screen">
+          <Sidebar />
+        </div>
         <div className="flex-1 p-8 overflow-auto">
           <div className="flex justify-between items-center mb-6">
             <div>

@@ -14,7 +14,7 @@ import { IoAddCircleSharp } from "react-icons/io5";
 
 const Sidebar = () => {
   return (
-    <div className="w-1/6 bg-[rgb(251,175,88)] h-screen flex flex-col justify-between p-4">
+    <div className=" bg-[rgb(251,175,88)] h-screen flex flex-col justify-between p-4">
       <div className="space-y-4">
         <SidebarItem icon={<FaHome />} text="Dashboard" link="/dashboard" />
         <SidebarItem

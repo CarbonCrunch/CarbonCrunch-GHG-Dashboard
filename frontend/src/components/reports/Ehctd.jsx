@@ -27,8 +27,8 @@ const Ehctd = ({ report }) => {
   const { companyName, facilityName, ehctd, reportId, timePeriod } = reportData;
 
   useEffect(() => {
-    console.log("reportData", reportData);
-    console.log("ehctd", ehctd);
+    // console.log("reportData", reportData);
+    // console.log("ehctd", ehctd);
     if (report && report.ehctd && Array.isArray(report.ehctd)) {
       setEhctdData(
         report.ehctd.map((item) => ({

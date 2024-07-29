@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import NavbarD from "./NavbarD";
+import Sidebar from "./Sidebar";
 
 const CRMIntegration = () => {
   const [selectedCRM, setSelectedCRM] = useState(null);
@@ -81,8 +82,13 @@ const CRMIntegration = () => {
   );
 
   return (
-    <div className="flex flex-col min-h-screen">
+     <div className="flex flex-col min-h-screen">
       <NavbarD />
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="w-1/6 sticky top-0 h-screen">
+          <Sidebar />
+        </div>
       <div className="flex-grow container mx-auto px-4 py-8 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-8 text-center">CRM Integration</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -144,6 +150,7 @@ const CRMIntegration = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };

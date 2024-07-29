@@ -37,7 +37,10 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-md w-full">
+    <header
+      className="bg-white shadow-md w-full"
+      style={{ backgroundColor: "#A6D3A0" }}
+    >
       <div className="px-36 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/" className="font-bold text-xl px-4">

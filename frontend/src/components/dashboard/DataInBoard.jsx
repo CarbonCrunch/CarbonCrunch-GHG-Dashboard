@@ -131,9 +131,11 @@ const DataInBoard = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <NavbarD />
-      <ToastContainer />
       <div className="flex flex-1">
-        <Sidebar />
+        {/* Sidebar */}
+        <div className="w-1/6 sticky top-0 h-screen">
+          <Sidebar />
+        </div>
         <div className="flex-1 p-6 bg-white">
           <h1 className="text-2xl font-bold mb-4">{selectedCategory}</h1>
           <div className="flex justify-between items-center mb-6">

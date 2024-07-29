@@ -49,7 +49,6 @@ const Scope3 = ({ reports }) => {
     fa,
   } = reportData;
   const { hotelAccommodation } = fa;
-  // console.log("reportData",reportData)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -181,6 +180,10 @@ const Scope3 = ({ reports }) => {
     padding: 16, // Increase padding for better visibility
   };
 
+  const baseColor = "rgba(47, 79, 79, 1)"; // #2F4F4F with 60% opacity
+  const baseBorderColor = "rgba(47, 79, 79, 1)"; // Solid #2F4F4F
+
+
   // Chart data for hotelAccommodation
   const hotelAccommodationChartData = {
     labels: hotelAccommodationData.map((item) => item.index),
@@ -188,8 +191,20 @@ const Scope3 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: hotelAccommodationData.map((item) => item.CO2e),
-        backgroundColor: "rgba(255, 159, 64, 0.6)",
-        borderColor: "rgba(255, 159, 64, 1)",
+        backgroundColor: [
+        baseColor,
+        "rgba(75, 107, 107, 0.6)",
+        "rgba(103, 135, 135, 0.6)",
+        "rgba(131, 163, 163, 0.6)",
+        "rgba(159, 191, 191, 0.6)",
+      ],
+      borderColor: [
+        baseBorderColor,
+        "rgba(75, 107, 107, 1)",
+        "rgba(103, 135, 135, 1)",
+        "rgba(131, 163, 163, 1)",
+        "rgba(159, 191, 191, 1)",
+      ],
         borderWidth: 1,
       },
     ],
@@ -200,7 +215,13 @@ const Scope3 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Hotel Accommodation" },
+      title: {
+        display: true,
+        text: "Emissions from Hotel Accommodation",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
+      },
       tooltip: tooltipOptions,
     },
   };
@@ -212,8 +233,8 @@ const Scope3 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: ecData.map((item) => item.CO2e),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: baseColor,
+        borderColor: baseBorderColor,
         borderWidth: 1,
       },
     ],
@@ -224,7 +245,13 @@ const Scope3 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Employee Commuting" },
+      title: {
+        display: true,
+        text: "Emissions from Employee Commuting",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
+      },
       tooltip: tooltipOptions,
     },
   };
@@ -236,8 +263,8 @@ const Scope3 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: btlsData.map((item) => item.CO2e),
-        backgroundColor: "rgba(153, 102, 255, 0.6)",
-        borderColor: "rgba(153, 102, 255, 1)",
+        backgroundColor: baseColor,
+        borderColor: baseBorderColor,
         borderWidth: 1,
       },
     ],
@@ -251,7 +278,10 @@ const Scope3 = ({ reports }) => {
       legend: { position: "top" },
       title: {
         display: true,
-        text: "CO2e Emissions from Business Travel and Lodging",
+        text: "Emissions from Business Travel and Lodging",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
       },
       tooltip: tooltipOptions,
     },
@@ -285,8 +315,8 @@ const Scope3 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: fgCO2eData,
-        backgroundColor: "rgba(255, 159, 64, 0.6)",
-        borderColor: "rgba(255, 159, 64, 1)",
+        backgroundColor: baseColor,
+        borderColor: baseBorderColor,
         borderWidth: 1,
       },
     ],
@@ -297,7 +327,13 @@ const Scope3 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Freighting Goods" },
+      title: {
+        display: true,
+        text: "Emissions from Freighting Goods",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
+      },
       tooltip: tooltipOptions,
     },
   };
@@ -309,8 +345,8 @@ const Scope3 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: wttFuelData.map((item) => item.CO2e),
-        backgroundColor: "rgba(255, 99, 132, 0.6)",
-        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: baseColor,
+        borderColor: baseBorderColor,
         borderWidth: 1,
       },
     ],
@@ -322,7 +358,13 @@ const Scope3 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from WTT Fuel" },
+      title: {
+        display: true,
+        text: "Emissions from WTT Fuel",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
+      },
       tooltip: tooltipOptions,
     },
   };
@@ -344,12 +386,12 @@ const Scope3 = ({ reports }) => {
         label: "CO2e Emissions",
         data: combinedData,
         backgroundColor: [
-          ...foodData.map(() => "rgba(54, 162, 235, 0.6)"),
-          ...waterData.map(() => "rgba(153, 102, 255, 0.6)"),
+          ...foodData.map(() => baseColor),
+        ...waterData.map(() => "rgba(75, 107, 107, 0.6)"), 
         ],
         borderColor: [
-          ...foodData.map(() => "rgba(54, 162, 235, 1)"),
-          ...waterData.map(() => "rgba(153, 102, 255, 1)"),
+          ...foodData.map(() => baseBorderColor),
+        ...waterData.map(() => "rgba(75, 107, 107, 1)"),
         ],
         borderWidth: 1,
       },
@@ -364,7 +406,10 @@ const Scope3 = ({ reports }) => {
       legend: { position: "top" },
       title: {
         display: true,
-        text: "CO2e Emissions from Food and Water",
+        text: "Emissions from Food and Water",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
       },
       tooltip: tooltipOptions,
     },
@@ -382,16 +427,16 @@ const Scope3 = ({ reports }) => {
       {
         label: "Material CO2e Emissions",
         data: materialData.map((item) => item.CO2e),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: baseColor,
+      borderColor: baseBorderColor,
         borderWidth: 1,
         fill: false,
       },
       {
         label: "Waste CO2e Emissions",
         data: wasteData.map((item) => item.CO2e),
-        backgroundColor: "rgba(255, 206, 86, 0.6)",
-        borderColor: "rgba(255, 206, 86, 1)",
+         backgroundColor: "rgba(75, 107, 107, 0.6)", // Lighter tone for differentiation
+      borderColor: "rgba(75, 107, 107, 1)",
         borderWidth: 1,
         fill: false,
       },
@@ -403,57 +448,99 @@ const Scope3 = ({ reports }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "CO2e Emissions from Material and Waste" },
+      title: {
+        display: true,
+        text: "Emissions from Material and Waste",
+        font: {
+          size: 25, // Increase title font size by 5x
+        },
+      },
       tooltip: tooltipOptions,
     },
   };
 
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-2">
+      <h1 className="text-lg font-bold mb-2 pt-8">
         Scope 3: Indirect emissions from employee commuting, business travel and
         lodging, freighting goods, and other categories
-      </h3>
+      </h1>
       <div className="flex flex-col gap-4">
-        <div className="h-[450px]">
-          <Bar data={ecChartData} options={ecOptions} height={chartHeight} />
+        <div className="flex gap-4 h-[450px]">
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Bar data={ecChartData} options={ecOptions} height={chartHeight} />
+          </div>
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Bar
+              data={btlsChartData}
+              options={btlsOptions}
+              height={chartHeight}
+            />
+          </div>
         </div>
-        <div className="h-[450px]">
-          <Bar
-            data={btlsChartData}
-            options={btlsOptions}
-            height={chartHeight}
-          />
+        <div className="flex gap-4 h-[450px]">
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Bar data={fgChartData} options={fgOptions} height={chartHeight} />
+          </div>
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Bar
+              data={wttFuelChartData}
+              options={wttFuelOptions}
+              height={chartHeight}
+            />
+          </div>
         </div>
-        <div className="h-[450px]">
-          <Bar data={fgChartData} options={fgOptions} height={chartHeight} />
+        <div className="flex gap-4 h-[450px]">
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Bar
+              data={combinedChartData}
+              options={combinedOptions}
+              height={chartHeight}
+            />
+          </div>
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Line
+              data={materialWasteChartData}
+              options={materialWasteOptions}
+              height={chartHeight}
+            />
+          </div>
         </div>
-        <div className="h-[450px]">
-          <Bar
-            data={wttFuelChartData}
-            options={wttFuelOptions}
-            height={chartHeight}
-          />
-        </div>
-        <div className="h-[450px]">
-          <Bar
-            data={combinedChartData}
-            options={combinedOptions}
-            height={chartHeight}
-          />
-        </div>
-        <div className="h-[450px]">
-          <Line
-            data={materialWasteChartData}
-            options={materialWasteOptions}
-            height={chartHeight}
-          />
-        </div>
-        <div className="h-[450px]">
-          <Pie
-            data={hotelAccommodationChartData}
-            options={hotelAccommodationOptions}
-          />
+        <div className="flex gap-4 h-[450px]">
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Pie
+              data={hotelAccommodationChartData}
+              options={hotelAccommodationOptions}
+              height={chartHeight}
+            />
+          </div>
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            {/* This div is left empty for potential future use or to maintain layout balance */}
+          </div>
         </div>
       </div>
     </div>

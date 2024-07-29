@@ -42,16 +42,14 @@ const NavbarD = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-md w-full">
+    <header className="shadow-md w-full" style={{ backgroundColor: "#A6D3A0" }}>
       <div className="px-36 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/" className="font-bold text-xl px-4">
             Carbon Crunch
           </Link>
           {user && user.companyName && (
-            <span className="text-gray-600 text-sm ml-2">
-              | {user.companyName}
-            </span>
+            <span className="text-gray-800 text-sm">| {user.companyName}</span>
           )}
         </div>
         <div className="flex items-center space-x-4">
@@ -79,7 +77,7 @@ const NavbarD = () => {
           ) : (
             <button
               onClick={handleSignInClick}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-gray-800 hover:text-gray-900"
             >
               Sign In
             </button>
