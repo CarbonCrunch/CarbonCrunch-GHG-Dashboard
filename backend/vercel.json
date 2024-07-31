@@ -1,16 +1,15 @@
 {
     "version": 2,
-    "name": "GHG-backend",
     "builds": [
         {
-            "src": "src/index.js",
+            "src": "backend/package.json",
             "use": "@vercel/node"
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "/app.js"
+            "dest": "backend/src/index.js"
         }
     ]
 }
