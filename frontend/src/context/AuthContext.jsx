@@ -7,8 +7,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  axios.defaults.baseURL = "http://127.0.0.1:8000";
-  axios.defaults.withCredentials = true;
+  // axios.defaults.baseURL = "http://127.0.0.1:8000";
+  axios.defaults.baseURL =
+    "carbon-crunch-ghg-accouting-atomatic-opsk.vercel.app";
+  https: axios.defaults.withCredentials = true;
 
   useEffect(() => {
     const checkUserAuth = async () => {

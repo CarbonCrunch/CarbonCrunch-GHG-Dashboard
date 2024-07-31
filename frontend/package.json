@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "proxy": {
-    "/api": "http://127.0.0.1:8000"
+    "/api": "https://carbon-crunch-ghg-accouting-atomatic-opsk.vercel.app"
   },
   "dependencies": {
     "axios": "^1.7.2",

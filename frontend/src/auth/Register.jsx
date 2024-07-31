@@ -25,8 +25,10 @@ const Register = () => {
       setError("Passwords do not match");
       return;
     }
-    axios.defaults.baseURL = "http://127.0.0.1:8000";
-    axios.defaults.withCredentials = true;
+    // axios.defaults.baseURL = "http://127.0.0.1:8000";
+    axios.defaults.baseURL =
+      "carbon-crunch-ghg-accouting-atomatic-opsk.vercel.app";
+    https: axios.defaults.withCredentials = true;
     try {
       const res = await axios.post("/api/users/register", {
         username,

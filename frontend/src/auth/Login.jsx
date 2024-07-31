@@ -19,8 +19,12 @@ const Login = () => {
       const token = localStorage.getItem("accessToken");
       // console.log("Token from localStorage:", token);
       if (token) {
-        axios.defaults.baseURL = "http://127.0.0.1:8000";
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        // axios.defaults.baseURL = "http://127.0.0.1:8000";
+        axios.defaults.baseURL =
+          "carbon-crunch-ghg-accouting-atomatic-opsk.vercel.app";
+        https: axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${token}`;
         try {
           const response = await axios.get("/api/users/verify-token");
           if (response.data.isValid) {
