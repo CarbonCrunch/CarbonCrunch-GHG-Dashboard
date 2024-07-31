@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Bar, Pie } from "react-chartjs-2";
+import { Bar, Pie, Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,6 +10,10 @@ import {
   Title,
   Tooltip,
   Legend,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
 } from "chart.js";
 
 ChartJS.register(
@@ -19,7 +23,11 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler
 );
 
 const Scope1 = ({ reports }) => {
@@ -27,6 +35,8 @@ const Scope1 = ({ reports }) => {
   const [fuelData, setFuelData] = useState([]);
   const [bioenergyData, setBioenergyData] = useState([]);
   const [refrigerantsData, setRefrigerantsData] = useState([]);
+  const [passengerData, setPassengerData] = useState([]);
+  const [deliveryData, setDeliveryData] = useState([]);
 
   const reportData = reports[0];
   const {
@@ -86,6 +96,15 @@ const Scope1 = ({ reports }) => {
         setFuelData(fuelResponse.data.data);
         setBioenergyData(bioenergyResponse.data.data);
         setRefrigerantsData(refrigerantsResponse.data.data);
+
+        const passengerVehicles = ovResponse.data.data.filter(
+          (vehicle) => vehicle.level1 === "Passenger vehicles"
+        );
+        const deliveryVehicles = ovResponse.data.data.filter(
+          (vehicle) => vehicle.level1 === "Delivery vehicles"
+        );
+        setPassengerData(passengerVehicles);
+        setDeliveryData(deliveryVehicles);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -95,7 +114,29 @@ const Scope1 = ({ reports }) => {
   }, [reportId, companyName, facilityName, fuel, bioenergy, refrigerants]);
 
   const chartHeight = 510; // Reduced height by 15%
-  const barColor = "#2F4F4E";
+  const barColors = [
+    "#FBAF58",
+    "#2E4F50",
+    "#A6D39F",
+    "#DDDCBD",
+    "#51DAD9",
+    "#2D92D5",
+  ];
+
+  const pieColors = [
+    "#39C9EF",
+    "#86EAE9",
+    "#5DBDD3",
+    "#4591B8",
+    "#3B6696",
+    "#353C6E",
+    "#705788",
+    "#A5769E",
+    "#2D2F36",
+    "#D88AAC",
+    "#F490A2",
+    "#F79A86",
+  ];
 
   const fuelChartData = {
     labels: fuelData.map((item) => item.fuelType),
@@ -103,30 +144,24 @@ const Scope1 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: fuelData.map((item) => item.CO2e),
-        backgroundColor: barColor,
-        borderColor: barColor,
+        backgroundColor: barColors,
+        borderColor: barColors,
         borderWidth: 1,
       },
     ],
   };
 
- const bioenergyChartData = {
-   labels: bioenergyData.map((item) => item.fuelType),
-   datasets: [
-     {
-       data: bioenergyData.map((item) => item.CO2e),
-       backgroundColor: [
-         "#2F4F4F", // Dark Slate Gray
-         "#3D6666", // Lighter tone
-         "#4B7D7D", // Even lighter
-         "#598F8F", // Lighter still
-         "#67A0A0", // Lightest tone
-       ],
-       borderColor: "#1A2C2C", // Darker tone for borders
-       borderWidth: 1,
-     },
-   ],
- };
+  const bioenergyChartData = {
+    labels: bioenergyData.map((item) => item.fuelType),
+    datasets: [
+      {
+        data: bioenergyData.map((item) => item.CO2e),
+        backgroundColor: pieColors,
+        borderColor: "#FFFFFF",
+        borderWidth: 1,
+      },
+    ],
+  };
 
   const refrigerantsChartData = {
     labels: refrigerantsData.map((item) => item.emission),
@@ -134,23 +169,8 @@ const Scope1 = ({ reports }) => {
       {
         label: "CO2e Emissions",
         data: refrigerantsData.map((item) => item.CO2e),
-        backgroundColor: barColor,
-        borderColor: barColor,
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const ovChartData = {
-    labels: ovData.map(
-      (item) => `${item.level1} - ${item.level2} - ${item.level3}`
-    ),
-    datasets: [
-      {
-        label: "CO2e Emissions",
-        data: ovData.map((item) => item.CO2e),
-        backgroundColor: barColor,
-        borderColor: barColor,
+        backgroundColor: barColors,
+        borderColor: barColors,
         borderWidth: 1,
       },
     ],
@@ -176,19 +196,56 @@ const Scope1 = ({ reports }) => {
     padding: 16, //
   };
 
-  const ovOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: "top" },
-      title: {
-        display: true,
-        text: "Emissions from Owned Vehicles",
-        font: { size: 22 }, // Increase title font size by 5x
-      },
-      tooltip: tooltipOptions,
+ const radarOptions = {
+   responsive: true,
+   maintainAspectRatio: false,
+   scales: {
+     r: {
+       angleLines: {
+         display: false,
+       },
+       suggestedMin: 0,
+       suggestedMax: 1, // Decreased the scale to 1
+     },
+   },
+   plugins: {
+     legend: { position: "top" },
+     title: {
+       display: true,
+       text: "Emissions from Owned Vehicles",
+       font: { size: 22 },
+     },
+     tooltip: tooltipOptions,
+   },
+ };
+
+const passengerChartData = {
+  labels: ["Plug-in Hybrid", "Electric", "Petrol", "Diesel", "LPG"],
+  datasets: [
+    {
+      label: "Passenger Vehicles",
+      data: [0.3, 0.1, 0.7, 0.6, 0.4],
+      backgroundColor: pieColors.slice(0, 5),
+      borderColor: "#2F4F4F",
+      borderWidth: 1,
     },
-  };
+  ],
+};
+
+
+const deliveryChartData = {
+  labels: ["Petrol", "Diesel", "Electric", "CNG"],
+  datasets: [
+    {
+      label: "Delivery Vehicles",
+      data: [0.8, 0.6, 0.2, 0.4], // Hard-coded data for delivery vehicles
+      backgroundColor: pieColors.slice(0, 4),
+      borderColor: "#2F4F4F",
+      borderWidth: 1,
+    },
+  ],
+};
+  
 
   const fuelOptions = {
     indexAxis: "y",
@@ -202,6 +259,11 @@ const Scope1 = ({ reports }) => {
         font: { size: 22 }, // Increase title font size by 5x
       },
       tooltip: tooltipOptions,
+    },
+    scales: {
+      y: {
+        display: false, // Remove categories from y-axis
+      },
     },
   };
 
@@ -231,47 +293,77 @@ const Scope1 = ({ reports }) => {
       },
       tooltip: tooltipOptions,
     },
+    scales: {
+      x: {
+        display: false, // Remove types of gases from x-axis
+      },
+    },
   };
 
-    return (
-  <div>
-    <h3 className="text-lg font-bold mb-2">
-      Scope 1: Direct emissions arising from owned or controlled stationary
-      sources that use fossil fuels and/or emit fugitive emissions
-    </h3>
-    <div className="flex flex-col gap-4">
-      <div className="flex gap-4 h-[510px]">
-        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
-          <Bar
-            data={fuelChartData}
-            options={fuelOptions}
-            height={chartHeight}
-          />
+  return (
+    <div>
+      <h3 className="text-lg font-bold mb-2">
+        Scope 1: Direct emissions arising from owned or controlled stationary
+        sources that use fossil fuels and/or emit fugitive emissions
+      </h3>
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-4 h-[510px]">
+          <div
+            className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Bar
+              data={fuelChartData}
+              options={fuelOptions}
+              height={chartHeight}
+            />
+          </div>
+          <div
+            className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Pie
+              data={bioenergyChartData}
+              options={bioenergyOptions}
+              height={chartHeight}
+            />
+          </div>
+          <div
+            className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Bar
+              data={refrigerantsChartData}
+              options={refrigerantsOptions}
+              height={chartHeight}
+            />
+          </div>
         </div>
-        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
-          <Pie
-            data={bioenergyChartData}
-            options={bioenergyOptions}
-            height={chartHeight}
-          />
-        </div>
-      </div>
-      <div className="flex gap-4 h-[510px]">
-        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
-          <Bar
-            data={refrigerantsChartData}
-            options={refrigerantsOptions}
-            height={chartHeight}
-          />
-        </div>
-        <div className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg" style={{ backgroundColor: "#DDDCBD" }}>
-          <Bar data={ovChartData} options={ovOptions} height={chartHeight} />
+        <div className="flex gap-4 h-[510px]">
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Radar
+              data={passengerChartData}
+              options={radarOptions}
+              height={chartHeight}
+            />
+          </div>
+          <div
+            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+            style={{ backgroundColor: "#DDDCBD" }}
+          >
+            <Radar
+              data={deliveryChartData}
+              options={radarOptions}
+              height={chartHeight}
+            />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
-
+  );
 };
 
 export default Scope1;

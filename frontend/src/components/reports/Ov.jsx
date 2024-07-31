@@ -120,7 +120,7 @@ const Ov = ({ report }) => {
   };
 
   const handleSave = async () => {
-    console.log("ovData", ovData);
+    // console.log("ovData", ovData);
     try {
       const response = await axios.patch(
         `/api/reports/:reportId/owned-vehicles/put`,

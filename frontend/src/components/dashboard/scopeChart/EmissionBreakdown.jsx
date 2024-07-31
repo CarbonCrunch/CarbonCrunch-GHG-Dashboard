@@ -16,7 +16,7 @@ const EmissionBreakdown = () => {
         if (response.data.data === "zero") {
           setReports([]);
         } else {
-          // console.log("ECComponent", reports);
+          console.log("ECComponent", reports);
           setReports(response.data.data);
         }
       } catch (err) {

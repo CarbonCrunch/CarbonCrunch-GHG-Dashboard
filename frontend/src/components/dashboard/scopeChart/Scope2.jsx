@@ -1,150 +1,106 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Line, Bubble } from "react-chartjs-2";
+import React from "react";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  PointElement,
   LineElement,
   Title,
   Tooltip,
   Legend,
-  PointElement,
-  BubbleController,
 } from "chart.js";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
+  PointElement,
   LineElement,
   Title,
   Tooltip,
-  Legend,
-  PointElement,
-  BubbleController
+  Legend
 );
 
-const Scope2 = ({ reports }) => {
-  const [ehctdData, setEhctdData] = useState([]);
-  const [homeOfficeData, setHomeOfficeData] = useState([]);
+  // const [ehctdData, setEhctdData] = useState([]);
 
-  const reportData = reports[0];
-  const { companyName, facilityName, reportId, ehctd, homeOffice } = reportData;
+  // const reportData = reports[0];
+  // const { companyName, facilityName, reportId, ehctd } = reportData;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [ehctdResponse, homeOfficeResponse] = await Promise.all([
-          axios.get(`/api/reports/${reportId}/CO2eEhctd`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              ehctd: JSON.stringify(ehctd),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eHome`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              homeOffice: JSON.stringify(homeOffice),
-            },
-          }),
-        ]);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const [ehctdResponse] = await Promise.all([
+  //         axios.get(/api/reports/${reportId}/CO2eEhctd, {
+  //           params: {
+  //             companyName,
+  //             facilityName,
+  //             reportId,
+  //             ehctd: JSON.stringify(ehctd),
+  //           },
+  //         }),
+  //       ]);
 
-        setEhctdData(ehctdResponse.data.data);
-        setHomeOfficeData(homeOfficeResponse.data.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+  //       setEhctdData(ehctdResponse.data.data);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [reportId, companyName, facilityName, ehctd]);
+
+const Scope2 = () => {
+  const chartHeight = 450;
+
+  const hardCodedData = [
+    { activity: "Heating and Steam", CO2e: 575, date: "2024-02-06" },
+    { activity: "District Cooling", CO2e: 13112, date: "2024-01-31" },
+    { activity: "Electricity", CO2e: 33, date: "2024-02-01" },
+    { activity: "Electricity", CO2e: 45, date: "2024-02-15" },
+    { activity: "Heating and Steam", CO2e: 600, date: "2024-02-20" },
+    { activity: "District Cooling", CO2e: 12000, date: "2024-02-10" },
+  ];
+
+  const uniqueActivities = [
+    ...new Set(hardCodedData.map((item) => item.activity)),
+  ];
+  const sortedData = hardCodedData.sort(
+    (a, b) => new Date(a.date) - new Date(b.date)
+  );
+  const uniqueDates = [...new Set(sortedData.map((item) => item.date))];
+
+  const datasets = uniqueActivities.map((activity, index) => {
+    const color = `hsl(${index * 120}, 70%, 50%)`;
+    return {
+      label: activity,
+      data: uniqueDates.map((date) => {
+        const dataPoint = sortedData.find(
+          (item) => item.date === date && item.activity === activity
+        );
+        return dataPoint ? dataPoint.CO2e : null;
+      }),
+      borderColor: color,
+      backgroundColor: color,
+      fill: false,
+      tension: 0.4,
+      spanGaps: true, // This will connect the lines across gaps
     };
+  });
 
-    fetchData();
-  }, [reportId, companyName, facilityName, ehctd, homeOffice]);
-
-  const chartHeight = 450; // Reduced height by 25%
-
-  const tooltipOptions = {
-    bodyFont: {
-      size: 24, // Increase font size by 4x
-    },
-    titleFont: {
-      size: 24, // Increase font size by 4x
-    },
-    padding: 16, // Increase padding for better visibility
+  const chartData = {
+    labels: uniqueDates,
+    datasets: datasets,
   };
 
-  const ehctdChartData = {
-    labels: ehctdData.map((item) => item.activity),
-    datasets: [
-      {
-        label: "CO2e Emissions",
-        data: ehctdData.map((item) => item.CO2e),
-        backgroundColor: "rgba(47, 79, 79, 1)", 
-        borderColor: "rgba(47, 79, 79, 1)", // Solid #2F4F4F
-        borderWidth: 1,
-        fill: false,
-      },
-    ],
-  };
-
-  const ehctdOptions = {
+  const options = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { position: "top" },
-      title: {
-        display: true,
-        text: "Emissions from Electricity, Heat & Steam, District Cooling",
-        font: {
-          size: 25, // Increase title font size by 5x
-        },
-      },
-      tooltip: tooltipOptions,
-    },
-  };
-
-  const homeOfficeChartData = {
-    datasets: homeOfficeData.map((item, index) => ({
-      label: item.type,
-      data: [
-        {
-          x: index,
-          y: item.CO2e,
-          r: item.numberOfEmployees,
-        },
-      ],
-      backgroundColor:
-        index % 2 === 0
-          ? "rgba(47, 79, 79, 1)"
-          : "rgba(75, 107, 107, 0.6)", // Lighter tone
-      borderColor:
-        index % 2 === 0
-          ? "rgba(47, 79, 79, 1)" // Solid #2F4F4F
-          : "rgba(75, 107, 107, 1)", // Lighter tone
-    })),
-  };
-
-  const homeOfficeOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: "top" },
-      title: {
-        display: true,
-        text: "Emissions from Home Office",
-        font: {
-          size: 25, // Increase title font size by 5x
-        },
-      },
-      tooltip: tooltipOptions,
-    },
     scales: {
       x: {
+        type: "category",
         title: {
           display: true,
-          text: "Index",
+          text: "Date",
         },
       },
       y: {
@@ -154,7 +110,28 @@ const Scope2 = ({ reports }) => {
         },
       },
     },
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Scope 2 Emissions Over Time",
+        font: { size: 25 },
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            return `${context.dataset.label}: ${context.parsed.y} CO2e`;
+          },
+        },
+        bodyFont: { size: 24 },
+        titleFont: { size: 24 },
+        padding: 16,
+      },
+    },
   };
+
   return (
     <div>
       <h1 className="text-lg font-bold mb-2 pt-8">
@@ -164,24 +141,16 @@ const Scope2 = ({ reports }) => {
       </h1>
       <div className="flex gap-4 h-[450px]">
         <div
-          className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+          className="w-2/3 p-2 rounded-lg border border-gray-300 shadow-lg"
           style={{ backgroundColor: "#DDDCBD" }}
         >
-          <Line
-            data={ehctdChartData}
-            options={ehctdOptions}
-            height={chartHeight}
-          />
+          <Line data={chartData} options={options} height={chartHeight} />
         </div>
         <div
-          className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
+          className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
           style={{ backgroundColor: "#DDDCBD" }}
         >
-          <Bubble
-            data={homeOfficeChartData}
-            options={homeOfficeOptions}
-            height={chartHeight}
-          />
+          
         </div>
       </div>
     </div>
