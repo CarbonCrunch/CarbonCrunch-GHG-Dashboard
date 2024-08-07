@@ -50,7 +50,7 @@ const Scope3 = ({ reports }) => {
     fa,
     homeOffice,
   } = reportData;
-  const { hotelAccommodation } = fa;
+  // const { hotelAccommodation } = fa;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -177,7 +177,7 @@ const Scope3 = ({ reports }) => {
     material,
     waste,
     water,
-    hotelAccommodation,
+    // hotelAccommodation,
     homeOffice,
   ]);
 

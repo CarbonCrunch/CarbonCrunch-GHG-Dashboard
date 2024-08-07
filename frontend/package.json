@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "proxy": {
-    "/api": "https://carboncrunch-ghg-accouting-atomatic.onrender.com"
+    "/api": "http://localhost:8000"
   },
   "dependencies": {
     "axios": "^1.7.2",

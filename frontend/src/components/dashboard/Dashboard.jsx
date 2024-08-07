@@ -211,29 +211,33 @@ const Dashboard = () => {
                 color: "#2F4F4F",
                 progressColor: "#32CD32",
                 value: "150976.120",
+                textColor: "text-white", // Add this line for text color
               },
               {
                 title: "Scope 1 Emissions",
                 color: "#00008B",
                 progressColor: "#FF0000",
                 value: "50976.120",
+                textColor: "text-white", // Add this line for text color
               },
               {
                 title: "Scope 2 Emissions",
                 color: "#A6D3A0",
                 progressColor: "#8A2BE2",
                 value: "75976.120",
+                textColor: "text-black", // Default black text color
               },
               {
                 title: "Scope 3 Emissions",
                 color: "#DDDCBD",
                 progressColor: "#8B4513",
                 value: "100976.120",
+                textColor: "text-black", // Default black text color
               },
             ].map((item, index) => (
               <div
                 key={index}
-                className="text-black p-4 rounded-lg border border-gray-300"
+                className={`p-4 rounded-lg border border-gray-300 ${item.textColor}`} // Use item.textColor here
                 style={{ backgroundColor: item.color }}
               >
                 <h3 className="font-semibold">{item.title}</h3>

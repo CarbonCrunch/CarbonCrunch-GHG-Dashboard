@@ -82,6 +82,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { username, password, facilityName } = req.body;
+  console.log(username, password, facilityName);
 
   if (!username || !facilityName || !password) {
     throw new ApiError(400, "Username and facility name are required");

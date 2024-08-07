@@ -29,6 +29,7 @@ const NavbarD = () => {
   };
 
   useEffect(() => {
+    // console.log("useEffect", user);
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
@@ -49,7 +50,9 @@ const NavbarD = () => {
             Carbon Crunch
           </Link>
           {user && user.companyName && (
-            <span className="text-gray-800 text-sm">| {user.companyName}</span>
+            <span className="text-gray-800 text-sm">
+              | {user.companyName}, {user.facilityName}
+            </span>
           )}
         </div>
         <div className="flex items-center space-x-4">
