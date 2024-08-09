@@ -42,7 +42,7 @@ const Btls = ({ report }) => {
   ];
   const UnitOptions = ["km"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, btls, reportId, timePeriod } = reportData;
 
   useEffect(() => {

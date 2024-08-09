@@ -49,7 +49,7 @@ const Fuel = ({ report }) => {
     "Coal (electricity generation - home produced)",
   ];
   const unitOptions = ["Litres", "Tonnes", "Cubic Metre"];
-  const reportData = report[0];
+  const reportData = report;
   const {
     companyName,
     facilityName,

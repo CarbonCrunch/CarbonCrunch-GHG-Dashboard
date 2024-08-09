@@ -18,6 +18,10 @@ import EditReport from "./components/dashboard/EditReport";
 import { useAuth } from "./context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ViewReport from "./components/dashboard/ViewReport";
+import ImageUploader from "./components/dashboard/OCR/pages/ImageUploader";
+import ImageViewer from "./components/dashboard/OCR/pages/ImageViewer";
+import Tables from "./components/dashboard/OCR/pages/Tables";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -39,7 +43,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  // const [count, setCount] = useState(0);
+  const [uploadedImage, setUploadedImage] = useState(null);
 
   return (
     <Router>
@@ -96,6 +100,32 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/report/:reportId/view"
+          element={
+            <ProtectedRoute>
+              <ViewReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/uploadimage"
+          element={
+            <ProtectedRoute>
+              <ImageUploader setUploadedImage={setUploadedImage} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/output"
+          element={
+            <ProtectedRoute>
+              <ImageViewer uploadedImage={uploadedImage} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/tables" element={<Tables />} />
       </Routes>
     </Router>
   );

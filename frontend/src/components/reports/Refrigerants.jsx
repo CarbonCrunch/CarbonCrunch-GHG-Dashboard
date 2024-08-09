@@ -107,7 +107,7 @@ const Refrigerants = ({ report }) => {
   ];
   const unitOptions = ["KG"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, refrigerants, reportId, timePeriod } =
     reportData;
 

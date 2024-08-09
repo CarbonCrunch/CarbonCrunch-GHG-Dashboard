@@ -73,6 +73,7 @@ export const createNewReport = asyncHandler(async (req, res) => {
 export const getReport = asyncHandler(async (req, res) => {
   const { reportId } = req.params;
   const { companyName, facilityName } = req.query;
+  console.log("getReport", reportId, companyName, facilityName);
 
   try {
     let query = { reportId: reportId };
@@ -144,7 +145,8 @@ export const deleteReport = asyncHandler(async (req, res) => {
     await user.save();
     await Report.deleteOne({ reportId });
     res.status(200).json({ message: "Report deleted successfully." });
-  CSSMediaRule} catch (error) {
+    CSSMediaRule;
+  } catch (error) {
     throw new ApiError(
       500,
       "An error occurred while deleting the report.",
@@ -160,13 +162,10 @@ export const getUserReports = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Cannot access reports");
   }
   try {
-    const userReports = await Report.find({
-      $or: [
-        // marked for review need to check if $and will work or something else
-        { userName: user.username },
-        { companyName: user.companyName },
-        { facilityName: user.facilityName },
-      ],
+    const userReports = await Report.findOne({
+      username: user.username,
+      companyName: user.companyName,
+      facilityName: user.facilityName,
     }).select(
       "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
     );
@@ -259,7 +258,7 @@ export const updateFuelData = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Fuel data updated successfully",
-    data: report.fuel
+    data: report.fuel,
   });
 });
 // if (datatype == "food") {
@@ -552,7 +551,7 @@ export const updateEHCTDData = asyncHandler(async (req, res) => {
 export const updateWTTFuelData = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const { wttfuel } = req.body;
-  
+
   if (!reportId || !companyName || !facilityName || !wttfuel) {
     throw new ApiError(
       400,
@@ -568,12 +567,12 @@ export const updateWTTFuelData = asyncHandler(async (req, res) => {
   if (report.username !== req.user.username) {
     throw new ApiError(401, "Unauthorized access to update WTTFuel data.");
   }
-  
+
   report.wttfuel = wttfuel;
-  
+
   await report.save();
   // console.log("updateWTTFuelData", report.wttfuel);
-  
+
   res.status(200).json({
     success: true,
     message: "WTTFuel data updated successfully",
@@ -584,7 +583,7 @@ export const updateWTTFuelData = asyncHandler(async (req, res) => {
 export const updateMaterialUseData = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const { material } = req.body;
-  
+
   if (!reportId || !companyName || !facilityName || !material) {
     throw new ApiError(
       400,
@@ -856,7 +855,7 @@ export const updateOwnedVehiclesData = asyncHandler(async (req, res) => {
   }
 
   report.ownedVehicles = ownedVehicles;
-  
+
   await report.save();
   console.log("ownedVehicles", report.ownedVehicles);
 
@@ -896,4 +895,3 @@ export const updateFAData = asyncHandler(async (req, res) => {
     data: report.fa,
   });
 });
-

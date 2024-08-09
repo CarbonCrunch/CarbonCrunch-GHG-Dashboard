@@ -31,7 +31,7 @@ const Bioenergy = ({ report }) => {
     "Landfill gas",
   ];
   const unitOptions = ["Litres", "Tonnes"];
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, bioenergy, reportId, timePeriod } =
     reportData;
 

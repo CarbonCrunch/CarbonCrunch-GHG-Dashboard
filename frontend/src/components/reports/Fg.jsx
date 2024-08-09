@@ -76,7 +76,7 @@ const Fg = ({ report }) => {
 
   const UnitOptions = ["tonne.km"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, fg, reportId, timePeriod } = reportData;
 
   useEffect(() => {
@@ -154,7 +154,7 @@ const Fg = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      console.log("fgData", fgData);
+      // console.log("fgData", fgData);
       const response = await axios.patch(
         `/api/reports/:reportId/fg/put`,
         { fg: fgData },

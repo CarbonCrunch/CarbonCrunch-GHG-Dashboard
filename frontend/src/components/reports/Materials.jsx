@@ -72,7 +72,7 @@ const Materials = ({ report }) => {
 
   const UnitOptions = ["tonne"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, material, reportId, timePeriod } =
     reportData;
 
@@ -141,7 +141,7 @@ const Materials = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      console.log("materialsData", materialsData);
+      // console.log("materialsData", materialsData);
       const response = await axios.patch(
         `/api/reports/:reportId/material/put`,
         { material: materialsData },

@@ -82,75 +82,82 @@ const CRMIntegration = () => {
   );
 
   return (
-     <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen">
       <NavbarD />
       <div className="flex flex-1">
         {/* Sidebar */}
-        <div className="w-1/6 sticky top-0 h-screen">
+        <div className="w-1/6 sticky top-0 h-screen bg-orange-500">
           <Sidebar />
         </div>
-      <div className="flex-grow container mx-auto px-4 py-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center">CRM Integration</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {crmOptions.map((crm) => (
-            <div
-              key={crm.name}
-              className={`bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 ${
-                selectedCRM === crm.name.toLowerCase()
-                  ? "ring-2 ring-blue-500"
-                  : ""
-              }`}
-              onClick={() => handleCRMSelect(crm.name)}
-            >
+        <div className="flex-grow container mx-auto px-6 py-8">
+          <h1 className="text-3xl font-bold mb-8 text-center">
+            CRM Integration
+          </h1>
+          <div className="space-y-8">
+            {crmOptions.map((crm) => (
               <div
-                className="h-40 bg-cover bg-center"
-                style={{ backgroundImage: `url(${crm.image})` }}
-              ></div>
-              <div className="bg-blue-600 text-white p-3">
-                <h2 className="text-xl font-semibold">{crm.name}</h2>
-              </div>
-              <p className="p-4">Manage your {crm.name} data.</p>
-            </div>
-          ))}
-        </div>
-        {selectedCRM && (
-          <div className="mt-8">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="apiKey"
-                placeholder={selectedCRMOption.apiKeyPlaceholder}
-                value={formData.apiKey}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-              <input
-                type="text"
-                name="companyId"
-                placeholder={selectedCRMOption.companyIdPlaceholder}
-                value={formData.companyId}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors duration-300"
+                key={crm.name}
+                className={`flex cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 ${
+                  selectedCRM === crm.name.toLowerCase()
+                    ? "ring-2 ring-blue-500"
+                    : ""
+                }`}
+                onClick={() => handleCRMSelect(crm.name)}
               >
-                Fetch Data
-              </button>
-            </form>
+                <div className="h-40 w-80 relative ml-10">
+                  <img
+                    src={crm.image}
+                    alt={crm.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="p-4 ">
+                  <h1 className="text-xl font-semibold">{crm.name}</h1>
+                  <h3 className="text-blue-400">Manage your {crm.name} data</h3>
+                  {selectedCRM === crm.name.toLowerCase() && (
+                    <div className="pt-8">
+                      <form onSubmit={handleSubmit} className="space-y-3">
+                        <div className="flex items-center space-x-4">
+                          <input
+                            type="text"
+                            name="apiKey"
+                            placeholder={selectedCRMOption.apiKeyPlaceholder}
+                            value={formData.apiKey}
+                            onChange={handleInputChange}
+                            className="flex-grow p-2 border border-gray-300 rounded"
+                          />
+                          <input
+                            type="text"
+                            name="companyId"
+                            placeholder={selectedCRMOption.companyIdPlaceholder}
+                            value={formData.companyId}
+                            onChange={handleInputChange}
+                            className="flex-grow p-2 border border-gray-300 rounded"
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors duration-300"
+                        >
+                          Fetch Data
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-        {result && (
-          <div className="mt-8 bg-white p-4 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-2">Result:</h3>
-            <pre className="whitespace-pre-wrap">
-              {JSON.stringify(result, null, 2)}
-            </pre>
-          </div>
-        )}
+          {result && (
+            <div className="mt-8 bg-white p-4 rounded-lg shadow">
+              <h3 className="text-xl font-semibold mb-2">Result:</h3>
+              <pre className="whitespace-pre-wrap">
+                {JSON.stringify(result, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 };

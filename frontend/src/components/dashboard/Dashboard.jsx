@@ -255,7 +255,7 @@ const Dashboard = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-6 mb-6">
+         {/* <div className="grid grid-cols-3 gap-6 mb-6">
             <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300">
               <h3 className="font-semibold mb-2">Emission Breakdown</h3>
               <div className="h-64 relative">
@@ -280,7 +280,7 @@ const Dashboard = () => {
             <div className="flex flex-col gap-4">
               <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300 h-1/2">
                 <h3 className="font-semibold mb-2">Against your Industry</h3>
-                {/* Content for industry comparison */}
+                {/* Content for industry comparison 
               </div>
               <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300 h-1/2">
                 <h3 className="font-semibold mb-2">ESG Score</h3>
@@ -295,7 +295,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <EmissionBreakdown />
         </div>

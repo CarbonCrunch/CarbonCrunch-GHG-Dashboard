@@ -23,7 +23,7 @@ const Ehctd = ({ report }) => {
   ];
   const unitOptions = ["kWh", "Ton of refrigeration", "KG"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, ehctd, reportId, timePeriod } = reportData;
 
   useEffect(() => {

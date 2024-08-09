@@ -34,7 +34,7 @@ const Food = ({ report }) => {
 
   const UnitOptions = ["breakfast", "hot snack", "meal", "litre", "sandwich"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, food, reportId, timePeriod } = reportData;
 
   useEffect(() => {

@@ -74,7 +74,7 @@ const Waste = ({ report }) => {
 
   const unitOptions = ["tonnes"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, waste, reportId, timePeriod } = reportData;
 
   useEffect(() => {

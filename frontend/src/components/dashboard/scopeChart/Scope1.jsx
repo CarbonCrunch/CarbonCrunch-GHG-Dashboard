@@ -38,16 +38,16 @@ const Scope1 = ({ reports }) => {
   const [passengerData, setPassengerData] = useState([]);
   const [deliveryData, setDeliveryData] = useState([]);
 
-  const reportData = reports[0];
+  const reportData = reports;
   const {
-    companyName,
-    facilityName,
-    fuel,
-    ownedVehicles,
-    reportId,
-    bioenergy,
-    refrigerants,
-  } = reportData;
+    companyName = "",
+    facilityName = "",
+    fuel = [],
+    ownedVehicles = [],
+    reportId = "",
+    bioenergy = [],
+    refrigerants = [],
+  } = reportData || {};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,7 +111,15 @@ const Scope1 = ({ reports }) => {
     };
 
     fetchData();
-  }, [reportId, companyName, facilityName, fuel, bioenergy, refrigerants]);
+  }, [
+    reportId,
+    companyName,
+    facilityName,
+    fuel,
+    bioenergy,
+    refrigerants,
+    ownedVehicles,
+  ]);
 
   const chartHeight = 510; // Reduced height by 15%
   const barColors = [
@@ -188,75 +196,110 @@ const Scope1 = ({ reports }) => {
       },
     },
     bodyFont: {
-      size: 24, // Increase font size by 4x
+      size: 15,
     },
     titleFont: {
-      size: 24, // Increase font size by 4x
+      size: 15,
     },
-    padding: 16, //
+    padding: 16,
   };
 
- const radarOptions = {
-   responsive: true,
-   maintainAspectRatio: false,
-   scales: {
-     r: {
-       angleLines: {
-         display: false,
-       },
-       suggestedMin: 0,
-       suggestedMax: 1, // Decreased the scale to 1
-     },
-   },
-   plugins: {
-     legend: { position: "top" },
-     title: {
-       display: true,
-       text: "Emissions from Owned Vehicles",
-       font: { size: 22 },
-     },
-     tooltip: tooltipOptions,
-   },
- };
-
-const passengerChartData = {
-  labels: ["Plug-in Hybrid", "Electric", "Petrol", "Diesel", "LPG"],
-  datasets: [
-    {
-      label: "Passenger Vehicles",
-      data: [0.3, 0.1, 0.7, 0.6, 0.4],
-      backgroundColor: pieColors.slice(0, 5),
-      borderColor: "#2F4F4F",
-      borderWidth: 1,
+  const radarOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        ticks: {
+          display: false, // This hides the scale values
+        },
+        grid: {
+          display: true, // This keeps the grid lines visible
+        },
+        angleLines: {
+          display: false,
+        },
+        suggestedMin: 0,
+        suggestedMax: Math.max(
+          ...passengerData.map((item) => item.CO2e),
+          ...deliveryData.map((item) => item.CO2e)
+        ), // Dynamic scale based on data
+      },
     },
-  ],
-};
-
-
-const deliveryChartData = {
-  labels: ["Petrol", "Diesel", "Electric", "CNG"],
-  datasets: [
-    {
-      label: "Delivery Vehicles",
-      data: [0.8, 0.6, 0.2, 0.4], // Hard-coded data for delivery vehicles
-      backgroundColor: pieColors.slice(0, 4),
-      borderColor: "#2F4F4F",
-      borderWidth: 1,
+    plugins: {
+      legend: { display: true }, // Display legend
+      title: {
+        display: true,
+        text: "Emissions from Owned Vehicles",
+        font: { size: 22 },
+      },
+      tooltip: tooltipOptions,
     },
-  ],
-};
-  
+  };
+
+  const passengerChartData = {
+    labels: ["Plug-in Hybrid", "Electric", "Petrol", "Diesel", "LPG"],
+    datasets: [
+      {
+        label: "Passenger Vehicles",
+        data: passengerData.map((item) => {
+          switch (item.level3) {
+            case "Plug-in Hybrid":
+              return item.CO2e;
+            case "Electric":
+              return item.CO2e;
+            case "Petrol":
+              return item.CO2e;
+            case "Diesel":
+              return item.CO2e;
+            case "LPG":
+              return item.CO2e;
+            default:
+              return 0;
+          }
+        }),
+        backgroundColor: pieColors.slice(0, 5),
+        borderColor: "#2F4F4F",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const deliveryChartData = {
+    labels: ["Petrol", "Diesel", "Electric", "CNG"],
+    datasets: [
+      {
+        label: "Delivery Vehicles",
+        data: deliveryData.map((item) => {
+          switch (item.level3) {
+            case "Petrol":
+              return item.CO2e;
+            case "Diesel":
+              return item.CO2e;
+            case "Electric":
+              return item.CO2e;
+            case "CNG":
+              return item.CO2e;
+            default:
+              return 0;
+          }
+        }),
+        backgroundColor: pieColors.slice(0, 4),
+        borderColor: "#2F4F4F",
+        borderWidth: 1,
+      },
+    ],
+  };
 
   const fuelOptions = {
     indexAxis: "y",
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: { display: false },
       title: {
         display: true,
         text: "Fuel Emissions",
-        font: { size: 22 }, // Increase title font size by 5x
+        font: { size: 22 },
       },
       tooltip: tooltipOptions,
     },
@@ -271,11 +314,11 @@ const deliveryChartData = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: { display: false },
       title: {
         display: true,
         text: "Bioenergy Emissions",
-        font: { size: 22 }, // Increase title font size by 5x
+        font: { size: 22 },
       },
       tooltip: tooltipOptions,
     },
@@ -285,11 +328,11 @@ const deliveryChartData = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: { display: false },
       title: {
         display: true,
         text: "Refrigerants Emissions",
-        font: { size: 22 }, // Increase title font size by 5x
+        font: { size: 22 },
       },
       tooltip: tooltipOptions,
     },
@@ -307,10 +350,10 @@ const deliveryChartData = {
         sources that use fossil fuels and/or emit fugitive emissions
       </h3>
       <div className="flex flex-col gap-4">
-        <div className="flex gap-4 h-[510px]">
+        <div className="flex gap-4 h-[510px] ">
           <div
-            className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
-            style={{ backgroundColor: "#DDDCBD" }}
+            className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
           >
             <Bar
               data={fuelChartData}
@@ -319,8 +362,8 @@ const deliveryChartData = {
             />
           </div>
           <div
-            className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
-            style={{ backgroundColor: "#DDDCBD" }}
+            className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
           >
             <Pie
               data={bioenergyChartData}
@@ -328,21 +371,11 @@ const deliveryChartData = {
               height={chartHeight}
             />
           </div>
-          <div
-            className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
-            style={{ backgroundColor: "#DDDCBD" }}
-          >
-            <Bar
-              data={refrigerantsChartData}
-              options={refrigerantsOptions}
-              height={chartHeight}
-            />
-          </div>
         </div>
         <div className="flex gap-4 h-[510px]">
           <div
-            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
-            style={{ backgroundColor: "#DDDCBD" }}
+            className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
           >
             <Radar
               data={passengerChartData}
@@ -351,12 +384,24 @@ const deliveryChartData = {
             />
           </div>
           <div
-            className="w-1/2 p-2 rounded-lg border border-gray-300 shadow-lg"
-            style={{ backgroundColor: "#DDDCBD" }}
+            className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
           >
             <Radar
               data={deliveryChartData}
               options={radarOptions}
+              height={chartHeight}
+            />
+          </div>
+        </div>
+        <div className="flex gap-4 h-[510px]">
+          <div
+            className="w-full p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
+          >
+            <Bar
+              data={refrigerantsChartData}
+              options={refrigerantsOptions}
               height={chartHeight}
             />
           </div>

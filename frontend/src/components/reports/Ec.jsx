@@ -44,7 +44,7 @@ const Ec = ({ report }) => {
   ];
   const UnitOptions = ["KM", "Passenger.KM"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, ec, reportId, timePeriod } = reportData;
 
   useEffect(() => {

@@ -46,7 +46,7 @@ const Wttfuels = ({ report }) => {
     "Natural gas (100% mineral blend)",
   ];
   const unitOptions = ["litres", "cubic metres"];
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, wttfuel, reportId, timePeriod } =
     reportData;
 

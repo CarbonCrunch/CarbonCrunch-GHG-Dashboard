@@ -5,19 +5,20 @@ import Scope2 from "./Scope2";
 import Scope3 from "./Scope3";
 
 const EmissionBreakdown = () => {
-  const [reports, setReports] = useState([]);
+  const [reports, setReports] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // console.log("reports", reports);
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
         const response = await axios.get("/api/reports/get");
         if (response.data.data === "zero") {
-          setReports([]);
+          setReports(null);
         } else {
-          console.log("ECComponent", reports);
           setReports(response.data.data);
+          // console.log("ECComponent", response.data.data);
         }
       } catch (err) {
         setError("Failed to fetch reports");

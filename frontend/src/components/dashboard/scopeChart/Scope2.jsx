@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
@@ -21,50 +22,49 @@ ChartJS.register(
   Legend
 );
 
-  // const [ehctdData, setEhctdData] = useState([]);
+const Scope2 = ({ reports }) => {
+  const [ehctdData, setEhctdData] = useState([]);
 
-  // const reportData = reports[0];
-  // const { companyName, facilityName, reportId, ehctd } = reportData;
+  const reportData = reports;
+  const { companyName, facilityName, reportId, ehctd } = reportData;
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const [ehctdResponse] = await Promise.all([
-  //         axios.get(/api/reports/${reportId}/CO2eEhctd, {
-  //           params: {
-  //             companyName,
-  //             facilityName,
-  //             reportId,
-  //             ehctd: JSON.stringify(ehctd),
-  //           },
-  //         }),
-  //       ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [ehctdResponse] = await Promise.all([
+          axios.get(`/api/reports/${reportId}/CO2eEhctd`, {
+            params: {
+              companyName,
+              facilityName,
+              reportId,
+              ehctd: JSON.stringify(ehctd),
+            },
+          }),
+        ]);
 
-  //       setEhctdData(ehctdResponse.data.data);
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
-  //   };
+        setEhctdData(ehctdResponse.data.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-  //   fetchData();
-  // }, [reportId, companyName, facilityName, ehctd]);
+    fetchData();
+  }, [reportId, companyName, facilityName, ehctd]);
 
-const Scope2 = () => {
   const chartHeight = 450;
 
-  const hardCodedData = [
-    { activity: "Heating and Steam", CO2e: 575, date: "2024-02-06" },
-    { activity: "District Cooling", CO2e: 13112, date: "2024-01-31" },
-    { activity: "Electricity", CO2e: 33, date: "2024-02-01" },
-    { activity: "Electricity", CO2e: 45, date: "2024-02-15" },
-    { activity: "Heating and Steam", CO2e: 600, date: "2024-02-20" },
-    { activity: "District Cooling", CO2e: 12000, date: "2024-02-10" },
-  ];
+  const filteredData = ehctdData.filter((item) =>
+    ["Electricity", "Heating and Steam", "District Cooling"].includes(
+      item.activity
+    )
+  );
 
   const uniqueActivities = [
-    ...new Set(hardCodedData.map((item) => item.activity)),
+    "Electricity",
+    "Heating and Steam",
+    "District Cooling",
   ];
-  const sortedData = hardCodedData.sort(
+  const sortedData = filteredData.sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
   const uniqueDates = [...new Set(sortedData.map((item) => item.date))];
@@ -125,8 +125,8 @@ const Scope2 = () => {
             return `${context.dataset.label}: ${context.parsed.y} CO2e`;
           },
         },
-        bodyFont: { size: 24 },
-        titleFont: { size: 24 },
+        bodyFont: { size: 15 },
+        titleFont: { size: 15 },
         padding: 16,
       },
     },
@@ -141,16 +141,10 @@ const Scope2 = () => {
       </h1>
       <div className="flex gap-4 h-[450px]">
         <div
-          className="w-2/3 p-2 rounded-lg border border-gray-300 shadow-lg"
-          style={{ backgroundColor: "#DDDCBD" }}
+          className="w-full p-2 rounded-lg border border-gray-900 shadow-lg"
+          style={{ backgroundColor: "#F5F5F5" }}
         >
           <Line data={chartData} options={options} height={chartHeight} />
-        </div>
-        <div
-          className="w-1/3 p-2 rounded-lg border border-gray-300 shadow-lg"
-          style={{ backgroundColor: "#DDDCBD" }}
-        >
-          
         </div>
       </div>
     </div>

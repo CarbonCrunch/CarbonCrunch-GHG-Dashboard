@@ -145,7 +145,7 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
 export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const refrigerants = JSON.parse(req.query.refrigerants);
-console.log("refrigerants", refrigerants, reportId, companyName, facilityName);
+// console.log("refrigerants", refrigerants, reportId, companyName, facilityName);
   if (!reportId || !companyName || !facilityName || !refrigerants) {
     throw new ApiError(
       400,
@@ -330,7 +330,7 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
 export const CO2eEc = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const ec = JSON.parse(req.query.ec);
-  console.log("ec", ec, reportId, companyName, facilityName);
+  // console.log("ec", ec, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !ec) {
     throw new ApiError(

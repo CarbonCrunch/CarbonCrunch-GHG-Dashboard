@@ -24,17 +24,17 @@ const Fa = ({ report }) => {
   const [editIndex, setEditIndex] = useState(-1);
   const [activeTab, setActiveTab] = useState("hotel");
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, reportId, timePeriod } = reportData;
 
   useEffect(() => {
     // Initialize data from report if available
     // This is a placeholder - you'll need to adjust based on your actual data structure
-    if (report[0].hotelAccommodation) {
-      setHotelData(report[0].hotelAccommodation);
+    if (report.hotelAccommodation) {
+      setHotelData(report.hotelAccommodation);
     }
-    if (report[0].flightAccommodation) {
-      setFlightData(report[0].flightAccommodation);
+    if (report.flightAccommodation) {
+      setFlightData(report.flightAccommodation);
     }
   }, [report]);
 

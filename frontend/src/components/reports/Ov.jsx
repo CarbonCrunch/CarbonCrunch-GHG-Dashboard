@@ -42,7 +42,7 @@ const Ov = ({ report }) => {
   ];
   const UnitOptions = ["KM"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, ownedVehicles, reportId, timePeriod } =
     reportData;
 

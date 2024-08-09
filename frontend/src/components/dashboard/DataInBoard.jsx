@@ -174,16 +174,37 @@ const DataInBoard = () => {
                 </svg>
               </button>
             </div>
+            <div className="flex items-center ml-auto mr-20">
+              <label htmlFor="category" className="mr-2">
+                Category:
+              </label>
+              <select
+                id="category"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="p-2 border rounded"
+              >
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="flex">
-            <div className="w-2/3">
+          <div className="flex mr-18">
+            <div className="w-full h-96 pt-18">
               <Pie
                 data={pieData}
-                options={{ responsive: true, maintainAspectRatio: false }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  cutout: "50%",
+                }}
               />
             </div>
-            <div className="w-1/3 pl-6">
+            <div className="w-1/3 pr-12 mt-12">
               <div className="space-y-4">
                 <div>
                   <p className="font-medium">Total Footprints</p>
@@ -203,40 +224,13 @@ const DataInBoard = () => {
             </div>
           </div>
 
-          <div className="mt-6 flex space-x-4">
-            <button className="px-4 py-2 bg-green-500 text-white rounded">
-              + Add Activity
-            </button>
-          </div>
-          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6 mt-20">
             {loading ? (
               <p>Loading report...</p>
             ) : error ? (
               <p className="text-red-500">{error}</p>
             ) : report ? (
               <div>
-                <div className="flex flex-row items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold">
-                    Edit Report: {report.reportName}
-                  </h2>
-                  <div className="flex items-center">
-                    <label htmlFor="category" className="mr-2">
-                      Category:
-                    </label>
-                    <select
-                      id="category"
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="p-2 border rounded"
-                    >
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
                 {SelectedComponent && <SelectedComponent report={report} />}
               </div>
             ) : (

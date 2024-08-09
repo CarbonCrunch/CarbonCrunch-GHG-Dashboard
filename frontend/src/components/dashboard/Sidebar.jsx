@@ -29,18 +29,17 @@ const Sidebar = () => {
           link="/datainboard"
         />
         {/* <SidebarItem icon={<FaBullseye />} text="Targets" /> */}
-        <SidebarItem icon={<FaDatabase />} text="CRM Data" link="/crm" />
+        <SidebarItem icon={<FaDatabase />} text="Integration  " link="/crm" />
         {/* <SidebarItem icon={<FaChartBar />} text="Analytics" /> */}
-        <SidebarItem icon={<FaLeaf />} text="GHG" />
+        {/* <SidebarItem icon={<FaLeaf />} text="GHG" /> */}
         <SidebarItem
           icon={<FaCamera />}
           text="OCR Picker"
-          link="/ocr-picker"
+          link="/uploadimage"
         />{" "}
-        {/* New item for OCR Picker */}
-        <SidebarItem icon={<FaCog />} text="Settings" />
       </div>
       <div>
+        <SidebarItem icon={<FaCog />} text="Settings" />
         <SidebarItem icon={<FaSignOutAlt />} text="Logout" />
       </div>
     </div>

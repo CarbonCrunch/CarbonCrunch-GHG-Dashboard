@@ -18,7 +18,7 @@ const Water = ({ report }) => {
 
   const emissionOptions = ["Water Supply", "Water Treatment"];
   const unitOptions = ["cubic meter"];
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, water, reportId, timePeriod } = reportData;
 
   useEffect(() => {

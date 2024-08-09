@@ -20,7 +20,7 @@ const HomeOffice = ({ report }) => {
 
   const TypeOptions = ["With Heating", "With Cooling", "No Heating/No Cooling"];
 
-  const reportData = report[0];
+  const reportData = report;
   const { companyName, facilityName, homeOffice, reportId, timePeriod } =
     reportData;
 
@@ -97,7 +97,7 @@ const HomeOffice = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      console.log("homeOfficeData", homeOfficeData);
+      // console.log("homeOfficeData", homeOfficeData);
       const response = await axios.patch(
         `/api/reports/:reportId/home-office/put`,
         { homeOffice: homeOfficeData },
