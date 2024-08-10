@@ -18,17 +18,17 @@ const Btls = ({ report }) => {
   });
   const [editIndex, setEditIndex] = useState(-1);
 
-  const VehicleOptions = ["Cars (by size)", "Motorbikes", "Taxis", "Vans"];
+  const VehicleOptions = ["Cars (by size)", "Motorbike", "Taxi",];
   const TypeOptions = [
     "Small car",
     "Medium car",
     "Large car",
     "Average car",
-    "Average motorbike",
+    "Small",
+    "Medium",
+    "Large",
+    "Average",
     "Average taxi",
-    "Large van",
-    "Medium van",
-    "Small van",
   ];
   const FuelOptions = [
     "Plug-in Hybrid Electric Vehicle",

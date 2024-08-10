@@ -18,21 +18,42 @@ const Ec = ({ report }) => {
   });
   const [editIndex, setEditIndex] = useState(-1);
 
-  const VehicleOptions = ["car", "Ferry", "Motorbike", "Taxis", "Bus", "Rail"];
-  const Level2Options = [
-    "Cars (by size)",
-    "Foot passenger",
-    "Car passenger",
-    "Average (all passenger)",
-    "Regular taxi",
-    "Black cab",
-    "Local bus (not London)",
-    "Local London bus",
-    "Average local bus",
-    "Coach",
-    "National rail",
-    "International rail",
-  ];
+  const VehicleOptions = ["Car", "Ferry", "Motorbike", "Taxi", "Bus", "Rail"];
+ const Level2Options = [
+   // For Cars (by size)
+   "Small car",
+   "Medium car",
+   "Large car",
+   "Average car",
+
+   // For Ferry
+   "Foot passenger",
+   "Car passenger",
+   "Average (all passenger)",
+
+   // For Motorbike
+   "Small",
+   "Medium",
+   "Large",
+   "Average",
+
+   // For Taxis
+   "Regular taxi",
+   "Black cab",
+
+   // For Bus
+   "Local bus (not London)",
+   "Local London bus",
+   "Average local bus",
+   "Coach",
+
+   // For Rail
+   "National rail",
+   "International rail",
+   "Light rail and tram", 
+   "London Underground",
+ ];
+
   const FuelOptions = [
     "Battery Electric Vehicle",
     "CNG",
@@ -120,7 +141,7 @@ const Ec = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      console.log("ecData", ecData);
+      // console.log("ecData", ecData);
       const response = await axios.patch(
         `/api/reports/:reportId/ec/put`,
         { ec: ecData },

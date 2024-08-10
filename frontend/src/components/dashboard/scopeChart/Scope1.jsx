@@ -236,59 +236,65 @@ const Scope1 = ({ reports }) => {
     },
   };
 
-  const passengerChartData = {
-    labels: ["Plug-in Hybrid", "Electric", "Petrol", "Diesel", "LPG"],
-    datasets: [
-      {
-        label: "Passenger Vehicles",
-        data: passengerData.map((item) => {
-          switch (item.level3) {
-            case "Plug-in Hybrid":
-              return item.CO2e;
-            case "Electric":
-              return item.CO2e;
-            case "Petrol":
-              return item.CO2e;
-            case "Diesel":
-              return item.CO2e;
-            case "LPG":
-              return item.CO2e;
-            default:
-              return 0;
-          }
-        }),
-        backgroundColor: pieColors.slice(0, 5),
-        borderColor: "#2F4F4F",
-        borderWidth: 1,
-      },
-    ],
-  };
+ const passengerChartData = {
+   labels: ["Plug-in Hybrid", "Electric", "Petrol", "Diesel", "LPG"],
+   datasets: [
+     {
+       label: "Passenger Vehicles",
+       data: passengerData.map((item) => {
+         if (item.level1 === "Passenger vehicles") {
+           switch (item.fuel) {
+             case "Plug-in Hybrid Electric Vehicle":
+               return item.CO2e;
+             case "Battery Electric Vehicle":
+               return item.CO2e;
+             case "Petrol":
+               return item.CO2e;
+             case "Diesel":
+               return item.CO2e;
+             case "LPG":
+               return item.CO2e;
+             default:
+               return 0;
+           }
+         }
+         return 0;
+       }),
+       backgroundColor: pieColors.slice(0, 5),
+       borderColor: "#2F4F4F",
+       borderWidth: 1,
+     },
+   ],
+ };
 
-  const deliveryChartData = {
-    labels: ["Petrol", "Diesel", "Electric", "CNG"],
-    datasets: [
-      {
-        label: "Delivery Vehicles",
-        data: deliveryData.map((item) => {
-          switch (item.level3) {
-            case "Petrol":
-              return item.CO2e;
-            case "Diesel":
-              return item.CO2e;
-            case "Electric":
-              return item.CO2e;
-            case "CNG":
-              return item.CO2e;
-            default:
-              return 0;
-          }
-        }),
-        backgroundColor: pieColors.slice(0, 4),
-        borderColor: "#2F4F4F",
-        borderWidth: 1,
-      },
-    ],
-  };
+ const deliveryChartData = {
+   labels: ["Petrol", "Diesel", "Electric", "CNG"],
+   datasets: [
+     {
+       label: "Delivery Vehicles",
+       data: deliveryData.map((item) => {
+         if (item.level1 === "Delivery vehicles") {
+           switch (item.fuel) {
+             case "Petrol":
+               return item.CO2e;
+             case "Diesel":
+               return item.CO2e;
+             case "Battery Electric Vehicle":
+               return item.CO2e;
+             case "CNG":
+               return item.CO2e;
+             default:
+               return 0;
+           }
+         }
+         return 0;
+       }),
+       backgroundColor: pieColors.slice(0, 4),
+       borderColor: "#2F4F4F",
+       borderWidth: 1,
+     },
+   ],
+ };
 
   const fuelOptions = {
     indexAxis: "y",

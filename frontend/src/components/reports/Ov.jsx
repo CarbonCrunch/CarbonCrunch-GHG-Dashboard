@@ -20,13 +20,14 @@ const Ov = ({ report }) => {
   const [editIndex, setEditIndex] = useState(-1);
 
   const Level1Options = ["Passenger vehicles", "Delivery vehicles"];
-  const Level2Options = ["Cars (by size)", "Motorbikes", "Taxis", "Vans"];
+  const Level2Options = ["Cars (by size)", "Motorbikes", "Vans"];
   const Level3Options = [
     "Small car",
     "Medium car",
     "Large car",
-    "Average motorbike",
-    "Average taxi",
+    "Small",
+    "Medium",
+    "Large",
     "Large van",
     "Medium van",
     "Small van",
@@ -40,7 +41,7 @@ const Ov = ({ report }) => {
     "CNG",
     "LPG",
   ];
-  const UnitOptions = ["KM"];
+  const UnitOptions = ["km"];
 
   const reportData = report;
   const { companyName, facilityName, ownedVehicles, reportId, timePeriod } =

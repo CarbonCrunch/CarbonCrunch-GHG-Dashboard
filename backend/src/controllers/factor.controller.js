@@ -145,7 +145,7 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
 export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const refrigerants = JSON.parse(req.query.refrigerants);
-// console.log("refrigerants", refrigerants, reportId, companyName, facilityName);
+  // console.log("refrigerants", refrigerants, reportId, companyName, facilityName);
   if (!reportId || !companyName || !facilityName || !refrigerants) {
     throw new ApiError(
       400,
@@ -330,7 +330,6 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
 export const CO2eEc = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const ec = JSON.parse(req.query.ec);
-  // console.log("ec", ec, reportId, companyName, facilityName);
 
   if (!reportId || !companyName || !facilityName || !ec) {
     throw new ApiError(
@@ -357,7 +356,7 @@ export const CO2eEc = asyncHandler(async (req, res) => {
   }
 
   const conversionRates = {
-    "Cars (by size)": {
+    Car: {
       "Small car": {
         "Battery Electric Vehicle": 0.05,
         CNG: 0,
@@ -410,7 +409,7 @@ export const CO2eEc = asyncHandler(async (req, res) => {
       Large: 0.13,
       Average: 0.11,
     },
-    Taxis: {
+    Taxi: {
       "Regular taxi": {
         km: 0.21,
         "passenger.km": 0.15,
@@ -437,14 +436,13 @@ export const CO2eEc = asyncHandler(async (req, res) => {
   const updatedEcData = ec.map((entry) => {
     let conversionRate = 0;
 
-    if (entry.vehicle === "car") {
-      conversionRate =
-        conversionRates["Cars (by size)"]["Average car"][entry.fuel];
+    if (entry.vehicle === "Car") {
+      conversionRate = conversionRates["Car"][entry.type][entry.fuel];
     } else if (entry.vehicle === "Motorbike") {
-      conversionRate = conversionRates["Motorbike"]["Average"];
-    } else if (entry.type === "Regular taxi" || entry.type === "Black cab") {
+      conversionRate = conversionRates["Motorbike"][entry.type];
+    } else if (entry.vehicle === "Taxi") {
       conversionRate =
-        conversionRates["Taxis"][entry.type][entry.unit.toLowerCase()];
+        conversionRates["Taxi"][entry.type][entry.unit.toLowerCase()];
     } else if (entry.vehicle === "Ferry") {
       conversionRate = conversionRates["Ferry"][entry.type];
     } else if (entry.vehicle === "Bus") {
@@ -546,7 +544,7 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
         Unknown: 0.17,
       },
     },
-    Taxis: {
+    Taxi: {
       "Regular taxi": {
         km: 0.21,
         "passenger.km": 0.15,
@@ -573,7 +571,7 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
       conversionRate = conversionRates[vehicle]["Average car"][fuel];
     } else if (vehicle === "Motorbike") {
       conversionRate = conversionRates[vehicle]["Average"];
-    } else if (vehicle === "Taxis" && conversionRates[vehicle][type]) {
+    } else if (vehicle === "Taxi" && conversionRates[vehicle][type]) {
       conversionRate = conversionRates[vehicle][type][unit.toLowerCase()];
     }
 
@@ -629,166 +627,58 @@ export const CO2eFg = asyncHandler(async (req, res) => {
     );
   }
 
-  // Define conversion rates based on the provided information
+  // Define conversion rates based on category and type only
   const conversionRates = {
     Vans: {
-      "Class I (up to 1.305 tonnes)": {
-        Diesel: 0.81,
-        Petrol: 1.07,
-        CNG: 0,
-        LPG: 0,
-        Unknown: 0,
-        "Plug-in Hybrid Electric Vehicle": 0,
-        "Battery Electric Vehicle": 0.19,
-      },
-      "Class II (1.305 to 1.74 tonnes)": {
-        Diesel: 0.63,
-        Petrol: 0.72,
-        CNG: 0,
-        LPG: 0,
-        Unknown: 0,
-        "Plug-in Hybrid Electric Vehicle": 0,
-        "Battery Electric Vehicle": 0.25,
-      },
-      "Class III (1.74 to 3.5 tonnes)": {
-        Diesel: 0.59,
-        Petrol: 0.78,
-        CNG: 0,
-        LPG: 0,
-        Unknown: 0,
-        "Plug-in Hybrid Electric Vehicle": 0,
-        "Battery Electric Vehicle": 0.23,
-      },
-      "Average (up to 3.5 tonnes)": {
-        Diesel: 0.6,
-        Petrol: 0.72,
-        CNG: 0.62,
-        LPG: 0.68,
-        Unknown: 0.61,
-        "Plug-in Hybrid Electric Vehicle": 0,
-        "Battery Electric Vehicle": 0.25,
-      },
+      "Class I (up to 1.305 tonnes)": 1.07,
+      "Class II (1.305 to 1.74 tonnes)": 0.72,
+      "Class III (1.74 to 3.5 tonnes)": 0.78,
     },
     "HGV (all diesel)": {
-      "Rigid (>3.5 - 7.5 tonnes)": { "Average laden": 0.49 },
-      "Rigid (>7.5 tonnes-17 tonnes)": { "Average laden": 0.34 },
-      "Rigid (>17 tonnes)": { "Average laden": 0.18 },
-      "All rigids": { "Average laden": 0.21 },
-      "Articulated (>3.5 - 33t)": { "Average laden": 0.13 },
-      "Articulated (>33t)": { "Average laden": 0.08 },
-      "All artics": { "Average laden": 0.08 },
-      "All HGVs": { "Average laden": 0.11 },
+      "Rigid (>3.5 - 7.5 tonnes)": 0.49,
+      "Rigid (>7.5 tonnes-17 tonnes)": 0.34,
+      "Rigid (>17 tonnes)": 0.18,
+      "All rigids": 0.21,
+      "Articulated (>3.5 - 33t)": 0.13,
+      "Articulated (>33t)": 0.08,
+      "All artics": 0.08,
+      "All HGVs": 0.11,
     },
     "HGV refrigerated (all diesel)": {
-      "Rigid (>3.5 - 7.5 tonnes)": { "Average laden": 0.58 },
-      "Rigid (>7.5 tonnes-17 tonnes)": { "Average laden": 0.4 },
-      "Rigid (>17 tonnes)": { "Average laden": 0.22 },
-      "All rigids": { "Average laden": 0.25 },
-      "Articulated (>3.5 - 33t)": { "Average laden": 0.15 },
-      "Articulated (>33t)": { "Average laden": 0.09 },
-      "All artics": { "Average laden": 0.09 },
-      "All HGVs": { "Average laden": 0.13 },
+      "Rigid (>3.5 - 7.5 tonnes)": 0.58,
+      "Rigid (>7.5 tonnes-17 tonnes)": 0.4,
+      "Rigid (>17 tonnes)": 0.22,
+      "All rigids": 0.25,
+      "Articulated (>3.5 - 33t)": 0.15,
+      "Articulated (>33t)": 0.09,
+      "All artics": 0.09,
+      "All HGVs": 0.13,
     },
     "Freight flights": {
-      "Domestic, to/from UK": { "With RF": 4.49, "Without RF": 2.38 },
-      "Short-haul, to/from UK": { "With RF": 2.3, "Without RF": 1.22 },
-      "Long-haul, to/from UK": { "With RF": 1.02, "Without RF": 0.54 },
-      "International, to/from non-UK": { "With RF": 1.02, "Without RF": 0.54 },
+      "Domestic, to/from UK": 2.38,
+      "Short-haul, to/from UK": 1.22,
+      "Long-haul, to/from UK": 0.54,
+      "International, to/from non-UK": 0.54,
     },
     Rail: {
       "Freight train": 0.03,
     },
     "Sea tanker": {
-      "Crude tanker": {
-        "200,000+ dwt": 0,
-        "120,000–199,999 dwt": 0,
-        "80,000–119,999 dwt": 0.01,
-        "60,000–79,999 dwt": 0.01,
-        "10,000–59,999 dwt": 0.01,
-        "0–9999 dwt": 0.03,
-        Average: 0,
-      },
-      "Products tanker": {
-        "60,000+ dwt": 0.01,
-        "20,000–59,999 dwt": 0.01,
-        "10,000–19,999 dwt": 0.02,
-        "5000–9999 dwt": 0.03,
-        "0–4999 dwt": 0.05,
-        Average: 0.01,
-      },
-      "Chemical tanker": {
-        "20,000+ dwt": 0.01,
-        "10,000–19,999 dwt": 0.01,
-        "5000–9999 dwt": 0.02,
-        "0–4999 dwt": 0.02,
-        Average: 0.01,
-      },
-      "LNG tanker": {
-        "200,000+ m3": 0.01,
-        "0–199,999 m3": 0.01,
-        Average: 0.01,
-      },
-      "LPG Tanker": {
-        "50,000+ m3": 0.01,
-        "0–49,999 m3": 0.04,
-        Average: 0.01,
-      },
+      "Container ship": 0.02,
     },
     "Cargo ship": {
-      "Bulk carrier": {
-        "200,000+ dwt": 0,
-        "100,000–199,999 dwt": 0,
-        "60,000–99,999 dwt": 0,
-        "35,000–59,999 dwt": 0.01,
-        "10,000–34,999 dwt": 0.01,
-        "0–9999 dwt": 0.03,
-        Average: 0,
-      },
-      "General cargo": {
-        "10,000+ dwt": 0.01,
-        "5000–9999 dwt": 0.02,
-        "0–4999 dwt": 0.01,
-        "10,000+ dwt 100+ TEU": 0.01,
-        "5000–9999 dwt 100+ TEU": 0.02,
-        "0–4999 dwt 100+ TEU": 0.02,
-        Average: 0.01,
-      },
-      "Container ship": {
-        "8000+ TEU": 0.01,
-        "5000–7999 TEU": 0.02,
-        "3000–4999 TEU": 0.02,
-        "2000–2999 TEU": 0.02,
-        "1000–1999 TEU": 0.03,
-        "0–999 TEU": 0.04,
-        Average: 0.02,
-      },
-      "Vehicle transport": {
-        "4000+ CEU": 0.03,
-        "0–3999 CEU": 0.06,
-        Average: 0.04,
-      },
-      "RoRo-Ferry": {
-        "2000+ LM": 0.05,
-        "0–1999 LM": 0.06,
-        Average: 0.05,
-      },
-      "Large RoPax ferry": { Average: 0.38 },
-      "Refrigerated cargo": { "All dwt": 0.01 },
+      "Container ship": 0.02,
     },
   };
 
   // Update the freighting goods data with calculated CO2e amounts
   const updatedFgData = fg.map((fgEntry) => {
-    const { vehicle, type, fuel, distance, unit } = fgEntry;
+    const { category, type, distance } = fgEntry;
     let conversionRate = 0;
 
-    if (conversionRates[vehicle]) {
-      if (conversionRates[vehicle][type]) {
-        if (typeof conversionRates[vehicle][type] === "object") {
-          conversionRate = conversionRates[vehicle][type][fuel] || 0;
-        } else {
-          conversionRate = conversionRates[vehicle][type];
-        }
+    if (conversionRates[category]) {
+      if (conversionRates[category][type]) {
+        conversionRate = conversionRates[category][type];
       }
     }
 
@@ -801,7 +691,6 @@ export const CO2eFg = asyncHandler(async (req, res) => {
   report.CO2eFg = updatedFgData.reduce((acc, curr) => acc + curr.CO2e, 0);
 
   await report.save();
-  // console.log("fg", report.fg );
 
   res.status(200).json({
     success: true,
@@ -809,7 +698,6 @@ export const CO2eFg = asyncHandler(async (req, res) => {
     data: report.fg,
   });
 });
-
 
 export const CO2eWttFuels = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
@@ -1008,7 +896,6 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eWaste = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const waste = JSON.parse(req.query.waste);
@@ -1124,7 +1011,6 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eFood = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const food = JSON.parse(req.query.food);
@@ -1198,17 +1084,9 @@ export const CO2eFood = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eOv = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const ownedVehicles = JSON.parse(req.query.ownedVehicles);
-  // console.log(
-  //   "ownedVehicles",
-  //   ownedVehicles,
-  //   reportId,
-  //   companyName,
-  //   facilityName
-  // );
 
   if (!reportId || !companyName || !facilityName || !ownedVehicles) {
     throw new ApiError(
@@ -1282,7 +1160,7 @@ export const CO2eOv = asyncHandler(async (req, res) => {
     },
     "Delivery vehicles": {
       Vans: {
-        "Class I (up to 1.305 tonnes)": {
+        "Small van": {
           "Battery Electric Vehicle": { unit: "km", factor: 0 },
           Diesel: { unit: "km", factor: 0.147 },
           Petrol: { unit: "km", factor: 0.2 },
@@ -1290,7 +1168,7 @@ export const CO2eOv = asyncHandler(async (req, res) => {
           LPG: { unit: "km", factor: 0 },
           Unknown: { unit: "km", factor: 0 },
         },
-        "Class II (1.305 to 1.74 tonnes)": {
+        "Medium van": {
           "Battery Electric Vehicle": { unit: "km", factor: 0 },
           Diesel: { unit: "km", factor: 0.183 },
           Petrol: { unit: "km", factor: 0.198 },
@@ -1298,7 +1176,7 @@ export const CO2eOv = asyncHandler(async (req, res) => {
           LPG: { unit: "km", factor: 0 },
           Unknown: { unit: "km", factor: 0 },
         },
-        "Class III (1.74 to 3.5 tonnes)": {
+        "Large van": {
           "Battery Electric Vehicle": { unit: "km", factor: 0 },
           Diesel: { unit: "km", factor: 0.265 },
           Petrol: { unit: "km", factor: 0.313 },
@@ -1306,44 +1184,16 @@ export const CO2eOv = asyncHandler(async (req, res) => {
           LPG: { unit: "km", factor: 0 },
           Unknown: { unit: "km", factor: 0 },
         },
-        "Average (up to 3.5 tonnes)": {
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.241 },
-          Petrol: { unit: "km", factor: 0.21 },
-          CNG: { unit: "km", factor: 0.245 },
-          LPG: { unit: "km", factor: 0.27 },
-          Unknown: { unit: "km", factor: 0.24 },
-        },
-      },
-      "HGV (all diesel)": {
-        "Rigid (>3.5 - 7.5 tonnes)": { unit: "km", factor: 0.481 },
-        "Rigid (>7.5 tonnes-17 tonnes)": { unit: "km", factor: 0.587 },
-        "Rigid (>17 tonnes)": { unit: "km", factor: 0.958 },
-        "All rigids": { unit: "km", factor: 0.803 },
-        "Articulated (>3.5 - 33t)": { unit: "km", factor: 0.77 },
-        "Articulated (>33t)": { unit: "km", factor: 0.916 },
-        "All artics": { unit: "km", factor: 0.91 },
-        "All HGVs": { unit: "km", factor: 0.864 },
-      },
-      "HGVs refrigerated (all diesel)": {
-        "Rigid (>3.5 - 7.5 tonnes)": { unit: "km", factor: 0.572 },
-        "Rigid (>7.5 tonnes-17 tonnes)": { unit: "km", factor: 0.699 },
-        "Rigid (>17 tonnes)": { unit: "km", factor: 1.14 },
-        "All rigids": { unit: "km", factor: 0.956 },
-        "Articulated (>3.5 - 33t)": { unit: "km", factor: 0.89 },
-        "Articulated (>33t)": { unit: "km", factor: 1.06 },
-        "All artics": { unit: "km", factor: 1.053 },
-        "All HGVs": { unit: "km", factor: 1.012 },
       },
     },
-    "UK electricity": { unit: "kWh", factor: 0.21233 },
   };
 
   // Update the vehicle data with calculated CO2e amounts
   const updatedVehicleData = ownedVehicles.map((vehicleEntry) => {
-    const { level1, level2, level3, fuel, distance } = vehicleEntry; // Changed amount to distance
+    const { level1, level2, level3, fuel, distance } = vehicleEntry; // Ensure distance is used instead of amount
     let conversionRate = 0;
 
+    // Check if conversion factors exist for the given vehicle hierarchy
     if (
       conversionRates[level1] &&
       conversionRates[level1][level2] &&
@@ -1351,27 +1201,31 @@ export const CO2eOv = asyncHandler(async (req, res) => {
       conversionRates[level1][level2][level3][fuel]
     ) {
       conversionRate = conversionRates[level1][level2][level3][fuel].factor;
+    } else {
+      console.warn(
+        `No conversion factor found for: ${JSON.stringify(vehicleEntry)}`
+      );
     }
 
-    const CO2e = distance * conversionRate; // Changed amount to distance
+    const CO2e = parseFloat(distance) * conversionRate; // Calculate CO2e emissions based on distance
     return { ...vehicleEntry, CO2e };
   });
 
   // Update the report's vehicle data and store CO2e
   report.ownedVehicles = updatedVehicleData;
   report.CO2eVehicle = updatedVehicleData.reduce(
-    (acc, curr) => acc + curr.CO2e,
+    (acc, curr) => acc + (curr.CO2e || 0), // Handle cases where CO2e might be undefined
     0
   );
 
   await report.save();
-  // console.log("report.vehicleData", report.ownedVehicles);
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully for vehicles",
     data: report.ownedVehicles,
   });
 });
+
 
 export const CO2eWater = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
@@ -1429,7 +1283,6 @@ export const CO2eWater = asyncHandler(async (req, res) => {
     data: report.water,
   });
 });
-
 
 export const CO2eHome = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
@@ -1548,23 +1401,29 @@ export const CO2eFa = asyncHandler(async (req, res) => {
   // Assuming similar logic applies for flight accommodation
   // Define flight conversion factors if needed and update similarly
 
+  // Ensure `fa` object exists
+  if (!report.fa) {
+    report.fa = {};
+  }
+
   // Update the report's accommodation data and store CO2e
-  report.hotelAccommodation = updatedHotelAccommodationData;
-  report.CO2eHotel = updatedHotelAccommodationData.reduce(
+  report.fa.hotelAccommodation = updatedHotelAccommodationData;
+  report.fa.CO2eHotel = updatedHotelAccommodationData.reduce(
     (acc, curr) => acc + curr.CO2e,
     0
   );
 
   // Add flight accommodation logic here if needed
-  // report.flightAccommodation = updatedFlightAccommodationData;
-  // report.CO2eFlight = updatedFlightAccommodationData.reduce((acc, curr) => acc + curr.CO2e, 0);
+  // report.fa.flightAccommodation = updatedFlightAccommodationData;
+  // report.fa.CO2eFlight = updatedFlightAccommodationData.reduce((acc, curr) => acc + curr.CO2e, 0);
 
   await report.save();
+  // console.log("report.fa", report.fa);
 
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully",
-    data: report.hotelAccommodation,
-    // data: { hotelAccommodation: report.hotelAccommodation, flightAccommodation: report.flightAccommodation } // If flight data is included
+    data: report.fa.hotelAccommodation,
   });
 });
+``;

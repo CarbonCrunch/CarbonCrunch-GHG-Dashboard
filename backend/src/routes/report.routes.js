@@ -138,7 +138,7 @@ router
   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eOv);
 
 router
-  .route("/:reportId/CO2eFlightsAccomodations")
+  .route("/:reportId/CO2eFa")
   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFa);
 
 router
