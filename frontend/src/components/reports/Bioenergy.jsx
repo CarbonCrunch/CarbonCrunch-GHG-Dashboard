@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const Bioenergy = ({ report }) => {
+const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) => {
   const [bioenergyData, setBioenergyData] = useState([]);
   const [newBioenergy, setNewBioenergy] = useState({
     date: null,
@@ -36,19 +36,19 @@ const Bioenergy = ({ report }) => {
     reportData;
 
   useEffect(() => {
-  if (bioenergy && Array.isArray(bioenergy)) {
-    setBioenergyData(
-      bioenergy.map((item) => ({
-        ...item,
-        date: new Date(item.date),
-      }))
-    );
-  } else {
-    // Handle the case where bioenergy is not an array
-    console.log("Bioenergy data is not in the expected format");
-    setBioenergyData([]);
-  }
-}, [report]);
+    if (bioenergy && Array.isArray(bioenergy)) {
+      setBioenergyData(
+        bioenergy.map((item) => ({
+          ...item,
+          date: new Date(item.date),
+        }))
+      );
+    } else {
+      // Handle the case where bioenergy is not an array
+      console.log("Bioenergy data is not in the expected format");
+      setBioenergyData([]);
+    }
+  }, [report]);
 
   const getDateRange = () => {
     if (!timePeriod || typeof timePeriod !== "object") {
@@ -259,7 +259,7 @@ const Bioenergy = ({ report }) => {
       </table>
       <div className="mt-4 flex justify-end space-x-2">
         <button
-          onClick={handleSave}
+          // onClick={handleSave}
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"
         >
           <FaSave className="mr-2" /> Save

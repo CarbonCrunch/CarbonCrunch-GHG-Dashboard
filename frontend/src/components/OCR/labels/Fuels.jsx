@@ -1,10 +1,25 @@
-// Fuels.js
 import React from "react";
 
 const Fuels = ({ formData, handleInputChange, handleInputFocus }) => {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-4">Fuels Bill</h2>
+
+      <div>
+        <label htmlFor="date" className="block mb-1">
+          Date:
+        </label>
+        <input
+          type="text"
+          id="date"
+          name="date"
+          value={formData.date || ""}
+          onChange={handleInputChange}
+          onFocus={() => handleInputFocus("date")}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+
       <div>
         <label htmlFor="type" className="block mb-1">
           Type:
@@ -13,26 +28,28 @@ const Fuels = ({ formData, handleInputChange, handleInputFocus }) => {
           type="text"
           id="type"
           name="type"
-          value={formData.type}
+          value={formData.type || ""}
           onChange={handleInputChange}
           onFocus={() => handleInputFocus("type")}
           className="w-full p-2 border border-gray-300 rounded"
         />
       </div>
+
       <div>
-        <label htmlFor="fuels_used" className="block mb-1">
-          Fuels Used:
+        <label htmlFor="fuelType" className="block mb-1">
+          Fuel Type:
         </label>
         <input
           type="text"
-          id="fuels_used"
-          name="fuels_used"
-          value={formData.fuels_used}
+          id="fuelType"
+          name="fuelType"
+          value={formData.fuelType || ""}
           onChange={handleInputChange}
-          onFocus={() => handleInputFocus("fuels_used")}
+          onFocus={() => handleInputFocus("fuelType")}
           className="w-full p-2 border border-gray-300 rounded"
         />
       </div>
+
       <div>
         <label htmlFor="unit" className="block mb-1">
           Unit:
@@ -41,12 +58,13 @@ const Fuels = ({ formData, handleInputChange, handleInputFocus }) => {
           type="text"
           id="unit"
           name="unit"
-          value={formData.unit}
+          value={formData.unit || ""}
           onChange={handleInputChange}
           onFocus={() => handleInputFocus("unit")}
           className="w-full p-2 border border-gray-300 rounded"
         />
       </div>
+
       <div>
         <label htmlFor="amount" className="block mb-1">
           Amount:
@@ -55,7 +73,7 @@ const Fuels = ({ formData, handleInputChange, handleInputFocus }) => {
           type="text"
           id="amount"
           name="amount"
-          value={formData.amount}
+          value={formData.amount || ""}
           onChange={handleInputChange}
           onFocus={() => handleInputFocus("amount")}
           className="w-full p-2 border border-gray-300 rounded"

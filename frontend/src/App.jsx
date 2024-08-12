@@ -19,9 +19,9 @@ import { useAuth } from "./context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ViewReport from "./components/dashboard/ViewReport";
-import ImageUploader from "./components/dashboard/OCR/pages/ImageUploader";
-import ImageViewer from "./components/dashboard/OCR/pages/ImageViewer";
-import Tables from "./components/dashboard/OCR/pages/Tables";
+import ImageUploader from "./components/OCR/pages/ImageUploader";
+import ImageViewer from "./components/OCR/pages/ImageViewer";
+import Tables from "./components/OCR/pages/Tables";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();

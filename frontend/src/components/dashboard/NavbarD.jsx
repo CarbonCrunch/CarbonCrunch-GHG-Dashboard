@@ -44,7 +44,7 @@ const NavbarD = () => {
 
   return (
     <header className="shadow-md w-full" style={{ backgroundColor: "#A6D3A0" }}>
-      <div className="px-36 py-3 flex justify-between items-center">
+      <div className="px-36 py-1.5 flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/" className="font-bold text-xl px-4">
             Carbon Crunch

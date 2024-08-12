@@ -60,7 +60,7 @@ const Fuel = ({ report }) => {
 
 
   useEffect(() => {
-    if (fuel) {
+    if (Array.isArray(fuel)) {
       setFuelData(
         fuel.map((fuel) => ({
           ...fuel,
