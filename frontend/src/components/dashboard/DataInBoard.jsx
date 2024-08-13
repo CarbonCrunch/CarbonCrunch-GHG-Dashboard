@@ -54,6 +54,7 @@ const DataInBoard = () => {
           setReport([]);
         } else {
           setReport(response.data.data);
+          console.log("report", response.data.data);
         }
         setError(null);
       } catch (err) {
@@ -86,9 +87,86 @@ const DataInBoard = () => {
     "WTTFuel",
     "WasteDisposal",
     "Water",
-    
   ];
 
+  // Map used only for aggregating CO2e values
+  const categoryMap = {
+    Fuels: "fuel",
+    Bioenergy: "bioenergy",
+    Refrigerants: "refrigerants",
+    OwnedVehicles: "ownedVehicles",
+    WTTFuel: "wttfuel",
+    MaterialsUsed: "material",
+    WasteDisposal: "waste",
+    "Flights & Accomodations": "fa",
+    Electricity_Heating: "ehctd",
+    BusinessTravel: "btls",
+    FreightingGoods: "fg",
+    EmployCommuting: "ec",
+    Food: "food",
+    Home: "homeOffice",
+    Water: "water",
+  };
+
+  const calculateCO2eTotals = () => {
+    if (!report) return {};
+
+    const totals = {};
+
+    Object.keys(categoryMap).forEach((category) => {
+      const key = categoryMap[category];
+      const items = report[key];
+
+      if (Array.isArray(items)) {
+        totals[category] = items.reduce(
+          (sum, item) => sum + (item.CO2e || 0),
+          0
+        );
+      } else if (typeof items === "object" && items !== null) {
+        totals[category] = items.CO2e || 0;
+      } else {
+        totals[category] = 0;
+      }
+    });
+
+    return totals;
+  };
+
+  const totals = calculateCO2eTotals();
+  const totalFootprint = Object.values(totals).reduce(
+    (acc, value) => acc + value,
+    0
+  );
+
+  const pieData = {
+    labels: Object.keys(totals),
+    datasets: [
+      {
+        data: Object.values(totals),
+        backgroundColor: [
+          "#4CAF50",
+          "#8BC34A",
+          "#CDDC39",
+          "#FFEB3B",
+          "#FFC107",
+          "#FF9800",
+          "#E91E63",
+          "#9C27B0",
+          "#673AB7",
+          "#3F51B5",
+          "#2196F3",
+          "#03A9F4",
+          "#00BCD4",
+          "#009688",
+          "#795548",
+        ],
+        borderColor: "#FFFFFF",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  // Original component map used for rendering the components
   const componentMap = {
     Fuels: Fuel,
     Bioenergy: Bioenergy,
@@ -105,25 +183,6 @@ const DataInBoard = () => {
     Food: Food,
     Home: HomeOffice,
     Water: Water,
-  };
-
-  const pieData = {
-    labels: ["Diesel", "Petrol", "Natural Gas", "LPG", "Coal", "Other"],
-    datasets: [
-      {
-        data: [30, 25, 20, 15, 7, 3],
-        backgroundColor: [
-          "#4CAF50",
-          "#8BC34A",
-          "#CDDC39",
-          "#FFEB3B",
-          "#FFC107",
-          "#FF9800",
-        ],
-        borderColor: "#FFFFFF",
-        borderWidth: 2,
-      },
-    ],
   };
 
   const SelectedComponent = componentMap[selectedCategory];
@@ -204,18 +263,23 @@ const DataInBoard = () => {
                 }}
               />
             </div>
-            <div className="w-1/3 pr-12 mt-12">
+            <div className="w-1/3 pr-12 mr-5 pt-9 mt-12">
               <div className="space-y-4">
                 <div>
                   <p className="font-medium">Total Footprints</p>
-                  <p className="text-2xl font-bold">777.00 kg CO2-eq</p>
+                  <p className="text-2xl font-bold">
+                    {totalFootprint.toFixed(2)} kg CO2-eq
+                  </p>
                   <p className="text-green-500">
                     -10% less than industry average
                   </p>
                 </div>
                 <div>
                   <p className="font-medium">Average Footprint / Activity</p>
-                  <p className="text-2xl font-bold">13.17 kg CO2-eq</p>
+                  <p className="text-2xl font-bold">
+                    {(totalFootprint / Object.keys(totals).length).toFixed(2)}{" "}
+                    kg CO2-eq
+                  </p>
                   <p className="text-green-500">
                     -10% less than industry average
                   </p>

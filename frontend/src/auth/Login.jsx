@@ -19,9 +19,8 @@ const Login = () => {
       const token = localStorage.getItem("accessToken");
       // console.log("Token from localStorage:", token);
       if (token) {
-        axios.defaults.baseURL = "http://127.0.0.1:8000";
-        // axios.defaults.baseURL =
-        //   "https://carboncrunch-ghg-accouting-atomatic.onrender.com";
+        // axios.defaults.baseURL = "http://127.0.0.1:8000";
+        axios.defaults.baseURL = "https://64.227.131.250:8000";
         https: axios.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${token}`;

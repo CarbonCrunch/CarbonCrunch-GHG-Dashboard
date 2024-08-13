@@ -51,7 +51,7 @@ const Scope3 = ({ reports }) => {
     homeOffice = [],
   } = reportData;
   const {hotelAccommodation, flightAccommodation} = fa;
-  console.log("reportData", reportData);
+  // console.log("reportData", reportData);
   // console.log("hotelAccommodationData", fa);
 
   useEffect(() => {
