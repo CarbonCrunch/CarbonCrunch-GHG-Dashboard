@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "proxy": {
-    "/api": "http://64.227.131.250:8000",
+    "/api": "https://64.227.131.250:8000",
     "/uploadimage": "http://localhost:5000",
     "/output": "http://localhost:5000",
     "/tables": "http://localhost:5000"
