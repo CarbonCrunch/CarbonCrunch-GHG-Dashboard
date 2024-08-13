@@ -26,7 +26,7 @@ const Register = () => {
       return;
     }
     // axios.defaults.baseURL = "http://127.0.0.1:8000";
-    axios.defaults.baseURL = "https://64.227.131.250:8000";
+    axios.defaults.baseURL = "https://139.59.56.80:8000";
     https: axios.defaults.withCredentials = true;
     try {
       const res = await axios.post("/api/users/register", {
