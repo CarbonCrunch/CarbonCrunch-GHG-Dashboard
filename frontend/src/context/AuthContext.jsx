@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   // axios.defaults.baseURL = "http://127.0.0.1:8000";
   axios.defaults.baseURL = "https://139.59.56.80:8000";
-  https: axios.defaults.withCredentials = true;
+  axios.defaults.withCredentials = true;
 
   useEffect(() => {
     const checkUserAuth = async () => {
