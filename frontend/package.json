@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "proxy": {
-    "/api": "https://139.59.56.80:8000",
+    "/api": "https://ghg.carboncrunch.in",
     "/uploadimage": "http://localhost:5000",
     "/output": "http://localhost:5000",
     "/tables": "http://localhost:5000"

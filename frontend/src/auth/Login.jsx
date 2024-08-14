@@ -20,7 +20,7 @@ const Login = () => {
       // console.log("Token from localStorage:", token);
       if (token) {
         // axios.defaults.baseURL = "http://127.0.0.1:8000";
-        axios.defaults.baseURL = "https://139.59.56.80:8000";
+        axios.defaults.baseURL = "https://ghg.carboncrunch.in";
        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         try {
           const response = await axios.get("/api/users/verify-token");
