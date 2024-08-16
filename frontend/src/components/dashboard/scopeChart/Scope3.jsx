@@ -32,7 +32,7 @@ const Scope3 = ({ reports }) => {
   const [wasteData, setWasteData] = useState([]);
   const [waterData, setWaterData] = useState([]);
   const [homeOfficeData, setHomeOfficeData] = useState([]);
- const [hotelAccommodationData, setHotelAccommodationData] = useState([]);
+  const [hotelAccommodationData, setHotelAccommodationData] = useState([]);
 
   const reportData = reports || {};
   const {
@@ -50,7 +50,7 @@ const Scope3 = ({ reports }) => {
     water = [],
     homeOffice = [],
   } = reportData;
-  const {hotelAccommodation, flightAccommodation} = fa;
+  const { hotelAccommodation, flightAccommodation } = fa;
   // console.log("reportData", reportData);
   // console.log("hotelAccommodationData", fa);
 
@@ -161,6 +161,10 @@ const Scope3 = ({ reports }) => {
         setWaterData(waterResponse.data.data);
         setHomeOfficeData(homeOfficeResponse.data.data);
         setHotelAccommodationData(hotelAccommodationResponse.data.data);
+        // console.log(
+        //   "hotelAccommodationData",
+        //   hotelAccommodationResponse.data.data
+        // );
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -321,38 +325,36 @@ const Scope3 = ({ reports }) => {
         {
           x: parseFloat(item.workingFromHome) * parseFloat(item.workingRegime), // Using a combination of workingFromHome and workingRegime as the x-axis value
           y: parseFloat(item.CO2e), // Using CO2e as the y-axis value
-          r: parseFloat(item.numberOfEmployees) , // Using numberOfEmployees divided by 2 as the bubble size (r)
+          r: parseFloat(item.numberOfEmployees), // Using numberOfEmployees divided by 2 as the bubble size (r)
         },
       ],
       backgroundColor: "rgba(54, 162, 235, 0.6)", // Default color, can be made dynamic if needed
     })),
   };
 
-
- const homeOfficeOptions = {
-   responsive: true,
-   maintainAspectRatio: false,
-   plugins: {
-     legend: { display: true }, // Enable legend to distinguish between different `type` labels
-     title: {
-       display: true,
-       text: "Home Office Emissions",
-       font: { size: 15 },
-     },
-     tooltip: tooltipOptions,
-   },
-   scales: {
-     x: {
-       title: { display: true, text: "Working from Home * Working Regime" }, // Updated x-axis title
-       beginAtZero: true, // Ensure x-axis starts from 0
-     },
-     y: {
-       title: { display: true, text: "CO2e Emissions" },
-       beginAtZero: true, // Ensure y-axis starts from 0
-     },
-   },
- };
-
+  const homeOfficeOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true }, // Enable legend to distinguish between different `type` labels
+      title: {
+        display: true,
+        text: "Home Office Emissions",
+        font: { size: 15 },
+      },
+      tooltip: tooltipOptions,
+    },
+    scales: {
+      x: {
+        title: { display: true, text: "Working from Home * Working Regime" }, // Updated x-axis title
+        beginAtZero: true, // Ensure x-axis starts from 0
+      },
+      y: {
+        title: { display: true, text: "CO2e Emissions" },
+        beginAtZero: true, // Ensure y-axis starts from 0
+      },
+    },
+  };
 
   // Car Commuting chart data
   const carCategories = ["Small car", "Average car", "Medium car", "Large car"];
@@ -517,21 +519,20 @@ const Scope3 = ({ reports }) => {
     ],
   };
 
-const hotelAccommodationOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false }, // Display legend to distinguish between different star ratings
-    title: {
-      display: true,
-      text: "Hotel Accommodation Emissions",
-      font: { size: 15 },
+  const hotelAccommodationOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }, // Display legend to distinguish between different star ratings
+      title: {
+        display: true,
+        text: "Hotel Accommodation Emissions",
+        font: { size: 15 },
+      },
+      tooltip: tooltipOptions,
     },
-    tooltip: tooltipOptions,
-  },
-  cutout: "50%", // For a doughnut-style pie chart, or remove for a full pie chart
-};
-
+    cutout: "50%", // For a doughnut-style pie chart, or remove for a full pie chart
+  };
 
   const commutingOptions = {
     responsive: true,

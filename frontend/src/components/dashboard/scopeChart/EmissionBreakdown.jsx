@@ -8,7 +8,7 @@ const EmissionBreakdown = () => {
   const [reports, setReports] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // console.log("reports", reports);
+  console.log("reports", reports);
 
   useEffect(() => {
     const fetchReports = async () => {

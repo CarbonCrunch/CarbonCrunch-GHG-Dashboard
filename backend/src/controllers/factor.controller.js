@@ -300,17 +300,28 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
 
   // Define conversion rates
   const conversionRates = {
-    Electricity: 1,
-    "Heating and Steam": 25,
-    "District Cooling": 298,
-    R502: 4657,
+    Electricity: 0.6077,
+    "Heating and Steam": 0.1707,
+    "District Cooling": 0.5469,
+    "T&D_electricity": 0.0188,
+    "T&D_heat_steam": 0.009,
   };
 
-  // Update the EHCTD data with calculated CO2e amounts
+  // Update the EHCTD data with calculated CO2e and CO2eTD amounts
   const updatedEhctdData = ehctd.map((entry) => {
     const conversionRate = conversionRates[entry.activity];
     const CO2e = parseFloat(entry.amount) * conversionRate;
-    return { ...entry, CO2e };
+
+    let CO2eTD = 0;
+
+    // Calculate CO2eTD based on activity type
+    if (entry.activity === "Electricity") {
+      CO2eTD = parseFloat(entry.amount) * conversionRates["T&D_electricity"];
+    } else if (entry.activity === "Heating and Steam") {
+      CO2eTD = parseFloat(entry.amount) * conversionRates["T&D_heat_steam"];
+    }
+
+    return { ...entry, CO2e, CO2eTD };
   });
 
   // Update the report's EHCTD data and store CO2e
@@ -1226,7 +1237,6 @@ export const CO2eOv = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eWater = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const water = JSON.parse(req.query.water);
@@ -1362,7 +1372,7 @@ export const CO2eHome = asyncHandler(async (req, res) => {
 export const CO2eFa = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const hotelAccommodation = JSON.parse(req.query.hotelAccommodation);
-  // const flightAccommodation = JSON.parse(req.query.flightAccommodation); // Assuming this is also required
+  // console.log("hotelAccommodation", hotelAccommodation);
 
   if (!reportId || !companyName || !facilityName || !hotelAccommodation) {
     throw new ApiError(
@@ -1390,16 +1400,12 @@ export const CO2eFa = asyncHandler(async (req, res) => {
 
   // Define conversion factors
   const hotelFactor = 93.2;
-
   // Update the hotel accommodation data with calculated CO2e amounts
   const updatedHotelAccommodationData = hotelAccommodation.map((hotelEntry) => {
     const { occupiedRooms, nightsPerRoom } = hotelEntry;
     const CO2e = occupiedRooms * nightsPerRoom * hotelFactor;
     return { ...hotelEntry, CO2e };
   });
-
-  // Assuming similar logic applies for flight accommodation
-  // Define flight conversion factors if needed and update similarly
 
   // Ensure `fa` object exists
   if (!report.fa) {
@@ -1408,17 +1414,10 @@ export const CO2eFa = asyncHandler(async (req, res) => {
 
   // Update the report's accommodation data and store CO2e
   report.fa.hotelAccommodation = updatedHotelAccommodationData;
-  report.fa.CO2eHotel = updatedHotelAccommodationData.reduce(
-    (acc, curr) => acc + curr.CO2e,
-    0
-  );
 
-  // Add flight accommodation logic here if needed
-  // report.fa.flightAccommodation = updatedFlightAccommodationData;
-  // report.fa.CO2eFlight = updatedFlightAccommodationData.reduce((acc, curr) => acc + curr.CO2e, 0);
-
+  // Save the updated report
   await report.save();
-  // console.log("report.fa", report.fa);
+  console.log("report.fa", report.fa);
 
   res.status(200).json({
     success: true,
@@ -1426,4 +1425,3 @@ export const CO2eFa = asyncHandler(async (req, res) => {
     data: report.fa.hotelAccommodation,
   });
 });
-``;

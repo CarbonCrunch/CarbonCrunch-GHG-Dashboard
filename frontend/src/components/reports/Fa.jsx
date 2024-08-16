@@ -25,18 +25,18 @@ const Fa = ({ report }) => {
   const [activeTab, setActiveTab] = useState("hotel");
 
   const reportData = report;
-  const { companyName, facilityName, reportId, timePeriod } = reportData;
+  const { companyName, facilityName, reportId, timePeriod, fa } = reportData;
 
   useEffect(() => {
-    // Initialize data from report if available
-    // This is a placeholder - you'll need to adjust based on your actual data structure
-    if (report.hotelAccommodation) {
-      setHotelData(report.hotelAccommodation);
+    if (fa) {
+      if (fa.hotelAccommodation) {
+        setHotelData(fa.hotelAccommodation);
+      }
+      if (fa.flightAccommodation) {
+        setFlightData(fa.flightAccommodation);
+      }
     }
-    if (report.flightAccommodation) {
-      setFlightData(report.flightAccommodation);
-    }
-  }, [report]);
+  }, [fa]);
 
   const getDateRange = () => {
     if (!timePeriod || typeof timePeriod !== "object") {
@@ -187,7 +187,7 @@ const Fa = ({ report }) => {
                 <td className="py-3 px-6 text-left">{hotel.occupiedRooms}</td>
                 <td className="py-3 px-6 text-left">{hotel.nightsPerRoom}</td>
                 <td className="py-3 px-6 text-left">
-                  {hotel.date.toLocaleDateString()}
+                  {new Date(hotel.date).toLocaleDateString()}
                 </td>
                 <td className="py-3 px-6 text-left">
                   <button

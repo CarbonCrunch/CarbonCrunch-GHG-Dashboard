@@ -23,61 +23,123 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, password, companyName, facilityName, role } = req.body;
+  const { username, password, companyName, facilityName, role, email } =
+    req.body;
 
-  // Check if all required fields are provided
-  if (
-    [username, password, companyName, facilityName, role].some(
-      (field) => field?.trim() === ""
-    )
-  ) {
-    throw new ApiError(400, "All fields are required");
-  }
-
-  // Check for existing user by username and facility name
-  const existedUser = await User.findOne({
-    username: username.toLowerCase(),
-    facilityName: facilityName.toLowerCase(),
-  });
-
-  if (existedUser) {
-    throw new ApiError(
-      409,
-      "User with this username and facility name already exists"
-    );
-  }
-
-  const user = await User.create({
-    username: username.toLowerCase(),
-    password,
-    companyName,
-    facilityName: facilityName.toLowerCase(),
-    // personName,
-    role,
-  });
-  // console.log(user);
-
-  // Fetch created user without sensitive information
-  const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken"
-  );
-
-  if (!createdUser) {
-    throw new ApiError(500, "Something went wrong while registering the user");
-  }
-
-  const accessToken = user.generateAccessToken();
-
-  return res
-    .status(201)
-    .json(
-      new ApiResponse(
-        200,
-        { user: createdUser, accessToken },
-        "User registered successfully. You can now log in."
+  // Role-specific validation
+  if (["Admin", "FacAdmin", "Employee"].includes(role)) {
+    // Check if all required fields are provided for these roles
+    if (
+      [username, password, companyName, facilityName, role].some(
+        (field) => field?.trim() === ""
       )
+    ) {
+      throw new ApiError(400, "All fields are required");
+    }
+
+    // Check for existing user by username and facility name
+    const existedUser = await User.findOne({
+      username: username.toLowerCase(),
+      facilityName: facilityName.toLowerCase(),
+    });
+
+    if (existedUser) {
+      throw new ApiError(
+        409,
+        "User with this username and facility name already exists"
+      );
+    }
+
+    const user = await User.create({
+      username: username.toLowerCase(),
+      password,
+      companyName,
+      facilityName: facilityName.toLowerCase(),
+      role,
+    });
+
+    // Fetch created user without sensitive information
+    const createdUser = await User.findById(user._id).select(
+      "-password -refreshToken"
     );
+
+    if (!createdUser) {
+      throw new ApiError(
+        500,
+        "Something went wrong while registering the user"
+      );
+    }
+
+    const accessToken = user.generateAccessToken();
+
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(
+          200,
+          { user: createdUser, accessToken },
+          "User registered successfully. You can now log in."
+        )
+      );
+  } else if (role === "SuperUser") {
+    // Check if all required fields are provided for SuperUser role
+    if (
+      [username, password, email, role].some((field) => field?.trim() === "")
+    ) {
+      throw new ApiError(
+        400,
+        "Username, Email, Password, and Role are required"
+      );
+    }
+
+    // Check for existing user by username and email
+    const existedUser = await User.findOne({
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+    });
+
+    if (existedUser) {
+      throw new ApiError(
+        409,
+        "User with this username and email already exists"
+      );
+    }
+
+    const user = await User.create({
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+      password,
+      role,
+    });
+
+    // Fetch created user without sensitive information
+    const createdUser = await User.findById(user._id).select(
+      "-password -refreshToken"
+    );
+
+    if (!createdUser) {
+      throw new ApiError(
+        500,
+        "Something went wrong while registering the user"
+      );
+    }
+
+    const accessToken = user.generateAccessToken();
+
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(
+          200,
+          { user: createdUser, accessToken },
+          "User registered successfully. You can now log in."
+        )
+      );
+  } else {
+    throw new ApiError(400, "Invalid role provided");
+  }
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -113,7 +175,9 @@ const loginUser = asyncHandler(async (req, res) => {
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
-  console.log(loggedInUser);
+
+  req.user = loggedInUser;
+   console.log("req.user is set to:", req.user);
 
   const options = {
     httpOnly: true,
@@ -147,7 +211,7 @@ export const verifyToken = asyncHandler(async (req, res) => {
       .status(401)
       .json({ isValid: false, message: "No token provided" });
   }
-  // console.log("token", token);
+  console.log("token", token);
   try {
     // Verify token
     const decoded = await promisify(jwt.verify)(

@@ -49,14 +49,14 @@ function ImageViewer({ uploadedImage }) {
               <div className="flex-1">
                 <div className="md:w-1/2 pr-4">
                   <Link
-                    to="/uploadimage"
+                    to="/ocr/uploadimage"
                     className="mb-4 inline-block bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
                   >
                     Upload Another Image
                   </Link>
                   {/* See Tables Button */}
                   <Link
-                    to="/tables"
+                    to="/ocr/tables"
                     className="ml-1 mb-4 inline-block bg-[#002952] text-white px-4 py-2 rounded hover:bg-[#003D7A] transition duration-300"
                   >
                     See Tables

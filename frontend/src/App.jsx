@@ -22,6 +22,7 @@ import ViewReport from "./components/dashboard/ViewReport";
 import ImageUploader from "./components/OCR/pages/ImageUploader";
 import ImageViewer from "./components/OCR/pages/ImageViewer";
 import Tables from "./components/OCR/pages/Tables";
+import Insights from "./components/dashboard/Insights";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -51,7 +52,14 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute>
+              <Register />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/crm"
           element={
@@ -93,6 +101,14 @@ function App() {
           }
         />
         <Route
+          path="/insights"
+          element={
+            <ProtectedRoute>
+              <Insights />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/report/:reportId/edit"
           element={
             <ProtectedRoute>
@@ -108,16 +124,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/uploadimage"
-          element={
-            <ProtectedRoute>
-              <ImageUploader setUploadedImage={setUploadedImage} />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/output"
+          path="/ocr/output"
           element={
             <ProtectedRoute>
               <ImageViewer uploadedImage={uploadedImage} />
@@ -125,7 +134,14 @@ function App() {
           }
         />
 
-        <Route path="/tables" element={<Tables />} />
+        <Route
+          path="/ocr/tables"
+          element={
+            <ProtectedRoute>
+              <Tables setUploadedImage={setUploadedImage} />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

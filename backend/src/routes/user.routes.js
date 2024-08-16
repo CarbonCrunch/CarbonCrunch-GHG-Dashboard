@@ -7,11 +7,13 @@ import {
     registerUser,
     verifyToken,
 } from "../controllers/user.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { restrictTo, verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/register").post(registerUser);
+router
+  .route("/register")
+  .post(verifyJWT, restrictTo("SuperUser", "FacAdmin", "Admin"), registerUser);
 
 router.route("/login").post(loginUser);
 router.route("/verify-token").get(verifyToken);

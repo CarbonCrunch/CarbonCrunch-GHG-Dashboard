@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { verifyJWT, restrictTo } from "../middlewares/auth.middleware.js";
 import {
   // changeCurrentTab,
   // getCurrentTab,
@@ -22,24 +23,6 @@ import {
   updateWaterData,
   updateWTTFuelData,
 } from "../controllers/report.controller.js";
-import { verifyJWT, restrictTo } from "../middlewares/auth.middleware.js";
-import {
-  getBiogasReport,
-  getBTLSReport,
-  getEcReport,
-  getEhtdcReport,
-  getFaReport,
-  getFgReport,
-  getFoodReport,
-  getFuelMonthReport,
-  getFuelReport,
-  getHomeOfficeReport,
-  getRefrigerantsReport,
-  getWasteReport,
-  getWaterReport,
-  getWttReport,
-  getDateRange,
-} from "../controllers/reportgets.controller.js";
 import {
   CO2eOv,
   CO2eWttFuels,
@@ -176,28 +159,28 @@ router
   .route("/:reportId/CO2eWater")
   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eWater);
 
-router.route("/:reportId/getFuel/:specificDate").get(getFuelReport);
-router.route("/:reportId/getBiogas/:specificDate").get(getBiogasReport);
-router
-  .route("/:reportId/getRefrigerants/:specificDate")
-  .get(getRefrigerantsReport);
-router.route("/:reportId/getEhtdc/:specificDate").get(getEhtdcReport);
-//owned vechical skipped
-router.route("/:reportId/getWtt/:specificDate").get(getWttReport);
-router.route("/:reportId/getMaterial/:specificDate").get(getWttReport);
-router.route("/:reportId/getWaste/:specificDate").get(getWasteReport);
-router.route("/:reportId/getFa/:specificDate").get(getFaReport);
-router.route("/:reportId/getBTLS/:specificDate").get(getBTLSReport);
-router.route("/:reportId/getFg/:specificDate").get(getFgReport);
-router.route("/:reportId/getEc/:specificDate").get(getEcReport);
-router.route("/:reportId/getFood/:specificDate").get(getFoodReport);
-router.route("/:reportId/getHomeOfiice/:specificDate").get(getHomeOfficeReport);
-router.route("/:reportId/getWater/:specificDate").get(getWaterReport);
-router.route("/:reportId/getFuelReport/:datatype").get(getFuelMonthReport);
-router.route("/:reportId/dateRange").get(getDateRange);
+// router.route("/:reportId/getFuel/:specificDate").get(getFuelReport);
+// router.route("/:reportId/getBiogas/:specificDate").get(getBiogasReport);
+// router
+//   .route("/:reportId/getRefrigerants/:specificDate")
+//   .get(getRefrigerantsReport);
+// router.route("/:reportId/getEhtdc/:specificDate").get(getEhtdcReport);
+// //owned vechical skipped
+// router.route("/:reportId/getWtt/:specificDate").get(getWttReport);
+// router.route("/:reportId/getMaterial/:specificDate").get(getWttReport);
+// router.route("/:reportId/getWaste/:specificDate").get(getWasteReport);
+// router.route("/:reportId/getFa/:specificDate").get(getFaReport);
+// router.route("/:reportId/getBTLS/:specificDate").get(getBTLSReport);
+// router.route("/:reportId/getFg/:specificDate").get(getFgReport);
+// router.route("/:reportId/getEc/:specificDate").get(getEcReport);
+// router.route("/:reportId/getFood/:specificDate").get(getFoodReport);
+// router.route("/:reportId/getHomeOfiice/:specificDate").get(getHomeOfficeReport);
+// router.route("/:reportId/getWater/:specificDate").get(getWaterReport);
+// router.route("/:reportId/getFuelReport/:datatype").get(getFuelMonthReport);
+// router.route("/:reportId/dateRange").get(getDateRange);
 
-//  food, ec btls waste material wtt ov refrigents bioenergy ehctd water fuel
-// fg homeoffice
-// fa
+// //  food, ec btls waste material wtt ov refrigents bioenergy ehctd water fuel
+// // fg homeoffice
+// // fa
 
 export default router;

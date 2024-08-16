@@ -210,7 +210,7 @@ const Dashboard = () => {
                 title: "Total Emissions Estimate",
                 color: "#2F4F4F",
                 progressColor: "#32CD32",
-                value: "150976.120",
+                value: "465085.06",
                 textColor: "text-white", // Add this line for text color
               },
               {
@@ -224,7 +224,7 @@ const Dashboard = () => {
                 title: "Scope 2 Emissions",
                 color: "#A6D3A0",
                 progressColor: "#8A2BE2",
-                value: "75976.120",
+                value: "5085.120",
                 textColor: "text-black", // Default black text color
               },
               {
@@ -255,7 +255,7 @@ const Dashboard = () => {
             ))}
           </div>
 
-         {/* <div className="grid grid-cols-3 gap-6 mb-6">
+          {/* <div className="grid grid-cols-3 gap-6 mb-6">
             <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300">
               <h3 className="font-semibold mb-2">Emission Breakdown</h3>
               <div className="h-64 relative">

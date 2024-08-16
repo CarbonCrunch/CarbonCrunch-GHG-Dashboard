@@ -16,16 +16,46 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      validate: {
+        validator: function (v) {
+          if (["SuperUser"].includes(this.role)) {
+            return !!v; // email is required for SuperUser
+          }
+          return true; // email is optional for other roles
+        },
+        message: (props) => `${props.value} is required for role ${props.path}`,
+      },
+    },
     companyName: {
       type: String,
-      required: [true, "Company name is required"],
       trim: true,
+      validate: {
+        validator: function (v) {
+          if (["Admin", "FacAdmin", "Employee"].includes(this.role)) {
+            return !!v; // companyName is required for Admin, FacAdmin, and Employee
+          }
+          return true; // companyName is optional for SuperUser
+        },
+        message: (props) => `${props.value} is required for role ${props.path}`,
+      },
     },
     facilityName: {
       type: String,
-      required: [true, "Facility name is required"],
       trim: true,
       lowercase: true,
+      validate: {
+        validator: function (v) {
+          if (["Admin", "FacAdmin", "Employee"].includes(this.role)) {
+            return !!v; // facilityName is required for Admin, FacAdmin, and Employee
+          }
+          return true; // facilityName is optional for SuperUser
+        },
+        message: (props) => `${props.value} is required for role ${props.path}`,
+      },
     },
     role: {
       type: String,
@@ -39,6 +69,12 @@ const userSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Report",
+      },
+    ],
+    bills: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Bill",
       },
     ],
   },
@@ -103,6 +139,5 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   // False means NOT changed
   return false;
 };
-
 
 export const User = mongoose.model("User", userSchema);

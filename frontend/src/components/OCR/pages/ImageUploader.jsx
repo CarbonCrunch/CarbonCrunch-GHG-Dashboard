@@ -31,7 +31,7 @@ function ImageUploader({ setUploadedImage }) {
     formData.append("image", selectedFile);
     try {
       const response = await axios.post(
-        "http://localhost:5000/uploadimage",
+        "http://localhost:5000/ocr/uploadimage",
         formData,
         {
           headers: {
@@ -42,7 +42,7 @@ function ImageUploader({ setUploadedImage }) {
 
       if (response.status === 200) {
         setUploadedImage(URL.createObjectURL(selectedFile));
-        navigate("/output", { state: { billType: selectedBillType } });
+        navigate("/ocr/output", { state: { billType: selectedBillType } });
       } else {
         throw new Error("Image upload failed");
       }

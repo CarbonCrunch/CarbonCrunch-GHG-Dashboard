@@ -9,6 +9,7 @@ import {
   FaSignOutAlt,
   FaLeaf,
   FaCamera,
+  FaUserPlus, // Import the user plus icon
 } from "react-icons/fa";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { IoAddCircleSharp } from "react-icons/io5";
@@ -34,9 +35,16 @@ const Sidebar = () => {
         {/* <SidebarItem icon={<FaLeaf />} text="GHG" /> */}
         <SidebarItem
           icon={<FaCamera />}
-          text="OCR Picker"
-          link="/uploadimage"
+          text="Tables"
+          link="/ocr/tables"
         />{" "}
+        <SidebarItem
+          icon={<FaUserPlus />} // Add the user plus icon
+          text="Register User"
+          link="/register"
+        />
+        <SidebarItem icon={<FaChartBar />} text="Insights" link="/insights" />{" "}
+        {/* Add the Insights item */}
       </div>
       <div>
         <SidebarItem icon={<FaCog />} text="Settings" />

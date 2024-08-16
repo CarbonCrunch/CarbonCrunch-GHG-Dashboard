@@ -8,8 +8,10 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [facilityName, setFacilityName] = useState("");
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("user"); // New state for active tab
 
   const { login, user } = useAuth();
   const navigate = useNavigate();
@@ -17,11 +19,9 @@ const Login = () => {
   useEffect(() => {
     const checkExistingToken = async () => {
       const token = localStorage.getItem("accessToken");
-      // console.log("Token from localStorage:", token);
       if (token) {
-        // axios.defaults.baseURL = "http://127.0.0.1:8000";
-        axios.defaults.baseURL = "https://ghg.carboncrunch.in";
-       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        axios.defaults.baseURL = "http://127.0.0.1:8000";
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         try {
           const response = await axios.get("/api/users/verify-token");
           if (response.data.isValid) {
@@ -44,17 +44,22 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/users/login", {
-        username: username,
-        password: password,
-        facilityName: facilityName,
-      });
+     const res = await axios.post("/api/users/login", {
+       username: username,
+       password: password,
+       email: activeTab === "root" ? email : undefined, // Conditionally include email
+       facilityName: activeTab === "user" ? facilityName : undefined, // Conditionally include facilityName
+     });
+
       const { user, accessToken } = res.data.data;
-      localStorage.setItem("accessToken", accessToken); // Store accessToken in localStorage
+      localStorage.setItem("accessToken", accessToken);
       login(user, accessToken);
       navigate("/dashboard");
     } catch (error) {
-      setError("Invalid Username/Password or Facility Name");
+      setError(
+        "Invalid Username/Password" +
+          (activeTab === "user" ? " or Facility Name" : "")
+      );
     }
   };
 
@@ -77,6 +82,32 @@ const Login = () => {
               Sign in to your account
             </h2>
           </div>
+
+          {/* Tabs */}
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={() => setActiveTab("user")}
+              className={`px-4 py-2 ${
+                activeTab === "user"
+                  ? "border-b-2 border-indigo-600 text-indigo-600"
+                  : "text-gray-600"
+              }`}
+            >
+              User Login
+            </button>
+            <button
+              onClick={() => setActiveTab("root")}
+              className={`px-4 py-2 ml-4 ${
+                activeTab === "root"
+                  ? "border-b-2 border-indigo-600 text-indigo-600"
+                  : "text-gray-600"
+              }`}
+            >
+              Root User Login
+            </button>
+          </div>
+
+          {/* Conditional Form Rendering */}
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
             <input type="hidden" name="remember" value="true" />
             <div className="rounded-md shadow-sm -space-y-px">
@@ -95,6 +126,24 @@ const Login = () => {
                   onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
+              {activeTab === "root" && (
+                <div>
+                  <label htmlFor="email" className="sr-only">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              )}
+
               <div>
                 <label htmlFor="password" className="sr-only">
                   Password
@@ -110,21 +159,23 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <div>
-                <label htmlFor="facilityName" className="sr-only">
-                  Facility Name
-                </label>
-                <input
-                  id="facilityName"
-                  name="facilityName"
-                  type="text"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Facility Name"
-                  value={facilityName}
-                  onChange={(e) => setFacilityName(e.target.value)}
-                />
-              </div>
+              {activeTab === "user" && (
+                <div>
+                  <label htmlFor="facilityName" className="sr-only">
+                    Facility Name
+                  </label>
+                  <input
+                    id="facilityName"
+                    name="facilityName"
+                    type="text"
+                    required
+                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Facility Name"
+                    value={facilityName}
+                    onChange={(e) => setFacilityName(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
 
             <div>
@@ -140,15 +191,6 @@ const Login = () => {
           {error && (
             <p className="mt-2 text-center text-sm text-red-600">{error}</p>
           )}
-
-          <div className="text-sm text-center">
-            <Link
-              to="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Don't have an account? Register here
-            </Link>
-          </div>
         </div>
       </div>
     </div>

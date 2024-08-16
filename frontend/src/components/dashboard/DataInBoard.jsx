@@ -80,91 +80,14 @@ const DataInBoard = () => {
     "Food",
     "FreightingGoods",
     "Fuels",
-    "Home",
+    "HomeOffice",
     "MaterialsUsed",
     "OwnedVehicles",
     "Refrigerants",
-    "WTTFuel",
     "WasteDisposal",
     "Water",
+    "WTTFuel",
   ];
-
-  // Map used only for aggregating CO2e values
-  const categoryMap = {
-    Fuels: "fuel",
-    Bioenergy: "bioenergy",
-    Refrigerants: "refrigerants",
-    OwnedVehicles: "ownedVehicles",
-    WTTFuel: "wttfuel",
-    MaterialsUsed: "material",
-    WasteDisposal: "waste",
-    "Flights & Accomodations": "fa",
-    Electricity_Heating: "ehctd",
-    BusinessTravel: "btls",
-    FreightingGoods: "fg",
-    EmployCommuting: "ec",
-    Food: "food",
-    Home: "homeOffice",
-    Water: "water",
-  };
-
-  const calculateCO2eTotals = () => {
-    if (!report) return {};
-
-    const totals = {};
-
-    Object.keys(categoryMap).forEach((category) => {
-      const key = categoryMap[category];
-      const items = report[key];
-
-      if (Array.isArray(items)) {
-        totals[category] = items.reduce(
-          (sum, item) => sum + (item.CO2e || 0),
-          0
-        );
-      } else if (typeof items === "object" && items !== null) {
-        totals[category] = items.CO2e || 0;
-      } else {
-        totals[category] = 0;
-      }
-    });
-
-    return totals;
-  };
-
-  const totals = calculateCO2eTotals();
-  const totalFootprint = Object.values(totals).reduce(
-    (acc, value) => acc + value,
-    0
-  );
-
-  const pieData = {
-    labels: Object.keys(totals),
-    datasets: [
-      {
-        data: Object.values(totals),
-        backgroundColor: [
-          "#4CAF50",
-          "#8BC34A",
-          "#CDDC39",
-          "#FFEB3B",
-          "#FFC107",
-          "#FF9800",
-          "#E91E63",
-          "#9C27B0",
-          "#673AB7",
-          "#3F51B5",
-          "#2196F3",
-          "#03A9F4",
-          "#00BCD4",
-          "#009688",
-          "#795548",
-        ],
-        borderColor: "#FFFFFF",
-        borderWidth: 2,
-      },
-    ],
-  };
 
   // Original component map used for rendering the components
   const componentMap = {
@@ -186,6 +109,126 @@ const DataInBoard = () => {
   };
 
   const SelectedComponent = componentMap[selectedCategory];
+
+  const categoryMap = {
+    Fuels: "fuel",
+    Bioenergy: "bioenergy",
+    Refrigerants: "refrigerants",
+    OwnedVehicles: "ownedVehicles",
+    WTTFuel: "wttfuel",
+    MaterialsUsed: "material",
+    WasteDisposal: "waste",
+    "Flights & Accomodations": "fa",
+    Electricity_Heating: "ehctd",
+    BusinessTravel: "btls",
+    FreightingGoods: "fg",
+    EmployCommuting: "ec",
+    Food: "food",
+    HomeOffice: "homeOffice",
+    Water: "water",
+  };
+
+  const calculatePieData = () => {
+    if (!report || !selectedCategory) return { labels: [], datasets: [] };
+
+    const key = categoryMap[selectedCategory];
+    const items = report[key];
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return { labels: [], datasets: [] };
+    }
+
+    const dataMap = {};
+
+    items.forEach((item) => {
+      let sector = "";
+      let co2e = 0;
+
+      switch (selectedCategory) {
+        case "Fuels":
+        case "Bioenergy":
+          sector = item.fuelType;
+          co2e = item.CO2e;
+          break;
+
+        case "MaterialsUsed":
+        case "WasteDisposal":
+        case "WTTFuel":
+          sector = item.fuel;
+          co2e = item.CO2e;
+          break;
+        case "Refrigerants":
+        case "Water":
+          sector = item.emission;
+          co2e = item.CO2e;
+          break;
+        case "OwnedVehicles":
+          sector = item.fuel;
+          co2e = item.CO2e;
+          break;
+        case "HomeOffice":
+          sector = item.type;
+          co2e = item.CO2e;
+          break;
+        case "FreightingGoods":
+          sector = item.category;
+          co2e = item.CO2e;
+          break;
+        case "Flights & Accomodations":
+          sector = item.flightAccommodation || item.hotelAccommodation;
+          co2e = item.CO2e;
+          break;
+        case "EmployCommuting":
+        case "Electricity_Heating":
+        case "BusinessTravel":
+          sector = item.type || item.activity;
+          co2e = item.CO2e;
+          break;
+        default:
+          sector = "Unknown";
+          co2e = item.CO2e;
+      }
+
+      if (sector in dataMap) {
+        dataMap[sector] += co2e;
+      } else {
+        dataMap[sector] = co2e;
+      }
+    });
+
+    return {
+      labels: Object.keys(dataMap),
+      datasets: [
+        {
+          data: Object.values(dataMap),
+          backgroundColor: [
+            "#4CAF50",
+            "#8BC34A",
+            "#CDDC39",
+            "#FFEB3B",
+            "#FFC107",
+            "#FF9800",
+            "#E91E63",
+            "#9C27B0",
+            "#673AB7",
+            "#3F51B5",
+            "#2196F3",
+            "#03A9F4",
+            "#00BCD4",
+            "#009688",
+            "#795548",
+          ],
+          borderColor: "#FFFFFF",
+          borderWidth: 2,
+        },
+      ],
+    };
+  };
+
+  const pieData = calculatePieData();
+
+  const totalFootprint =
+    pieData.datasets[0]?.data.reduce((a, b) => a + b, 0) || 0;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -252,21 +295,32 @@ const DataInBoard = () => {
             </div>
           </div>
 
-          <div className="flex mr-18">
-            <div className="w-full h-96 pt-18">
-              <Pie
-                data={pieData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  cutout: "50%",
-                }}
-              />
-            </div>
-            <div className="w-1/3 pr-12 mr-5 pt-9 mt-12">
-              <div className="space-y-4">
-                <div>
-                  <p className="font-medium">Total Footprints</p>
+          <div className="border p-4 rounded-md">
+            <h2 className="text-xl font-semibold mb-4">
+              Carbon Footprint Overview
+            </h2>
+            <div className="flex">
+              <div className="w-2/3">
+                <div className="border p-4 rounded-md">
+                  <Pie
+                    data={pieData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      cutout: "70%",
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                      },
+                    }}
+                    height={350}
+                  />
+                </div>
+              </div>
+              <div className="w-1/3 pl-4">
+                <div className="border p-4 mb-4 rounded-md">
+                  <h3 className="text-lg font-semibold">Total Footprints</h3>
                   <p className="text-2xl font-bold">
                     {totalFootprint.toFixed(2)} kg CO2-eq
                   </p>
@@ -274,12 +328,11 @@ const DataInBoard = () => {
                     -10% less than industry average
                   </p>
                 </div>
-                <div>
-                  <p className="font-medium">Average Footprint / Activity</p>
-                  <p className="text-2xl font-bold">
-                    {(totalFootprint / Object.keys(totals).length).toFixed(2)}{" "}
-                    kg CO2-eq
-                  </p>
+                <div className="border p-4 rounded-md">
+                  <h3 className="text-lg font-semibold">
+                    Average Footprint / Activity
+                  </h3>
+                  <p className="text-2xl font-bold">567 kg CO2-eq</p>
                   <p className="text-green-500">
                     -10% less than industry average
                   </p>
@@ -288,7 +341,7 @@ const DataInBoard = () => {
             </div>
           </div>
 
-          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6 mt-20">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6 mt-6">
             {loading ? (
               <p>Loading report...</p>
             ) : error ? (

@@ -869,7 +869,7 @@ export const updateOwnedVehiclesData = asyncHandler(async (req, res) => {
 export const updateFAData = asyncHandler(async (req, res) => {
   const { reportId } = req.params;
   const { companyName, facilityName } = req.query;
-  console.log("updateFAData", reportId, companyName, facilityName);
+  // console.log("updateFAData", reportId, companyName, facilityName);
   const { hotelAccommodation, flightAccommodation } = req.body;
 
   if (!reportId || !companyName || !facilityName) {

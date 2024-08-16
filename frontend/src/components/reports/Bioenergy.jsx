@@ -259,7 +259,7 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
       </table>
       <div className="mt-4 flex justify-end space-x-2">
         <button
-          // onClick={handleSave}
+          onClick={handleSave}
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"
         >
           <FaSave className="mr-2" /> Save
