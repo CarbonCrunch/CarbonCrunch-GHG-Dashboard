@@ -8,7 +8,7 @@ import {User} from "../models/user.model.js";
 
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
-    // roles ['Admin', 'FacAdmin']. role='user'
+    // Check if the user's role is allowed
     if (!roles.includes(req.user.role)) {
       throw new ApiError(
         403,

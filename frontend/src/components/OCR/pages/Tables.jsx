@@ -1,45 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Doughnut } from "react-chartjs-2";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTable } from "react-table";
 import NavbarD from "../../dashboard/NavbarD";
 import Sidebar from "../../dashboard/Sidebar";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
-const data = {
-  labels: ["Filled Parameters", "Pending Parameters"],
-  datasets: [
-    {
-      data: [45, 75],
-      backgroundColor: ["#36A2EB", "#FF6384"],
-      hoverBackgroundColor: ["#36A2EB", "#FF6384"],
-    },
-  ],
-};
-
-const columns = [
-  {
-    Header: "Status",
-    accessor: "status",
-  },
-  {
-    Header: "Document Name",
-    accessor: "documentName",
-  },
-  {
-    Header: "Date Added",
-    accessor: "dateAdded",
-  },
-  {
-    Header: "Added By",
-    accessor: "addedBy",
-  },
-  {
-    Header: "Amount Value",
-    accessor: "amountValue",
-  },
-];
 
 const billTypes = [
   "Bioenergy",
@@ -59,24 +24,11 @@ const billTypes = [
   "Water",
 ];
 
-const StatusToggle = ({ value, onChange }) => (
-  <select
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-    className="w-full p-2 border rounded"
-  >
-    <option value="Pending">Pending</option>
-    <option value="Completed">Completed</option>
-  </select>
-);
-
 function Tables({ setUploadedImage }) {
   const [tableData, setTableData] = useState([]);
   const [message, setMessage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const { user } = useAuth();
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data: tableData });
   const [showModal, setShowModal] = useState(false);
   const [selectedBillType, setSelectedBillType] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -85,25 +37,28 @@ function Tables({ setUploadedImage }) {
   useEffect(() => {
     if (!user) return;
 
-    axios
-      .get("/api/bills/getBills", {
-        params: {
-          companyName: user.companyName,
-          facilityName: user.facilityName,
-          role: user.role,
-          username: user?.username,
-          userId: user?._id,
-        },
-      })
-      .then((response) => {
+    const fetchBills = async () => {
+      try {
+        const response = await axios.get("/api/bills/getBills", {
+          params: {
+            companyName: user.companyName,
+            facilityName: user.facilityName,
+            role: user.role,
+            username: user?.username,
+            userId: user?._id,
+          },
+        });
+
         const { message, data } = response.data;
         console.log("Bills data:", data);
+
         if (message === "No bills found for the user.") {
           setMessage(message);
           setTableData([]); // Empty array if no bills found
         } else {
           const transformedData = data.map((bill) => ({
-            status: "Pending",
+            billId: bill.billId,
+            status: "Pending", // Default status as "Pending"
             documentName: bill.billName || `Bill ${bill.billId}`,
             dateAdded: new Date(bill.createdAt).toLocaleDateString(),
             addedBy: bill.username,
@@ -112,18 +67,70 @@ function Tables({ setUploadedImage }) {
           }));
           setTableData(transformedData);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching bills:", error);
         setMessage("Something went wrong while fetching bills.");
         setTableData([]);
-      });
-  }, [user]);
+      }
+    };
+
+    fetchBills();
+  }, [user]); // Only re-run if user changes
+
+  const handleStatusToggle = useCallback((billId) => {
+    setTableData((prevData) =>
+      prevData.map((item) =>
+        item.billId === billId
+          ? {
+              ...item,
+              status: item.status === "Pending" ? "On-going" : "Pending",
+            }
+          : item
+      )
+    );
+  }, []);
+  
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ row }) => (
+          <button
+            className={`px-4 py-2 rounded-lg ${
+              row.original.status === "Pending"
+                ? "bg-yellow-500 text-white"
+                : "bg-green-500 text-white"
+            }`}
+            onClick={() => handleStatusToggle(row.original.billId)}
+          >
+            {row.original.status}
+          </button>
+        ),
+      },
+      {
+        Header: "Document Name",
+        accessor: "documentName",
+      },
+      {
+        Header: "Date Added",
+        accessor: "dateAdded",
+      },
+      {
+        Header: "Added By",
+        accessor: "addedBy",
+      },
+      {
+        Header: "Amount Value",
+        accessor: "amountValue",
+      },
+    ],
+    [handleStatusToggle]
+  );
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
   };
-
 
   const handleCreateNewBill = () => {
     setShowModal(true);
@@ -184,7 +191,7 @@ function Tables({ setUploadedImage }) {
         setUploadedImage(URL.createObjectURL(selectedFile));
         setShowModal(false);
         alert("Bill created successfully!");
-        navigate("/ocr/output");
+        navigate("/ocr/output", { state: { billType: selectedBillType } });
       } else {
         throw new Error("Bill creation failed");
       }
@@ -194,23 +201,30 @@ function Tables({ setUploadedImage }) {
     }
   };
 
-  const filteredData = selectedCategory
-    ? tableData.filter((bill) => bill.type_off_bill === selectedCategory)
-    : tableData;
+  const filteredData = useMemo(
+    () =>
+      selectedCategory
+        ? tableData.filter((bill) => bill.type_off_bill === selectedCategory)
+        : tableData,
+    [selectedCategory, tableData]
+  );
+  const tableInstance = useTable({ columns, data: filteredData });
+
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
 
   return (
     <>
-      <div className="flex flex-col min-h-screen overflow-hidden">
+      <div className="flex flex-col min-h-screen w-full">
         <NavbarD />
-        <div className="flex flex-1 overflow-hidden">
-          <div className="w-1/6 sticky top-0 h-screen">
+        <div className="flex flex-1">
+          {/* Sidebar */}
+          <div className="w-1/6 flex-shrink-0 sticky top-0 h-screen">
             <Sidebar />
           </div>
           <div className="flex-grow p-8 bg-gray-100 overflow-auto">
-   
-
             {/* Category Slider */}
-            <div className="flex overflow-x-auto mb-8 space-x-4">
+            <div className="flex overflow-x-auto mb-5 space-x-4 pb-4">
               {billTypes.map((category, index) => (
                 <button
                   key={index}
@@ -264,13 +278,11 @@ function Tables({ setUploadedImage }) {
                   >
                     <thead>
                       {headerGroups.map((headerGroup) => (
-                        <tr
-                          {...headerGroup.getHeaderGroupProps()}
-                          className="bg-gray-50"
-                        >
+                        <tr {...headerGroup.getHeaderGroupProps()}>
                           {headerGroup.headers.map((column) => (
                             <th
                               {...column.getHeaderProps()}
+                              key={column.id}
                               className="px-6 py-3 border-b border-gray-200 text-left text-sm font-semibold text-gray-600"
                             >
                               {column.render("Header")}
@@ -280,7 +292,7 @@ function Tables({ setUploadedImage }) {
                       ))}
                     </thead>
                     <tbody {...getTableBodyProps()}>
-                      {filteredData.length > 0 ? (
+                      {rows.length > 0 ? (
                         rows.map((row) => {
                           prepareRow(row);
                           return (

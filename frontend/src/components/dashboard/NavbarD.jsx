@@ -8,6 +8,7 @@ const NavbarD = () => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  // console.log("user", user)
 
   const handleSignInClick = () => {
     navigate("/login");
@@ -49,9 +50,12 @@ const NavbarD = () => {
           <Link to="/" className="font-bold text-xl px-4">
             Carbon Crunch
           </Link>
-          {user && user.companyName && (
+          {user && (
             <span className="text-gray-800 text-sm">
-              | {user.companyName}, {user.facilityName}
+              |{" "}
+              {user.role === "SuperUser"
+                ? user.role
+                : `${user.companyName}, ${user.facilityName}`}
             </span>
           )}
         </div>

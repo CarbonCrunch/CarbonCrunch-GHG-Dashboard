@@ -12,9 +12,9 @@ const Insights = () => {
           <Sidebar />
         </div>
         {/* Main Content */}
-        <div className="flex-1 p-4">
-          <h1 className="text-3xl font-bold text-gray-700 text-center">
-            Coming Soon
+        <div className="flex-1 flex justify-center items-center p-4 bg-gray-100">
+          <h1 className="text-5xl font-extrabold text-gray-800 text-center">
+            Coming Out Soon
           </h1>
         </div>
       </div>

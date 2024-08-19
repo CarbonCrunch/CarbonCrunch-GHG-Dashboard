@@ -17,7 +17,6 @@ import Fg from "../reports/Fg";
 import Food from "../reports/Food";
 import HomeOffice from "../reports/HomeOffice";
 import Water from "../reports/Water";
-import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
 const componentMap = {
@@ -44,50 +43,15 @@ const Fields = ({
   handleInputFocus,
   selectedBillType,
 }) => {
-  const [report, setReport] = useState(null); // State to store reports
-  const [loading, setLoading] = useState(true); // State to manage loading state
-  const [error, setError] = useState(null); // State to manage error state
+
   const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const response = await axios.get("/api/reports/get");
-        if (response.data.data === "zero") {
-          setReport([]);
-        } else {
-          setReport(response.data.data);
-          console.log("report", response.data.data);
-        }
-        setError(null);
-      } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "An error occurred while fetching the report."
-        );
-        setReport(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+ 
 
-    fetchReports();
-  }, [user]);
-
-  const reportData = report;
-  const {
-    companyName = "",
-    facilityName = "",
-    reportId = "",
-  } = reportData || {};
-  // console.log("reportData", report);
 
   const SelectedComponent = componentMap[selectedBillType];
 
-  const handleSubmitWithToast = () => {
-    // Your submit logic here
-    toast.success("Form submitted successfully!");
-  };
+
 
   return (
     <div className="w-full pl-4 mt-4 md:mt-0">
@@ -95,7 +59,7 @@ const Fields = ({
         {/* Display Report Information */}
         <div>
           <p>
-            <strong>Report ID:</strong> {reportId}
+            <strong>Bill ID:</strong> {billId}
           </p>
           <p>
             <strong>Company Name:</strong> {companyName}
@@ -108,7 +72,7 @@ const Fields = ({
         {/* Type of Bill Section */}
         <div>
           <label htmlFor="type_of_bill" className="block mb-1">
-            Type of Bill:
+            Type of Bill: {selectedBillType}
           </label>
 
           <div>
@@ -135,15 +99,6 @@ const Fields = ({
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end mt-4">
-          <button
-            onClick={handleSubmitWithToast}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Submit
-          </button>
-        </div>
         <ToastContainer />
       </div>
     </div>

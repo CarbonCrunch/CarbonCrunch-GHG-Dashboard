@@ -61,7 +61,7 @@ const Fa = ({ report }) => {
         setHotelData(updatedHotelData);
         setEditIndex(-1);
       }
-      setNewHotel({ occupiedRooms: "", nightsPerRoom: "", date: null });
+      setNewHotel({ occupiedRooms: "", nightsPerRoom: "", date: null, abc: "abc" });
     } else {
       toast.error("Please fill all fields");
     }

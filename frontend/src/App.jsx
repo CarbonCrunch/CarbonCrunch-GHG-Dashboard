@@ -19,14 +19,18 @@ import { useAuth } from "./context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ViewReport from "./components/dashboard/ViewReport";
-import ImageUploader from "./components/OCR/pages/ImageUploader";
 import ImageViewer from "./components/OCR/pages/ImageViewer";
 import Tables from "./components/OCR/pages/Tables";
 import Insights from "./components/dashboard/Insights";
+import RootDashboard from "./components/Root/RootDashboard";
+import Settings from "./components/dashboard/Settings";
+import ViewBills from "./components/Root/ViewBills";
+import EditBill from "./components/Root/EditBill";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
   const location = useLocation();
+  // console.log(user);
 
   if (!user) {
     toast.error("You must be logged in to access this page.", {
@@ -39,7 +43,17 @@ const ProtectedRoute = ({ children }) => {
     });
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
+  if (requiredRole && user.role !== requiredRole) {
+    toast.error("You do not have permission to access this page.", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
   return children;
 };
 
@@ -139,6 +153,38 @@ function App() {
           element={
             <ProtectedRoute>
               <Tables setUploadedImage={setUploadedImage} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rootDashboard"
+          element={
+            <ProtectedRoute requiredRole="SuperUser">
+              <RootDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/viewbills"
+          element={
+            <ProtectedRoute requiredRole="SuperUser">
+              <ViewBills />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/viewbills/:billId"
+          element={
+            <ProtectedRoute requiredRole="SuperUser">
+              <EditBill />
             </ProtectedRoute>
           }
         />

@@ -27,6 +27,15 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { username, password, companyName, facilityName, role, email } =
     req.body;
+    console.log(
+      "Register",
+      username,
+      password,
+      companyName,
+      facilityName,
+      role,
+      email
+    );
 
   // Role-specific validation
   if (["Admin", "FacAdmin", "Employee"].includes(role)) {
@@ -143,41 +152,75 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { username, password, facilityName } = req.body;
-  console.log(username, password, facilityName);
+  const { username, password, facilityName, role, email } = req.body;
+  console.log(username, password, facilityName, role, email);
 
-  if (!username || !facilityName || !password) {
-    throw new ApiError(400, "Username and facility name are required");
+  // Common validation for required fields
+  if (!username || !password) {
+    throw new ApiError(400, "Username and password are required");
   }
 
-  const user = await User.findOne({
-    username: username.toLowerCase(),
-    facilityName: facilityName.toLowerCase(),
-  });
+  let user;
 
-  if (!user) {
-    throw new ApiError(
-      404,
-      "User does not exist for this username and facility"
-    );
+  if (["Admin", "FacAdmin", "Employee"].includes(role)) {
+    // Role-specific validation for Admin, FacAdmin, Employee
+    if (!facilityName) {
+      throw new ApiError(400, "Facility name is required for this role");
+    }
+
+    // Find user by username and facility name for these roles
+    user = await User.findOne({
+      username: username.toLowerCase(),
+      facilityName: facilityName.toLowerCase(),
+    });
+
+    if (!user) {
+      throw new ApiError(
+        404,
+        "User does not exist for this username, facility, and role"
+      );
+    }
+  } else if (role === "SuperUser") {
+    // Role-specific validation for SuperUser
+    if (!email) {
+      throw new ApiError(400, "Email is required for SuperUser role");
+    }
+
+    // Find user by username and email for SuperUser
+    user = await User.findOne({
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+    });
+
+    if (!user) {
+      throw new ApiError(
+        404,
+        "User does not exist for this username, email, and role"
+      );
+    }
+  } else {
+    throw new ApiError(400, "Invalid role provided");
   }
 
+  // Validate password
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials");
   }
 
+  // Generate access and refresh tokens
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
 
+  // Fetch user without sensitive information
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
 
   req.user = loggedInUser;
-   console.log("req.user is set to:", req.user);
+  console.log("req.user is set to:", req.user);
 
   const options = {
     httpOnly: true,
@@ -185,6 +228,7 @@ const loginUser = asyncHandler(async (req, res) => {
     sameSite: "None",
   };
 
+  // Return response with tokens and user information
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -201,6 +245,7 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     );
 });
+
 
 export const verifyToken = asyncHandler(async (req, res) => {
   // Get token from header

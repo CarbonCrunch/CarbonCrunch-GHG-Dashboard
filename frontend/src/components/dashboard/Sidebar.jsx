@@ -1,62 +1,91 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaChartBar,
-  FaBullseye,
   FaDatabase,
   FaCog,
   FaSignOutAlt,
-  FaLeaf,
   FaCamera,
-  FaUserPlus, // Import the user plus icon
+  FaUserPlus,
+  FaFileInvoiceDollar, // Icon for Bills
 } from "react-icons/fa";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { IoAddCircleSharp } from "react-icons/io5";
+import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const dashboardLink =
+    user.role === "SuperUser" ? "/rootDashboard" : "/dashboard";
+
   return (
     <div className="bg-[rgb(251,175,88)] h-screen flex flex-col justify-between p-4">
       <div className="space-y-4">
-        <SidebarItem icon={<FaHome />} text="Dashboard" link="/dashboard" />
+        <SidebarItem icon={<FaHome />} text="Dashboard" link={dashboardLink} />
+        {user.role !== "SuperUser" && (
+          <>
+            <SidebarItem
+              icon={<HiOutlineDocumentReport />}
+              text="Report"
+              link="/report"
+            />
+            <SidebarItem
+              icon={<IoAddCircleSharp />}
+              text="Data-in-board"
+              link="/datainboard"
+            />
+            <SidebarItem icon={<FaDatabase />} text="Integration" link="/crm" />
+            <SidebarItem icon={<FaCamera />} text="Tables" link="/ocr/tables" />
+            <SidebarItem
+              icon={<FaChartBar />}
+              text="Insights"
+              link="/insights"
+            />
+          </>
+        )}
         <SidebarItem
-          icon={<HiOutlineDocumentReport />}
-          text="Report"
-          link="/report"
-        />
-        <SidebarItem
-          icon={<IoAddCircleSharp />}
-          text="Data-in-board"
-          link="/datainboard"
-        />
-        {/* <SidebarItem icon={<FaBullseye />} text="Targets" /> */}
-        <SidebarItem icon={<FaDatabase />} text="Integration  " link="/crm" />
-        {/* <SidebarItem icon={<FaChartBar />} text="Analytics" /> */}
-        {/* <SidebarItem icon={<FaLeaf />} text="GHG" /> */}
-        <SidebarItem
-          icon={<FaCamera />}
-          text="Tables"
-          link="/ocr/tables"
-        />{" "}
-        <SidebarItem
-          icon={<FaUserPlus />} // Add the user plus icon
+          icon={<FaUserPlus />}
           text="Register User"
           link="/register"
         />
-        <SidebarItem icon={<FaChartBar />} text="Insights" link="/insights" />{" "}
-        {/* Add the Insights item */}
+        {user.role === "SuperUser" && (
+          <SidebarItem
+            icon={<FaFileInvoiceDollar />}
+            text="Bills"
+            link="/viewbills"
+          />
+        )}
       </div>
       <div>
-        <SidebarItem icon={<FaCog />} text="Settings" />
-        <SidebarItem icon={<FaSignOutAlt />} text="Logout" />
+        <SidebarItem icon={<FaCog />} text="Settings" link="/settings" />
+        <SidebarItem
+          icon={<FaSignOutAlt />}
+          text="Logout"
+          onClick={handleLogout}
+        />
       </div>
     </div>
   );
 };
 
-const SidebarItem = ({ icon, text, link }) => {
+const SidebarItem = ({ icon, text, link, onClick }) => {
   const content = (
-    <div className="flex items-center space-x-2 text-white hover:bg-[rgb(231,155,68)] p-2 rounded cursor-pointer">
+    <div
+      onClick={onClick}
+      className="flex items-center space-x-2 text-white hover:bg-[rgb(231,155,68)] p-2 rounded cursor-pointer"
+    >
       {icon}
       <span>{text}</span>
     </div>

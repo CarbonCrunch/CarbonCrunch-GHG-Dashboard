@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Sidebar from "../dashboard/Sidebar";
+import NavbarD from "../dashboard/NavbarD";
 import axios from "axios";
 import { useTable } from "react-table";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/dashboard/Sidebar";
-import NavbarD from "../components/dashboard/NavbarD";
 
 const billTypes = [
   "Bioenergy",
@@ -150,43 +150,41 @@ const ViewBills = () => {
     tableInstance;
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-gray-50">
+    <div className="flex flex-col min-h-screen w-full">
       <NavbarD />
       <div className="flex flex-1">
-        <div className="w-1/6 flex-shrink-0 sticky top-0 h-screen bg-white shadow-lg">
+        <div className="w-1/6 flex-shrink-0 sticky top-0 h-screen">
           <Sidebar />
         </div>
-        <div className="flex-1 p-6 bg-white shadow-lg rounded-lg m-4">
-          <div className="mb-6">
-            <div className="flex space-x-4">
-              <input
-                type="text"
-                placeholder="Company Name"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                className="px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Facility Name"
-                value={facilityName}
-                onChange={(e) => setFacilityName(e.target.value)}
-                className="px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={handleSearch}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition duration-300"
-              >
-                Search
-              </button>
-            </div>
+        <div className="flex-1 p-4">
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Company Name"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              className="px-4 py-2 border rounded-lg mr-2"
+            />
+            <input
+              type="text"
+              placeholder="Facility Name"
+              value={facilityName}
+              onChange={(e) => setFacilityName(e.target.value)}
+              className="px-4 py-2 border rounded-lg mr-2"
+            />
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Search
+            </button>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border rounded-lg"
             >
               <option value="">All Categories</option>
               {billTypes.map((type) => (
@@ -197,57 +195,55 @@ const ViewBills = () => {
             </select>
           </div>
 
-          <div className="overflow-x-auto">
-            <table
-              {...getTableProps()}
-              className="min-w-full bg-white shadow-md rounded-lg overflow-hidden"
-            >
-              <thead className="bg-gray-200">
-                {headerGroups.map((headerGroup) => (
-                  <tr {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps()}
-                        key={column.id}
-                        className="px-6 py-3 border-b border-gray-300 text-left text-sm font-semibold text-gray-700"
-                      >
-                        {column.render("Header")}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {rows.length > 0 ? (
-                  rows.map((row) => {
-                    prepareRow(row);
-                    return (
-                      <tr
-                        {...row.getRowProps()}
-                        className="bg-white hover:bg-gray-100 transition duration-300 cursor-pointer"
-                        onClick={() => handleRowClick(row.original)}
-                      >
-                        {row.cells.map((cell) => (
-                          <td
-                            {...cell.getCellProps()}
-                            className="px-6 py-4 border-b border-gray-200 text-sm text-gray-700"
-                          >
-                            {cell.render("Cell")}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={columns.length} className="text-center py-4">
-                      No bills found for the selected category.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <table
+            {...getTableProps()}
+            className="min-w-full bg-white shadow-md rounded-lg overflow-hidden"
+          >
+            <thead>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th
+                      {...column.getHeaderProps()}
+                      key={column.id}
+                      className="px-6 py-3 border-b border-gray-200 text-left text-sm font-semibold text-gray-600"
+                    >
+                      {column.render("Header")}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {rows.length > 0 ? (
+                rows.map((row) => {
+                  prepareRow(row);
+                  return (
+                    <tr
+                      {...row.getRowProps()}
+                      className="bg-white hover:bg-gray-100 transition duration-300 cursor-pointer"
+                      onClick={() => handleRowClick(row.original)}
+                    >
+                      {row.cells.map((cell) => (
+                        <td
+                          {...cell.getCellProps()}
+                          className="px-6 py-4 border-b border-gray-200 text-sm text-gray-700"
+                        >
+                          {cell.render("Cell")}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={columns.length} className="text-center py-4">
+                    No bills found for the selected category.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

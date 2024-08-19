@@ -9,6 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [facilityName, setFacilityName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("Admin"); // Default role for user login
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("user"); // New state for active tab
@@ -44,17 +45,24 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-     const res = await axios.post("/api/users/login", {
-       username: username,
-       password: password,
-       email: activeTab === "root" ? email : undefined, // Conditionally include email
-       facilityName: activeTab === "user" ? facilityName : undefined, // Conditionally include facilityName
-     });
+      const res = await axios.post("/api/users/login", {
+        username: username,
+        password: password,
+        email: activeTab === "root" ? email : undefined, // Conditionally include email
+        facilityName: activeTab === "user" ? facilityName : undefined, // Conditionally include facilityName
+        role: activeTab === "root" ? "SuperUser" : role, // Conditionally include role
+      });
 
       const { user, accessToken } = res.data.data;
       localStorage.setItem("accessToken", accessToken);
       login(user, accessToken);
-      navigate("/dashboard");
+
+      // Navigate based on the role
+      if (activeTab === "root") {
+        navigate("/rootDashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       setError(
         "Invalid Username/Password" +
@@ -160,21 +168,39 @@ const Login = () => {
                 />
               </div>
               {activeTab === "user" && (
-                <div>
-                  <label htmlFor="facilityName" className="sr-only">
-                    Facility Name
-                  </label>
-                  <input
-                    id="facilityName"
-                    name="facilityName"
-                    type="text"
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                    placeholder="Facility Name"
-                    value={facilityName}
-                    onChange={(e) => setFacilityName(e.target.value)}
-                  />
-                </div>
+                <>
+                  <div>
+                    <label htmlFor="facilityName" className="sr-only">
+                      Facility Name
+                    </label>
+                    <input
+                      id="facilityName"
+                      name="facilityName"
+                      type="text"
+                      required
+                      className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      placeholder="Facility Name"
+                      value={facilityName}
+                      onChange={(e) => setFacilityName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="role" className="sr-only">
+                      Role
+                    </label>
+                    <select
+                      id="role"
+                      name="role"
+                      className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                    >
+                      <option value="Admin">Admin</option>
+                      <option value="FacAdmin">FacAdmin</option>
+                      <option value="Employee">Employee</option>
+                    </select>
+                  </div>
+                </>
               )}
             </div>
 

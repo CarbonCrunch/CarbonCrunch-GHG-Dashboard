@@ -4,20 +4,20 @@ import { User } from "../models/user.model.js";
 import { Bill } from "../models/bill.model.js";
 import { v2 as cloudinary } from "cloudinary";
 
-
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dkiowo64c',
-  api_key: process.env.CLOUDINARY_CLOUD_API_KEY || '141629487434466',
-  api_secret: process.env.CLOUDINARY_CLOUD_API_SECRET || 'duCohk5LZqFdbHt4lux5lE5IXSQ',
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dkiowo64c",
+  api_key: process.env.CLOUDINARY_CLOUD_API_KEY || "141629487434466",
+  api_secret:
+    process.env.CLOUDINARY_CLOUD_API_SECRET || "duCohk5LZqFdbHt4lux5lE5IXSQ",
 });
 
 export const getBills = asyncHandler(async (req, res) => {
   const { companyName, facilityName, userId, username } = req.query;
-  console.log("getBills", companyName, facilityName, userId, username);
+  // console.log("getBills", companyName, facilityName, userId, username);
 
   // Validate required fields
-  if (!userId || !companyName || !facilityName) {
+  if (!companyName || !facilityName) {
     throw new ApiError(400, "Company name, and facility name are required.");
   }
 
@@ -29,7 +29,7 @@ export const getBills = asyncHandler(async (req, res) => {
       "billId billName username createdAt companyName facilityName timePeriod type_off_bill URL"
     );
 
-    // console.log("getBills", bill, bill.username, username);
+    console.log("getBills", bill, bill.username, username);
 
     if (!bill) {
       return res.status(404).json({
@@ -84,7 +84,6 @@ export const createBills = asyncHandler(async (req, res) => {
   const currentDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
   const billName = `${facilityName}_${billType}_${currentDate}_${billId}`;
 
-
   // Upload image to Cloudinary
   let cloudinaryResult;
   if (file) {
@@ -125,5 +124,36 @@ export const createBills = asyncHandler(async (req, res) => {
       billName: bill.billName,
       URL: bill.URL,
     },
+  });
+});
+
+
+
+export const updateBill = asyncHandler(async (req, res) => {
+  const { billId, companyName, facilityName } = req.query;
+  const { data } = req.body; // Assuming the data you want to update is sent in the body
+
+  // if (!billId || !data || !companyName || !facilityName) {
+  //   throw new ApiError(
+  //     400,
+  //     "Bill ID, data, companyName, and facilityName are required."
+  //   );
+  // }
+  // console.log("billId",billId)
+
+  const bill = await Bill.findOne({ billId, companyName, facilityName });
+  if (!bill) {
+    throw new ApiError(404, "Bill not found.");
+  }
+
+  // Update the bill data
+  bill.data = { ...bill.data, ...data }; // Merging new data with existing data
+
+  await bill.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Bill updated successfully",
+    data: bill,
   });
 });

@@ -82,11 +82,11 @@ const CRMIntegration = () => {
   );
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-full">
       <NavbarD />
       <div className="flex flex-1">
         {/* Sidebar */}
-        <div className="w-1/6 sticky top-0 h-screen bg-orange-500">
+        <div className="w-1/6 flex-shrink-0 sticky top-0 h-screen">
           <Sidebar />
         </div>
         <div className="flex-grow container mx-auto px-6 py-8">

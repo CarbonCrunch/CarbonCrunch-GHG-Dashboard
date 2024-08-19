@@ -1162,7 +1162,7 @@ export const CO2eOv = asyncHandler(async (req, res) => {
           Unknown: { unit: "km", factor: 0.171 },
         },
       },
-      Motorbike: {
+      Motorbikes: {
         Small: { unit: "km", factor: 0.083 },
         Medium: { unit: "km", factor: 0.101 },
         Large: { unit: "km", factor: 0.132 },
@@ -1204,8 +1204,12 @@ export const CO2eOv = asyncHandler(async (req, res) => {
     const { level1, level2, level3, fuel, distance } = vehicleEntry; // Ensure distance is used instead of amount
     let conversionRate = 0;
 
-    // Check if conversion factors exist for the given vehicle hierarchy
-    if (
+    // Special handling for Motorbikes
+    if (level2 === "Motorbikes" && conversionRates[level1][level2][level3]) {
+      conversionRate = conversionRates[level1][level2][level3].factor;
+    }
+    // Standard handling for other vehicles
+    else if (
       conversionRates[level1] &&
       conversionRates[level1][level2] &&
       conversionRates[level1][level2][level3] &&
@@ -1407,17 +1411,12 @@ export const CO2eFa = asyncHandler(async (req, res) => {
     return { ...hotelEntry, CO2e };
   });
 
-  // Ensure `fa` object exists
-  if (!report.fa) {
-    report.fa = {};
-  }
-
   // Update the report's accommodation data and store CO2e
   report.fa.hotelAccommodation = updatedHotelAccommodationData;
-
+  // console.log("report.fa1", report.fa.hotelAccommodation);
   // Save the updated report
   await report.save();
-  console.log("report.fa", report.fa);
+  // console.log("report.fa2", report.fa);
 
   res.status(200).json({
     success: true,

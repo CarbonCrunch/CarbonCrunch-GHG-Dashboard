@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
 import Fields from "../Fields";
 import Canvas from "../Canvas";
 import NavbarD from "../../dashboard/NavbarD";
@@ -37,11 +36,11 @@ function ImageViewer({ uploadedImage }) {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen w-full">
         <NavbarD />
         <div className="flex flex-1">
           {/* Sidebar */}
-          <div className="w-1/6 sticky top-0 h-screen">
+          <div className="w-1/6 flex-shrink-0 sticky top-0 h-screen">
             <Sidebar />
           </div>
           <div className="container mx-auto p-4">
@@ -49,7 +48,7 @@ function ImageViewer({ uploadedImage }) {
               <div className="flex-1">
                 <div className="md:w-1/2 pr-4">
                   <Link
-                    to="/ocr/uploadimage"
+                    to="/ocr/tables"
                     className="mb-4 inline-block bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
                   >
                     Upload Another Image
@@ -68,8 +67,6 @@ function ImageViewer({ uploadedImage }) {
                       uploadedImage={uploadedImage}
                       activeField={activeField}
                       setFormData={setFormData}
-                      // Reduce the width of the image by 25%
-                      // style={{ width: "75%" }}
                     />
                   </div>
                 </div>
