@@ -1,6 +1,7 @@
 import React from "react";
 import NavbarD from "./NavbarD";
 import Sidebar from "./Sidebar";
+import ins from "../../assets/ins.png";
 
 const Insights = () => {
   return (
@@ -12,10 +13,10 @@ const Insights = () => {
           <Sidebar />
         </div>
         {/* Main Content */}
-        <div className="flex-1 flex justify-center items-center p-4 bg-gray-100">
-          <h1 className="text-5xl font-extrabold text-gray-800 text-center">
-            Coming Out Soon
-          </h1>
+        <div className="flex flex-col p-3 items-center  ml-96 mt-16">
+          <img src={ins} style={{height: 350, width:350}}/>
+          <div style={{color: '#002952', fontSize: 30, fontWeight: 600}}>Coming Soon!</div>
+          <div style={{color: '#002952', fontSize: 20}}>Our team is currently working on this...</div>
         </div>
       </div>
     </div>
