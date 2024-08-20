@@ -57,7 +57,7 @@ const Sidebar = () => {
         )}
         <SidebarItem
           icon={<FaUserPlus />}
-          text="Register User"
+          text="Register"
           link="/register"
         />
         {user.role === "SuperUser" && (
