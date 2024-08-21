@@ -5,14 +5,14 @@ import WhyUs from "./Whyus.jsx";
 import ContactForm from "./ContactForm.jsx";
 import Tagline from "./Tagline.jsx";
 import Footer from "./Footer.jsx";
-// import WorldMap from "./WorldMap.jsx";
+import WorldMap from "./WorldMap.jsx";
 
 const LandingPage = () => {
   return (
     <div>
       <Navbar />
       <Hero />
-      {/* <WorldMap /> */}
+      <WorldMap />
       <WhyUs />
       <Tagline />
       <ContactForm />
