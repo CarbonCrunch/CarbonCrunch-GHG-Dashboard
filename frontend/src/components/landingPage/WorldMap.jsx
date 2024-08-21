@@ -1,38 +1,37 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import countryStatusColor from "./country_status_color.json";  
 
 const WorldMap = () => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
 
   useEffect(() => {
-    if (mapInstanceRef.current) return; // Skip if map is already initialized
+    if (mapInstanceRef.current) return;
 
-    // Set the height of the container to 3x the window's height divided by 3
     const mapHeight = (window.innerHeight * 3) / 3;
     mapRef.current.style.height = `${mapHeight}px`;
-    mapRef.current.style.width = "100%"; // Make sure it fits the full width of the screen
+    mapRef.current.style.width = "100%";
 
     mapInstanceRef.current = L.map(mapRef.current, {
       center: [20, 0],
-      zoom: 2, // Set a fixed zoom level
-      zoomControl: false, // Disable default zoom control
-      dragging: false, // Disable dragging
-      scrollWheelZoom: false, // Disable zoom on scroll
-      doubleClickZoom: false, // Disable zoom on double click
-      touchZoom: false, // Disable zoom on touch
-      boxZoom: false, // Disable box zoom
+      zoom: 2,
+      zoomControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+      boxZoom: false,
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      noWrap: true, // Prevent horizontal repeating of the map
+      noWrap: true,
     }).addTo(mapInstanceRef.current);
 
-    // Fit the map to the bounds that cover the entire world map width-wise
     mapInstanceRef.current.fitBounds([
-      [-60, -180], // Southwest coordinates
-      [85, 180], // Northeast coordinates
+      [-60, -180],
+      [85, 180],
     ]);
 
     const infoBox = L.control();
@@ -52,9 +51,10 @@ const WorldMap = () => {
         ${
           props
             ? `<p class="text-sm">
-            <span class="font-bold">${props.name}</span><br />
-            Population Density: ${props.density} people / mi<sup>2</sup>
-           </p>`
+                <span class="font-bold">${props.name}</span><br />
+                Status: ${props.status}<br />
+                ${props.hover}
+              </p>`
             : '<p class="text-sm text-gray-600">Hover over a country</p>'
         }
       `;
@@ -62,27 +62,10 @@ const WorldMap = () => {
 
     infoBox.addTo(mapInstanceRef.current);
 
-    function getColor(d) {
-      return d > 1000
-        ? "#800026"
-        : d > 500
-        ? "#BD0026"
-        : d > 200
-        ? "#E31A1C"
-        : d > 100
-        ? "#FC4E2A"
-        : d > 50
-        ? "#FD8D3C"
-        : d > 20
-        ? "#FEB24C"
-        : d > 10
-        ? "#FED976"
-        : "#FFEDA0";
-    }
-
     function style(feature) {
+      const countryInfo = countryStatusColor[feature.properties.name];
       return {
-        fillColor: getColor(feature.properties.density),
+        fillColor: countryInfo ? countryInfo.color : "#FFEDA0", // Default color if no match
         weight: 2,
         opacity: 1,
         color: "white",
@@ -111,6 +94,11 @@ const WorldMap = () => {
     }
 
     function onEachFeature(feature, layer) {
+      const countryInfo = countryStatusColor[feature.properties.name];
+      if (countryInfo) {
+        feature.properties.status = countryInfo.status;
+        feature.properties.hover = countryInfo.hover;
+      }
       layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight,
@@ -119,32 +107,40 @@ const WorldMap = () => {
 
     let geojsonLayer;
     fetch(
-      "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
+      "https://raw.githubusercontent.com/CarbonCrunch/CarbonCrunch-GHG-Dashboard/main/GeoJSON/combined.geo.json"
     )
       .then((response) => response.json())
       .then((data) => {
-        data.features.forEach((feature) => {
-          feature.properties.density = Math.floor(Math.random() * 1000);
-        });
-
         geojsonLayer = L.geoJSON(data, {
           style: style,
           onEachFeature: onEachFeature,
         }).addTo(mapInstanceRef.current);
       });
 
-    // Function to update map size
+    const legend = L.control({ position: "bottomright" });
+
+    legend.onAdd = function () {
+      const div = L.DomUtil.create("div", "info legend"),
+        labels = [];
+
+      // for (const [country, info] of Object.entries(countryStatusColor)) {
+      //   labels.push(`<i style="background:${info.color}"></i> ${info.status}`);
+      // }
+      div.innerHTML = labels.join("<br>");
+      return div;
+    };
+
+    legend.addTo(mapInstanceRef.current);
+
     const updateMapSize = () => {
       const newMapHeight = (window.innerHeight * 3) / 3;
       mapRef.current.style.height = `${newMapHeight}px`;
-      mapRef.current.style.width = "100%"; // Ensure width is 100%
+      mapRef.current.style.width = "100%";
       mapInstanceRef.current.invalidateSize();
     };
 
-    // Add event listener for window resize
     window.addEventListener("resize", updateMapSize);
 
-    // Cleanup function
     return () => {
       window.removeEventListener("resize", updateMapSize);
       if (mapInstanceRef.current) {

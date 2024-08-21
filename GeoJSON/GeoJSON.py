@@ -183,38 +183,70 @@
 # print(f"Restructured GeoJSON saved as '{output_geojson_file}'")
 
 
+# import json
+# import os
+
+# # Define the paths to the input GeoJSON files
+# us_states_file = os.path.join(os.path.dirname(__file__), 'filtered_us_states.geo.json')
+# countries_file = os.path.join(os.path.dirname(__file__), 'filtered_countries.geo.json')
+# china_file = os.path.join(os.path.dirname(__file__), 'filtered_china.geo.json')
+
+# # Define the output file path
+# output_file = os.path.join(os.path.dirname(__file__), 'combined_geo.json')
+
+# # Load each of the GeoJSON files
+# with open(us_states_file, 'r') as file:
+#     us_states_data = json.load(file)
+
+# with open(countries_file, 'r') as file:
+#     countries_data = json.load(file)
+
+# with open(china_file, 'r') as file:
+#     china_data = json.load(file)
+
+# # Combine all features from the three files
+# combined_features = us_states_data['features'] + countries_data['features'] + china_data['features']
+
+# # Create a new GeoJSON structure with the combined features
+# combined_geojson = {
+#     "type": "FeatureCollection",
+#     "features": combined_features
+# }
+
+# # Save the combined GeoJSON to a new file
+# with open(output_file, 'w') as output:
+#     json.dump(combined_geojson, output, indent=2)
+
+# print(f"Combined GeoJSON saved as '{output_file}'")
+
+
+import pandas as pd
 import json
-import os
 
-# Define the paths to the input GeoJSON files
-us_states_file = os.path.join(os.path.dirname(__file__), 'filtered_us_states.geo.json')
-countries_file = os.path.join(os.path.dirname(__file__), 'filtered_countries.geo.json')
-china_file = os.path.join(os.path.dirname(__file__), 'filtered_china.geo.json')
+# Load the Excel file
+excel_file = 'final_carbon_pricing.xlsx'
+df = pd.read_excel(excel_file)
 
-# Define the output file path
-output_file = os.path.join(os.path.dirname(__file__), 'combined_geo.json')
+# Remove any leading/trailing whitespace from column names (just in case)
+df.columns = df.columns.str.strip()
 
-# Load each of the GeoJSON files
-with open(us_states_file, 'r') as file:
-    us_states_data = json.load(file)
+# Create a dictionary mapping each country/state to its status, color, and hover action
+country_data = {}
 
-with open(countries_file, 'r') as file:
-    countries_data = json.load(file)
+for _, row in df.iterrows():
+    # Combine State and Country/Region for a unique key (if needed)
+    location_key = row['State'] if pd.notna(row['State']) else row['Country/Region']
+    
+    country_data[location_key] = {
+        'status': row['Status (Label)'],
+        'color': row['Color'],
+        'hover': row['Hover Action (Info)']
+    }
 
-with open(china_file, 'r') as file:
-    china_data = json.load(file)
+# Save the dictionary as a JSON file to be used in the React component
+output_file = 'country_status_color.json'
+with open(output_file, 'w') as json_file:
+    json.dump(country_data, json_file, indent=2)
 
-# Combine all features from the three files
-combined_features = us_states_data['features'] + countries_data['features'] + china_data['features']
+print(f"Data saved to {output_file}")
 
-# Create a new GeoJSON structure with the combined features
-combined_geojson = {
-    "type": "FeatureCollection",
-    "features": combined_features
-}
-
-# Save the combined GeoJSON to a new file
-with open(output_file, 'w') as output:
-    json.dump(combined_geojson, output, indent=2)
-
-print(f"Combined GeoJSON saved as '{output_file}'")
