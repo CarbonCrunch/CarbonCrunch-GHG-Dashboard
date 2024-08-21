@@ -29,7 +29,7 @@ export const getBills = asyncHandler(async (req, res) => {
       "billId billName username createdAt companyName facilityName timePeriod type_off_bill URL"
     );
 
-    console.log("getBills", bill, bill.username, username);
+    console.log("getBills", bill, username);
 
     if (!bill) {
       return res.status(404).json({

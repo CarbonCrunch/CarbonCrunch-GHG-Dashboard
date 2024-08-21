@@ -50,7 +50,7 @@ function Tables({ setUploadedImage }) {
         });
 
         const { message, data } = response.data;
-        console.log("Bills data:", data);
+        //console.log("Bills data:", data);
 
         if (message === "No bills found for the user.") {
           setMessage(message);
@@ -89,7 +89,7 @@ function Tables({ setUploadedImage }) {
       )
     );
   }, []);
-  
+
   const columns = useMemo(
     () => [
       {
@@ -188,10 +188,14 @@ function Tables({ setUploadedImage }) {
       );
 
       if (createBillResponse.status === 201) {
+        const { billId } = createBillResponse.data.data; // Extract billId from the response
+
         setUploadedImage(URL.createObjectURL(selectedFile));
         setShowModal(false);
         alert("Bill created successfully!");
-        navigate("/ocr/output", { state: { billType: selectedBillType } });
+        navigate("/ocr/output", {
+          state: { billType: selectedBillType, billId: billId },
+        });
       } else {
         throw new Error("Bill creation failed");
       }

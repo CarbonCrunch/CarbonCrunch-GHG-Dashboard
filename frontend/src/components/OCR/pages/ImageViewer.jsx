@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Fields from "../Fields";
+import Fields from "./Fields";
 import Canvas from "../Canvas";
 import NavbarD from "../../dashboard/NavbarD";
 import Sidebar from "../../dashboard/Sidebar";
@@ -8,6 +8,7 @@ import Sidebar from "../../dashboard/Sidebar";
 function ImageViewer({ uploadedImage }) {
   const location = useLocation();
   const selectedBillType = location.state?.billType || "";
+  const billId = location.state?.billId || "";  
   const [formData, setFormData] = useState([]);
   const [activeField, setActiveField] = useState(null);
   const [containerRef, setContainerRef] = useState(null);
@@ -78,6 +79,7 @@ function ImageViewer({ uploadedImage }) {
                   handleInputFocus={handleInputFocus}
                   handleInputChange={handleInputChange}
                   selectedBillType={selectedBillType}
+                  billId={billId}
                 />
               </div>
             </div>

@@ -2,22 +2,22 @@ import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Fuel from "../reports/Fuel";
-import Bioenergy from "../reports/Bioenergy";
-import Refrigerants from "../reports/Refrigerants";
-import Ov from "../reports/Ov";
-import Wttfuels from "../reports/Wttfuels";
-import Materials from "../reports/Materials";
-import Waste from "../reports/Waste";
-import Fa from "../reports/Fa";
-import Ehctd from "../reports/Ehctd";
-import Btls from "../reports/Btls";
-import Ec from "../reports/Ec";
-import Fg from "../reports/Fg";
-import Food from "../reports/Food";
-import HomeOffice from "../reports/HomeOffice";
-import Water from "../reports/Water";
-import { useAuth } from "../../context/AuthContext";
+import Fuel from "../../reports/Fuel";
+import Bioenergy from "../../reports/Bioenergy";
+import Refrigerants from "../../reports/Refrigerants";
+import Ov from "../../reports/Ov";
+import Wttfuels from "../../reports/Wttfuels";
+import Materials from "../../reports/Materials";
+import Waste from "../../reports/Waste";
+import Fa from "../../reports/Fa";
+import Ehctd from "../../reports/Ehctd";
+import Btls from "../../reports/Btls";
+import Ec from "../../reports/Ec";
+import Fg from "../../reports/Fg";
+import Food from "../../reports/Food";
+import HomeOffice from "../../reports/HomeOffice";
+import Water from "../../reports/Water";
+import { useAuth } from "../../../context/AuthContext";
 
 const componentMap = {
   Fuels: Fuel,
@@ -27,7 +27,7 @@ const componentMap = {
   WTTFuel: Wttfuels,
   MaterialsUsed: Materials,
   WasteDisposal: Waste,
-  "Flights & Accomodations": Fa,
+  "Flights & Accommodations": Fa,
   Electricity_Heating: Ehctd,
   BusinessTravel: Btls,
   FreightingGoods: Fg,
@@ -42,40 +42,37 @@ const Fields = ({
   handleInputChange,
   handleInputFocus,
   selectedBillType,
+  billId, 
 }) => {
-
   const { user } = useAuth();
 
- 
-
-
   const SelectedComponent = componentMap[selectedBillType];
-
-
 
   return (
     <div className="w-full pl-4 mt-4 md:mt-0">
       <div className="space-y-4 ">
-        {/* Display Report Information */}
+        
         <div>
           <p>
-            <strong>Bill ID:</strong> {billId}
+            <strong>Bill ID:</strong> {billId}  
           </p>
           <p>
-            <strong>Company Name:</strong> {companyName}
-          </p>
+            <strong>Company Name:</strong> {user.companyName}{" "}
+           </p>
           <p>
-            <strong>Facility Name:</strong> {facilityName}
+            <strong>Facility Name:</strong> {user.facilityName}{" "}
+           </p>
+          <p>
+            <strong>Username:</strong> {user.username}{" "}
           </p>
         </div>
 
-        {/* Type of Bill Section */}
         <div>
           <label htmlFor="type_of_bill" className="block mb-1">
             Type of Bill: {selectedBillType}
           </label>
 
-          <div>
+          {/* <div>
             {loading ? (
               <p>Loading report...</p>
             ) : error ? (
@@ -96,7 +93,7 @@ const Fields = ({
             ) : (
               <p>No report data available.</p>
             )}
-          </div>
+          </div> */}
         </div>
 
         <ToastContainer />
