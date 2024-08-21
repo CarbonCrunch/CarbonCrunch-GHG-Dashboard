@@ -9,22 +9,31 @@ const WorldMap = () => {
   useEffect(() => {
     if (mapInstanceRef.current) return; // Skip if map is already initialized
 
-    // Set the height of the container to the window's inner height
-    mapRef.current.style.height = `${window.innerHeight}px`;
+    // Set the height of the container to 3x the window's height divided by 3
+    const mapHeight = (window.innerHeight * 3) / 3;
+    mapRef.current.style.height = `${mapHeight}px`;
+    mapRef.current.style.width = "100%"; // Make sure it fits the full width of the screen
 
     mapInstanceRef.current = L.map(mapRef.current, {
       center: [20, 0],
-      zoom: 2,
+      zoom: 2, // Set a fixed zoom level
       zoomControl: false, // Disable default zoom control
+      dragging: false, // Disable dragging
+      scrollWheelZoom: false, // Disable zoom on scroll
+      doubleClickZoom: false, // Disable zoom on double click
+      touchZoom: false, // Disable zoom on touch
+      boxZoom: false, // Disable box zoom
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      noWrap: true, // Prevent horizontal repeating of the map
     }).addTo(mapInstanceRef.current);
 
-    // Move zoom control to the right
-    L.control.zoom({ position: "topright" }).addTo(mapInstanceRef.current);
+    // Fit the map to the bounds that cover the entire world map width-wise
+    mapInstanceRef.current.fitBounds([
+      [-60, -180], // Southwest coordinates
+      [85, 180], // Northeast coordinates
+    ]);
 
     const infoBox = L.control();
 
@@ -126,7 +135,9 @@ const WorldMap = () => {
 
     // Function to update map size
     const updateMapSize = () => {
-      mapRef.current.style.height = `${window.innerHeight}px`;
+      const newMapHeight = (window.innerHeight * 3) / 3;
+      mapRef.current.style.height = `${newMapHeight}px`;
+      mapRef.current.style.width = "100%"; // Ensure width is 100%
       mapInstanceRef.current.invalidateSize();
     };
 
@@ -143,7 +154,7 @@ const WorldMap = () => {
     };
   }, []);
 
-  return <div ref={mapRef} className="w-full" />;
+  return <div ref={mapRef} className="w-full z-0" />;
 };
 
 export default WorldMap;
