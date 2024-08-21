@@ -1,7 +1,7 @@
 import React from "react";
 import NavbarD from "./NavbarD";
 import Sidebar from "./Sidebar";
-import ins from "../../assets/ins.png";
+import ins from "../landingPage/assets/ins.png";
 
 const Insights = () => {
   return (

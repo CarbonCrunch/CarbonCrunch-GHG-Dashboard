@@ -1,16 +1,27 @@
-import React from 'react'
+import React from "react";
 
 const ContactForm = () => {
   return (
-    <main className="flex-grow">
+    <main
+      className="flex-grow"
+      style={{ backgroundColor: "#002952", paddingBottom: 18 }}
+    >
       <div className="container mx-auto px-4 py-8">
+        <div
+          className="text-center text-4xl mb-12 mt-7 "
+          style={{ color: "white", fontWeight: 600 }}
+        >
+          Want to learn more?
+        </div>
         <div className="flex flex-wrap -mx-4">
           <div className="w-full md:w-1/2 px-4 mb-8 md:mb-0">
-            <h2 className="text-2xl font-bold mb-4">Want to learn more?</h2>
-            <p className="mb-6">
+            <h2 className="text-2xl font-bold mb-4 text-white">
+              Let's Connect!
+            </h2>
+            <p className="mb-6 text-white">
               Please fill in your contact details and we'll be in touch
             </p>
-            <div className="space-y-2">
+            <div className="space-y-2 text-white">
               <p>
                 <strong>Country:</strong> India
               </p>
@@ -25,10 +36,10 @@ const ContactForm = () => {
               </p>
             </div>
           </div>
-          <div className="w-full md:w-1/2 px-4">
+          <div className="w-full md:w-1/2 px-4 ">
             <form className="space-y-4">
               <div>
-                <label htmlFor="name" className="block mb-1">
+                <label htmlFor="name" className="block mb-1 text-white">
                   Name
                 </label>
                 <input
@@ -38,7 +49,7 @@ const ContactForm = () => {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block mb-1">
+                <label htmlFor="email" className="block mb-1 text-white">
                   Email
                 </label>
                 <input
@@ -48,7 +59,7 @@ const ContactForm = () => {
                 />
               </div>
               <div>
-                <label htmlFor="message" className="block mb-1">
+                <label htmlFor="message" className="block mb-1 text-white">
                   Message
                 </label>
                 <textarea
@@ -69,6 +80,6 @@ const ContactForm = () => {
       </div>
     </main>
   );
-}
+};
 
-export default ContactForm
+export default ContactForm;

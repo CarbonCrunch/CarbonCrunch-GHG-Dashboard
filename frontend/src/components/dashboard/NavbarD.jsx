@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaCog, FaBell } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
+import logoCC from "../landingPage/assets/logoCC.png";
 
 const NavbarD = () => {
   const { user, logout } = useAuth();
@@ -40,9 +41,8 @@ const NavbarD = () => {
     <header className="shadow-md w-full">
       <div className="px-4 py-1.5 flex justify-between items-center">
         <div className="flex items-center">
-          <Link className="font-bold text-xl">
-            Carbon Crunch
-          </Link>
+          <img src={logoCC} alt="Logo" className="h-8 mr-2" />
+          <Link className="font-bold text-xl">Carbon Crunch</Link>
           {user && (
             <span className="text-gray-800 text-sm ml-4">
               |

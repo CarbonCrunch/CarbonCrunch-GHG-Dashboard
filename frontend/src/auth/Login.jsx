@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../components/landingPage/Header";
 import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/landingPage/NavBar";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -82,7 +82,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
+      <Navbar />
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>

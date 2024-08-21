@@ -1,17 +1,21 @@
 import React from "react";
-import Header from "./Header";
-import Navbar from "./Navbar";
-import ContactForm from "./ContactForm";
-import Prefooter from "./Prefooter";
-import Footer from "./Footer";
+import Navbar from "./NavBar.jsx";
+import Hero from "./Hero.jsx";
+import WhyUs from "./Whyus.jsx";
+import ContactForm from "./ContactForm.jsx";
+import Tagline from "./Tagline.jsx";
+import Footer from "./Footer.jsx";
+// import WorldMap from "./WorldMap.jsx";
 
 const LandingPage = () => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
+    <div>
       <Navbar />
+      <Hero />
+      {/* <WorldMap /> */}
+      <WhyUs />
+      <Tagline />
       <ContactForm />
-      <Prefooter />
       <Footer />
     </div>
   );
