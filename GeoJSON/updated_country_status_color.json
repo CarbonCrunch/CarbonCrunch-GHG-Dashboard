@@ -1,7 +1,7 @@
 {
   "California": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"California has both ETS and a carbon tax implemented.\""
   },
   "Oregon": {
@@ -11,7 +11,7 @@
   },
   "Washington": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"Washington state has both ETS and a carbon tax implemented.\""
   },
   "New York": {
@@ -86,12 +86,12 @@
   },
   "Washington D.C.": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"Washington D.C. has both ETS and a carbon tax implemented.\""
   },
   "British Columbia": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "British Columbia has both ETS and a carbon tax implemented."
   },
   "Alberta": {
@@ -116,7 +116,7 @@
   },
   "Quebec": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "Quebec has both ETS and a carbon tax implemented."
   },
   "Newfoundland and Labrador": {
@@ -141,7 +141,7 @@
   },
   "Northwest Territories": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "Northwest Territories has both ETS and a carbon tax implemented."
   },
   "Nunavut": {
@@ -221,12 +221,12 @@
   },
   "France": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"ETS and carbon tax implemented.\""
   },
   "Germany": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"ETS and carbon tax implemented.\""
   },
   "Greece": {
@@ -366,17 +366,17 @@
   },
   "Norway": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"ETS and carbon tax implemented.\""
   },
   "Switzerland": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"ETS and carbon tax implemented.\""
   },
   "South Korea": {
     "status": "ETS and Carbon Tax Implemented",
-    "color": "#00008B",
+    "color": "#784193",
     "hover": "\"ETS and carbon tax implemented.\""
   },
   "India": {
