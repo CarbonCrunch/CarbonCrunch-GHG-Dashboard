@@ -32,8 +32,14 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
   ];
   const unitOptions = ["Litres", "Tonnes"];
   const reportData = report;
-  const { companyName, facilityName, bioenergy, reportId, timePeriod } =
-    reportData;
+      const {
+        companyName = "",
+        facilityName = "",
+        reportId = "",
+        timePeriod = {},
+        bioenergy = [],
+      } = reportData || {};
+      
 
   useEffect(() => {
     if (bioenergy && Array.isArray(bioenergy)) {

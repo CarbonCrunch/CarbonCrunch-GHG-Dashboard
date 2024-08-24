@@ -43,8 +43,14 @@ const Btls = ({ report }) => {
   const UnitOptions = ["km"];
 
   const reportData = report;
-  const { companyName, facilityName, btls, reportId, timePeriod } = reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    btls = [],
+  } = reportData || {};
+  
   useEffect(() => {
     if (btls && Array.isArray(btls)) {
       setBtlsData(

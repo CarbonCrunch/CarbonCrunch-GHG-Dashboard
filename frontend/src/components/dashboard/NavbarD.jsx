@@ -43,14 +43,6 @@ const NavbarD = () => {
         <div className="flex items-center">
           <img src={logoCC} alt="Logo" className="h-8 mr-2" />
           <Link className="font-bold text-xl">Carbon Crunch</Link>
-          {user && (
-            <span className="text-gray-800 text-sm ml-4">
-              |
-              {user.role === "SuperUser"
-                ? user.role
-                : `${user.companyName}, ${user.facilityName}`}
-            </span>
-          )}
         </div>
         <div className="flex items-center space-x-6">
           <FaCog className="text-gray-600 text-xl" />

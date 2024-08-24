@@ -73,8 +73,13 @@ const Materials = ({ report }) => {
   const UnitOptions = ["tonne"];
 
   const reportData = report;
-  const { companyName, facilityName, material, reportId, timePeriod } =
-    reportData;
+    const {
+      companyName = "",
+      facilityName = "",
+      reportId = "",
+      timePeriod = {},
+      material = [],
+    } = reportData || {};
 
   useEffect(() => {
     if (material && Array.isArray(material)) {

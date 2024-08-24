@@ -77,11 +77,13 @@ export const getCompanyReport = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Cannot access reports");
   }
   try {
-    const userReports = await Report.findOne({
+    const userReports = await Report.find({
       companyName: user.companyName,
     }).select(
       "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
     );
+
+    // if(userReports.username !== user)
 
     // console.log("getUserReports", userReports);
     if (!userReports || userReports.length === 0) {
@@ -161,7 +163,7 @@ export const getUserReports = asyncHandler(async (req, res) => {
 
     // console.log("getUserReports", userReports);
     if (!userReports || userReports.length === 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "No reports found for the user.",
         data: "zero",
       });

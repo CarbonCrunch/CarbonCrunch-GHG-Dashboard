@@ -25,8 +25,13 @@ const Fa = ({ report }) => {
   const [activeTab, setActiveTab] = useState("hotel");
 
   const reportData = report;
-  const { companyName, facilityName, reportId, timePeriod, fa } = reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    fa = [],
+  } = reportData || {};
   useEffect(() => {
     if (fa) {
       if (fa.hotelAccommodation) {

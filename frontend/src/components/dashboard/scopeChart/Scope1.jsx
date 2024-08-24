@@ -50,9 +50,9 @@ const Scope1 = ({ reports }) => {
   const {
     companyName = "",
     facilityName = "",
+    reportId = "",
     fuel = [],
     ownedVehicles = [],
-    reportId = "",
     bioenergy = [],
     refrigerants = [],
   } = reportData || {};
@@ -141,7 +141,7 @@ const Scope1 = ({ reports }) => {
     };
 
     fetchData();
-  }, [reportId, companyName, facilityName, fuel, bioenergy, refrigerants, ownedVehicles]);
+  }, []);
 
   const chartHeight = 510; // Reduced height by 15%
   const barColors = [

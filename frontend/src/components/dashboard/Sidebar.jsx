@@ -8,7 +8,9 @@ import {
   FaSignOutAlt,
   FaCamera,
   FaUserPlus,
-  FaFileInvoiceDollar, // Icon for Bills
+  FaFileInvoiceDollar,
+  FaBuilding,
+  FaUser, // Icon for Bills
 } from "react-icons/fa";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { IoAddCircleSharp } from "react-icons/io5";
@@ -17,6 +19,7 @@ import { useAuth } from "../../context/AuthContext";
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  // console.log("User:", user);
 
   const handleLogout = async () => {
     try {
@@ -55,11 +58,7 @@ const Sidebar = () => {
             />
           </>
         )}
-        <SidebarItem
-          icon={<FaUserPlus />}
-          text="Register"
-          link="/register"
-        />
+        <SidebarItem icon={<FaUserPlus />} text="Register" link="/register" />
         {user.role === "SuperUser" && (
           <SidebarItem
             icon={<FaFileInvoiceDollar />}
@@ -68,7 +67,17 @@ const Sidebar = () => {
           />
         )}
       </div>
+
       <div>
+        {user.role !== "SuperUser" && (
+          <SidebarItem
+            icon={<FaBuilding />}
+            text={`${user.companyName}, ${user.facilityName}`}
+          />
+        )}
+        {user.role === "SuperUser" && (
+          <SidebarItem icon={<FaUser />} text={`${user.role}`} />
+        )}
         <SidebarItem icon={<FaCog />} text="Settings" link="/settings" />
         <SidebarItem
           icon={<FaSignOutAlt />}

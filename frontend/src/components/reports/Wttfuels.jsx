@@ -47,8 +47,13 @@ const Wttfuels = ({ report }) => {
   ];
   const unitOptions = ["litres", "cubic metres"];
   const reportData = report;
-  const { companyName, facilityName, wttfuel, reportId, timePeriod } =
-    reportData;
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    wttfuel = [],
+  } = reportData || {};
 
 
   useEffect(() => {

@@ -21,6 +21,6 @@ router
 
 router
   .route("/:billId/put")
-  .patch(verifyJWT, restrictTo("SuperUser"), updateBill);
+  .patch(verifyJWT, updateBill);
 
 export default router;

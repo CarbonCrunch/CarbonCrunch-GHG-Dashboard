@@ -49,7 +49,7 @@ const Scope2 = ({ reports }) => {
     };
 
     fetchData();
-  }, [reportId, companyName, facilityName, ehctd]);
+  }, []);
 
   const chartHeight = 450;
 

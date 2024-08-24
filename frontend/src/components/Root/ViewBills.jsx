@@ -38,7 +38,7 @@ const ViewBills = () => {
         params: { companyName, facilityName },
       });
       const { data } = response.data;
-      console.log("data", response.data);
+      // console.log("data", response.data);
       setBills(data); // Assuming `data` contains the array of bills
       const transformedData = data.map((bill) => ({
         billId: bill.billId,

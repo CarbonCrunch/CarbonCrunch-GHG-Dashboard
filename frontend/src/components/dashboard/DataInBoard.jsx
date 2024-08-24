@@ -28,6 +28,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const DataInBoard = () => {
   const [report, setReport] = useState(null);
+  const [allReports, setAllReports] = useState(null); // State to store all reports for Admin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("Fuels");
@@ -38,38 +39,60 @@ const DataInBoard = () => {
 
   const [startDate, setStartDate] = useState(tenYearsAgo);
   const [endDate, setEndDate] = useState(today);
+  const [facilityName, setFacilityName] = useState(user.facilityName || "");
 
   useEffect(() => {
-    const fetchReport = async () => {
-      if (!user) {
-        setError("User not authenticated");
-        setLoading(false);
-        return;
-      }
+    if (user.role === "FacAdmin") {
+      fetchReports();
+    } else if (user.role === "Admin") {
+      fetchFacilityReports();
+    }
+  }, [user.role, facilityName]);
 
-      try {
-        setLoading(true);
-        const response = await axios.get(`/api/reports/get`);
-        if (response.data.data === "zero") {
-          setReport([]);
-        } else {
-          setReport(response.data.data);
-          console.log("report", response.data.data);
-        }
-        setError(null);
-      } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "An error occurred while fetching the report."
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/reports/get");
+      if (response.data.data === "zero") {
+        setReport([]);
+      } else {
+        setReport(response.data.data);
+        console.log("Fetched Reports:", response.data.data);
+      }
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch reports");
+      console.error("Error fetching reports:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFacilityReports = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/reports/getCompanyReport");
+      if (response.data.data === "zero") {
+        setReport([]);
+      } else {
+        // Save all reports for calculating total CO2e
+        setAllReports(response.data.data);
+
+        // Filter reports by facilityName for Admin role
+        const filteredReports = response.data.data.filter(
+          (report) => report.facilityName === facilityName
         );
-        setReport(null);
-      } finally {
-        setLoading(false);
+        setReport(filteredReports);
+        console.log("Filtered Reports:", filteredReports);
       }
-    };
-
-    fetchReport();
-  }, [user]);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch reports for facility");
+      console.error("Error fetching facility reports:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     "Bioenergy",
@@ -89,7 +112,6 @@ const DataInBoard = () => {
     "WTTFuel",
   ];
 
-  // Original component map used for rendering the components
   const componentMap = {
     Fuels: Fuel,
     Bioenergy: Bioenergy,
@@ -104,11 +126,9 @@ const DataInBoard = () => {
     FreightingGoods: Fg,
     EmployCommuting: Ec,
     Food: Food,
-    Home: HomeOffice,
+    HomeOffice: HomeOffice,
     Water: Water,
   };
-
-  const SelectedComponent = componentMap[selectedCategory];
 
   const categoryMap = {
     Fuels: "fuel",
@@ -128,11 +148,14 @@ const DataInBoard = () => {
     Water: "water",
   };
 
+  const SelectedComponent = componentMap[selectedCategory];
+
   const calculatePieData = () => {
     if (!report || !selectedCategory) return { labels: [], datasets: [] };
 
     const key = categoryMap[selectedCategory];
-    const items = report[key];
+    const items =
+      user.role === "Admin" ? getAllCategoryItems(key) : report[key];
 
     if (!Array.isArray(items) || items.length === 0) {
       return { labels: [], datasets: [] };
@@ -225,6 +248,14 @@ const DataInBoard = () => {
     };
   };
 
+  const getAllCategoryItems = (key) => {
+    // Combine all items for the selected category across all facilities
+    if (!allReports) return [];
+    return allReports.reduce((acc, report) => {
+      return acc.concat(report[key] || []);
+    }, []);
+  };
+
   const pieData = calculatePieData();
 
   const totalFootprint =
@@ -234,7 +265,6 @@ const DataInBoard = () => {
     <div className="flex flex-col min-h-screen">
       <NavbarD />
       <div className="flex flex-1">
-        {/* Sidebar */}
         <div className="w-1/6 sticky top-0 h-screen">
           <Sidebar />
         </div>
@@ -276,28 +306,48 @@ const DataInBoard = () => {
                 </svg>
               </button>
             </div>
-            <div className="flex items-center ml-auto mr-20">
-              <label htmlFor="category" className="mr-2">
-                Category:
-              </label>
-              <select
-                id="category"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="p-2 border rounded"
-              >
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-col items-start ml-auto mr-20 space-y-4">
+              <div className="flex items-center space-x-2">
+                <label htmlFor="category" className="mr-2">
+                  Category:
+                </label>
+                <select
+                  id="category"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="p-2 border rounded"
+                >
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={facilityName}
+                  onChange={(e) => setFacilityName(e.target.value)}
+                  className="p-2 border rounded"
+                  placeholder="Enter Facility Name"
+                />
+                <button
+                  onClick={fetchFacilityReports}
+                  className="p-2 bg-blue-500 text-white rounded"
+                >
+                  Fetch
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="border p-4 rounded-md">
             <h2 className="text-xl font-semibold mb-4">
-              Carbon Footprint Overview
+              {user.role === "Admin"
+                ? "Total Footprints of All Facilities"
+                : "Carbon Footprint Overview"}
             </h2>
             <div className="flex">
               <div className="w-2/3">
@@ -332,7 +382,7 @@ const DataInBoard = () => {
                   <h3 className="text-lg font-semibold">
                     Average Footprint / Activity
                   </h3>
-                  <p className="text-2xl font-bold">567 kg CO2-eq</p>
+                  <p className="text-2xl font-bold">000 kg CO2-eq</p>
                   <p className="text-green-500">
                     -10% less than industry average
                   </p>
@@ -345,11 +395,22 @@ const DataInBoard = () => {
             {loading ? (
               <p>Loading report...</p>
             ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : report ? (
               <div>
+                <p className="text-red-500">{error}</p>
                 {SelectedComponent && <SelectedComponent report={report} />}
               </div>
+            ) : report ? (
+              Array.isArray(report) && report.length > 0 ? (
+                <div>
+                  {SelectedComponent && (
+                    <SelectedComponent report={report[0]} />
+                  )}
+                </div>
+              ) : (
+                <div>
+                  {SelectedComponent && <SelectedComponent report={report} />}
+                </div>
+              )
             ) : (
               <p>No report data available.</p>
             )}

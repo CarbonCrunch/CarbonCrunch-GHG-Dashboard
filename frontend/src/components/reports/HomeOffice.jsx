@@ -21,9 +21,14 @@ const HomeOffice = ({ report }) => {
   const TypeOptions = ["With Heating", "With Cooling", "No Heating/No Cooling"];
 
   const reportData = report;
-  const { companyName, facilityName, homeOffice, reportId, timePeriod } =
-    reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    homeOffice = [],
+  } = reportData || {};
+  
   useEffect(() => {
     if (homeOffice && Array.isArray(homeOffice)) {
       setHomeOfficeData(

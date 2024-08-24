@@ -66,8 +66,13 @@ const Ec = ({ report }) => {
   const UnitOptions = ["KM", "Passenger.KM"];
 
   const reportData = report;
-  const { companyName, facilityName, ec, reportId, timePeriod } = reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    ec = [],
+  } = reportData || {};
   useEffect(() => {
     if (ec && Array.isArray(ec)) {
       setEcData(

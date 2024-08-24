@@ -77,8 +77,13 @@ const Fg = ({ report }) => {
   const UnitOptions = ["tonne.km"];
 
   const reportData = report;
-  const { companyName, facilityName, fg, reportId, timePeriod } = reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    fg = [],
+  } = reportData || {};
   useEffect(() => {
     if (fg && Array.isArray(fg)) {
       setFgData(

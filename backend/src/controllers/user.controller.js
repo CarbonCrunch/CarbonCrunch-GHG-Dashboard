@@ -172,11 +172,12 @@ const loginUser = asyncHandler(async (req, res) => {
     user = await User.findOne({
       username: username.toLowerCase(),
       facilityName: facilityName.toLowerCase(),
+      role: role
     });
 
     if (!user) {
       throw new ApiError(
-        404,
+        400,
         "User does not exist for this username, facility, and role"
       );
     }

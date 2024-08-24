@@ -9,7 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const Report = () => {
   const [selectedTab, setSelectedTab] = useState("ongoing");
-  const [report, setReport] = useState({}); // Change to a single report object
+  const [reports, setReports] = useState([]); // Changed to handle multiple reports
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -30,13 +30,13 @@ const Report = () => {
 
       // Handle "zero" response properly
       if (response.data.data === "zero") {
-        setReport(null);
+        setReports([]); // No reports available
       } else {
-        setReport(response.data.data); // Set report directly as an object
+        setReports(response.data.data); // Set reports as an array or object based on response
         console.log("ReportComponent", response.data.data);
       }
     } catch (err) {
-      setError("Failed to fetch reports");
+      setError("No reports available");
       console.error("Error fetching reports:", err);
     } finally {
       setLoading(false);
@@ -111,56 +111,10 @@ const Report = () => {
         <p>
           <strong>Time Period:</strong> {formatTimePeriod(report.timePeriod)}
         </p>
-        {/* <div className="relative inline-block text-left mt-4">
-          <button
-            type="button"
-            className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
-            id={`options-menu-${report.reportId}`}
-            aria-haspopup="true"
-            aria-expanded="true"
-            onClick={() => toggleDropdown(report.reportId)}
-          >
-            <FaEllipsisV />
-          </button>
-          {openDropdown === report.reportId && (
-            <div
-              className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100"
-              role="menu"
-              aria-orientation="vertical"
-              aria-labelledby={`options-menu-${report.reportId}`}
-            >
-              <div className="py-1" role="none">
-                <Link
-                  to={`/report/${report.reportId}/edit`}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  role="menuitem"
-                >
-                  View
-                </Link>
-                <button
-                  onClick={() => handleMarkAsComplete(report.reportId)}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  role="menuitem"
-                >
-                  Mark as Complete
-                </button>
-                <button
-                  onClick={() => handleInProgress(report.reportId)}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  role="menuitem"
-                >
-                  In-Progress
-                </button>
-              </div>
-            </div>
-          )}
-        </div> */}
-
         {/* Continue Button */}
         <Link
           to={{
             pathname: `/report/${report.reportId}/view`,
-            // state: { report },
           }}
           className="absolute top-6 right-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
         >
@@ -195,21 +149,29 @@ const Report = () => {
                 Report History
               </button>
             </div>
-            {/* <Link
-              to="/newreport"
-              className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
-            >
-              <FaPlus className="mr-2" /> Create New Report
-            </Link> */}
+            {/* Conditionally render the "Create New Report" button */}
+            {error === "No reports available" && (
+              <Link
+                to="/newreport"
+                className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
+              >
+                <FaPlus className="mr-2" /> Create New Report
+              </Link>
+            )}
           </div>
           {loading ? (
             <p>Loading reports...</p>
           ) : error ? (
             <p className="text-red-500">{error}</p>
-          ) : !report ? (
+          ) : reports.length === 0 ? ( // No reports available
             <p className="mt-4">No reports made</p>
+          ) : Array.isArray(reports) ? ( // Admin case: `reports` is an array
+            reports.map((report, index) => (
+              <div key={index}>{renderReportCard(report)}</div>
+            ))
           ) : (
-            renderReportCard(report)
+            // FacAdmin case: `reports` is an object
+            renderReportCard(reports)
           )}
         </div>
       </div>

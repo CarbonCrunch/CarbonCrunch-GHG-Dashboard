@@ -75,8 +75,13 @@ const Waste = ({ report }) => {
   const unitOptions = ["tonnes"];
 
   const reportData = report;
-  const { companyName, facilityName, waste, reportId, timePeriod } = reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    waste = [],
+  } = reportData || {};
   useEffect(() => {
     if (waste && Array.isArray(waste)) {
       setWasteData(

@@ -108,8 +108,13 @@ const Refrigerants = ({ report }) => {
   const unitOptions = ["KG"];
 
   const reportData = report;
-  const { companyName, facilityName, refrigerants, reportId, timePeriod } =
-    reportData;
+      const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    refrigerants = [],
+  } = reportData || {};
 
   useEffect(() => {
     if (refrigerants) {

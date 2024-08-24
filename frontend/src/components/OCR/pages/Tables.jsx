@@ -37,45 +37,48 @@ function Tables({ setUploadedImage }) {
   useEffect(() => {
     if (!user) return;
 
-    const fetchBills = async () => {
-      try {
-        const response = await axios.get("/api/bills/getBills", {
-          params: {
-            companyName: user.companyName,
-            facilityName: user.facilityName,
-            role: user.role,
-            username: user?.username,
-            userId: user?._id,
-          },
-        });
-
-        const { message, data } = response.data;
-        //console.log("Bills data:", data);
-
-        if (message === "No bills found for the user.") {
-          setMessage(message);
-          setTableData([]); // Empty array if no bills found
-        } else {
-          const transformedData = data.map((bill) => ({
-            billId: bill.billId,
-            status: "Pending", // Default status as "Pending"
-            documentName: bill.billName || `Bill ${bill.billId}`,
-            dateAdded: new Date(bill.createdAt).toLocaleDateString(),
-            addedBy: bill.username,
-            amountValue: "",
-            type_off_bill: bill.type_off_bill, // Store the bill type for filtering
-          }));
-          setTableData(transformedData);
-        }
-      } catch (error) {
-        console.error("Error fetching bills:", error);
-        setMessage("Something went wrong while fetching bills.");
-        setTableData([]);
-      }
-    };
-
     fetchBills();
   }, [user]); // Only re-run if user changes
+
+  const fetchBills = async () => {
+    try {
+      const response = await axios.get("/api/bills/getCompanyBill", {
+        params: {
+          companyName: user.companyName,
+          facilityName: user.facilityName,
+          role: user.role,
+          username: user?.username,
+          userId: user?._id,
+        },
+      });
+
+      const { message, data } = response.data;
+      // console.log("Bills data:", data);
+
+      if (message === "No bills found for the user.") {
+        setMessage(message);
+        setTableData([]); // Empty array if no bills found
+      } else {
+        const transformedData = data.map((bill) => ({
+          billId: bill.billId,
+          status: "Pending", // Default status as "Pending"
+          billName: bill.billName || `Bill ${bill.billId}`,
+          dateAdded: new Date(bill.createdAt).toLocaleDateString(),
+          addedBy: bill.username,
+          amountValue: "", // Placeholder, as amount is not in the schema
+          type_off_bill: bill.type_off_bill, // Store the bill type for filtering
+          URL: bill.URL,
+          companyName: bill.companyName,
+          facilityName: bill.facilityName,
+        }));
+        setTableData(transformedData);
+      }
+    } catch (error) {
+      console.error("Error fetching bills:", error);
+      setMessage("Something went wrong while fetching bills.");
+      setTableData([]);
+    }
+  };
 
   const handleStatusToggle = useCallback((billId) => {
     setTableData((prevData) =>
@@ -89,6 +92,10 @@ function Tables({ setUploadedImage }) {
       )
     );
   }, []);
+
+  const handleRowClick = (bill) => {
+    navigate(`/viewbills/${bill.billId}`, { state: { bill } });
+  };
 
   const columns = useMemo(
     () => [
@@ -109,8 +116,30 @@ function Tables({ setUploadedImage }) {
         ),
       },
       {
-        Header: "Document Name",
-        accessor: "documentName",
+        Header: "Bill Name",
+        accessor: "billName",
+      },
+      {
+        Header: "Company Name",
+        accessor: "companyName",
+      },
+      {
+        Header: "Facility Name",
+        accessor: "facilityName",
+      },
+      {
+        Header: "URL",
+        accessor: "URL",
+        Cell: ({ value }) => (
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline"
+          >
+            View Document
+          </a>
+        ),
       },
       {
         Header: "Date Added",
@@ -127,6 +156,19 @@ function Tables({ setUploadedImage }) {
     ],
     [handleStatusToggle]
   );
+
+  const filteredData = useMemo(
+    () =>
+      selectedCategory
+        ? tableData.filter((bill) => bill.type_off_bill === selectedCategory)
+        : tableData,
+    [selectedCategory, tableData]
+  );
+
+  const tableInstance = useTable({ columns, data: filteredData });
+
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -178,7 +220,7 @@ function Tables({ setUploadedImage }) {
       billFormData.append("file", selectedFile);
 
       const createBillResponse = await axios.post(
-        "https://ghg.carboncrunch.in/api/bills/createBills",
+        "http://localhost:8000/api/bills/createBills",
         billFormData,
         {
           headers: {
@@ -204,18 +246,6 @@ function Tables({ setUploadedImage }) {
       alert("Failed to create bill: " + error.message);
     }
   };
-
-  const filteredData = useMemo(
-    () =>
-      selectedCategory
-        ? tableData.filter((bill) => bill.type_off_bill === selectedCategory)
-        : tableData,
-    [selectedCategory, tableData]
-  );
-  const tableInstance = useTable({ columns, data: filteredData });
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    tableInstance;
 
   return (
     <>
@@ -303,6 +333,7 @@ function Tables({ setUploadedImage }) {
                             <tr
                               {...row.getRowProps()}
                               className="bg-white hover:bg-gray-100 transition duration-300"
+                              onClick={() => handleRowClick(row.original)}
                             >
                               {row.cells.map((cell) => (
                                 <td

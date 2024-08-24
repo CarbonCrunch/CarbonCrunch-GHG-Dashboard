@@ -10,6 +10,7 @@ const EditBill = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { bill } = location.state || {};
+  console.log("Bill data:", bill);
 
   const [notes, setNotes] = useState("");
 

@@ -51,13 +51,13 @@ const Fuel = ({ report }) => {
   const unitOptions = ["Litres", "Tonnes", "Cubic Metre"];
   const reportData = report;
   const {
-    companyName,
-    facilityName,
-    fuel,
-    reportId,
-    timePeriod,
-  } = reportData;
-
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    fuel = [],
+  } = reportData || {};
+  console.log("reportData", reportData);
 
   useEffect(() => {
     if (Array.isArray(fuel)) {
@@ -67,6 +67,9 @@ const Fuel = ({ report }) => {
           date: new Date(fuel.date),
         }))
       );
+    } else {
+      // If fuel is not an array, set fuelData to an empty array
+      setFuelData([]);
     }
   }, [report]);
 
@@ -108,19 +111,19 @@ const Fuel = ({ report }) => {
     setEditIndex(index);
   };
 
- const handleDelete = (index) => {
-   const updatedFuelData = fuelData.filter((_, i) => i !== index);
-   setFuelData(updatedFuelData);
-   toast.info("Now click on save to permanently delete", {
-     position: "top-right",
-     autoClose: 5000,
-     hideProgressBar: false,
-     closeOnClick: true,
-     pauseOnHover: true,
-     draggable: true,
-     progress: undefined,
-   });
- };
+  const handleDelete = (index) => {
+    const updatedFuelData = fuelData.filter((_, i) => i !== index);
+    setFuelData(updatedFuelData);
+    toast.info("Now click on save to permanently delete", {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
 
   const handleSave = async () => {
     try {
@@ -160,34 +163,39 @@ const Fuel = ({ report }) => {
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm font-light">
-          {fuelData.map((fuel, index) => (
-            <tr
-              key={index}
-              className="border-b border-gray-200 hover:bg-gray-100"
-            >
-              <td className="py-3 px-6 text-left">
-                {fuel.date.toLocaleDateString()}
-              </td>
-              <td className="py-3 px-6 text-left">{fuel.type}</td>
-              <td className="py-3 px-6 text-left">{fuel.fuelType}</td>
-              <td className="py-3 px-6 text-left">{fuel.unit}</td>
-              <td className="py-3 px-6 text-left">{fuel.amount}</td>
-              <td className="py-3 px-6 text-left">
-                <button
-                  onClick={() => handleEdit(index)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <FaTrash />
-                </button>
-              </td>
-            </tr>
-          ))}
+          {fuelData.length === 0 ? (
+            // Display a message when there is no data
+            <p></p>
+          ) : (
+            fuelData.map((fuel, index) => (
+              <tr
+                key={index}
+                className="border-b border-gray-200 hover:bg-gray-100"
+              >
+                <td className="py-3 px-6 text-left">
+                  {fuel.date.toLocaleDateString()}
+                </td>
+                <td className="py-3 px-6 text-left">{fuel.type}</td>
+                <td className="py-3 px-6 text-left">{fuel.fuelType}</td>
+                <td className="py-3 px-6 text-left">{fuel.unit}</td>
+                <td className="py-3 px-6 text-left">{fuel.amount}</td>
+                <td className="py-3 px-6 text-left">
+                  <button
+                    onClick={() => handleEdit(index)}
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
           <tr>
             <td className="py-3 px-6">
               <DatePicker

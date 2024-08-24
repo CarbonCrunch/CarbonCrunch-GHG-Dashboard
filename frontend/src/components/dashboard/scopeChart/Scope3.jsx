@@ -171,22 +171,7 @@ const Scope3 = ({ reports }) => {
     };
 
     fetchData();
-  }, [
-    reportId,
-    companyName,
-    facilityName,
-    ec,
-    btls,
-    fg,
-    fa,
-    wttfuel,
-    food,
-    material,
-    waste,
-    water,
-    homeOffice,
-    hotelAccommodation,
-  ]);
+  }, []);
 
   const chartHeight = 450;
 

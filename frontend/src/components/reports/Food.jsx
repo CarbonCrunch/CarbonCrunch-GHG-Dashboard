@@ -35,8 +35,13 @@ const Food = ({ report }) => {
   const UnitOptions = ["breakfast", "hot snack", "meal", "litre", "sandwich"];
 
   const reportData = report;
-  const { companyName, facilityName, food, reportId, timePeriod } = reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    food = [],
+  } = reportData || {};
   useEffect(() => {
     if (food && Array.isArray(food)) {
       setFoodData(

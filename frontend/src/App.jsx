@@ -183,7 +183,7 @@ function App() {
         <Route
           path="/viewbills/:billId"
           element={
-            <ProtectedRoute requiredRole="SuperUser">
+            <ProtectedRoute>
               <EditBill />
             </ProtectedRoute>
           }

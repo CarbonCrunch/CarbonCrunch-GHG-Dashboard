@@ -44,9 +44,13 @@ const Ov = ({ report }) => {
   const UnitOptions = ["km"];
 
   const reportData = report;
-  const { companyName, facilityName, ownedVehicles, reportId, timePeriod } =
-    reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    ownedVehicles = [],
+  } = reportData || {};
   useEffect(() => {
     if (ownedVehicles) {
       setOvData(

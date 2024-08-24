@@ -19,8 +19,13 @@ const Water = ({ report }) => {
   const emissionOptions = ["Water Supply", "Water Treatment"];
   const unitOptions = ["cubic meter"];
   const reportData = report;
-  const { companyName, facilityName, water, reportId, timePeriod } = reportData;
-
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    water = [],
+  } = reportData || {};
   useEffect(() => {
     if (water && Array.isArray(water)) {
       setWaterData(

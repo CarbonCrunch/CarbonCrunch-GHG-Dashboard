@@ -47,12 +47,12 @@ router
   .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
 router.route("/get").get(verifyJWT, getUserReports);
 router
+  .route("/getCompanyReport")
+  .get(verifyJWT, restrictTo("Admin"), getCompanyReport);
+router
   .route("/:reportId/delete")
   .delete(verifyJWT, restrictTo("FacAdmin", "Admin"), deleteReport);
 
-router
-  .route("/getCompanyReport")
-  .get(verifyJWT, restrictTo("Admin"), getCompanyReport);
 
 router
   .route("/:reportId/fuel/put")

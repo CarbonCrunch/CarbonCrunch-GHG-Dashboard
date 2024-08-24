@@ -1,176 +1,105 @@
-import React from "react";
-import { Bar, Doughnut, Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Sidebar from "./Sidebar";
 import NavbarD from "./NavbarD";
 import EmissionBreakdown from "./scopeChart/EmissionBreakdown";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { useAuth } from "../../context/AuthContext";
 
 const Dashboard = () => {
-  const chartData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-    datasets: [
-      {
-        label: "Vehicles",
-        data: [50, 40, 60, 20, 30, 40, 50],
-        backgroundColor: "#FFD700", // Yellow
-      },
-      {
-        label: "Technology",
-        data: [30, 20, 40, 25, 40, 35, 30],
-        backgroundColor: "#FFA500", // Orange
-      },
-      {
-        label: "Buildings",
-        data: [80, 60, 70, 30, 50, 70, 60],
-        backgroundColor: "#87CEEB", // Sky Blue
-      },
-      {
-        label: "Manufacturing",
-        data: [20, 15, 25, 10, 15, 20, 25],
-        backgroundColor: "#800080", // Purple
-      },
-      {
-        label: "Other",
-        data: [40, 30, 50, 20, 30, 40, 35],
-        backgroundColor: "#00CED1", // Dark Turquoise
-      },
-    ],
-  };
+  const [report, setReport] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const { user } = useAuth();
 
-  const chartOptions = {
-    responsive: true,
-    scales: {
-      x: { stacked: true },
-      y: { stacked: true },
-    },
-  };
+  const fetchReports = async () => {
+    try {
+      let response;
 
-  const esgScoreData = {
-    datasets: [{
-      data: [20, 20, 20, 20, 20],
-      backgroundColor: ['#32CD32', '#1E90FF', '#FFD700', '#FFA500', '#FF0000'],
-      circumference: 180,
-      rotation: 270,
-    }]
-  };
-
-  const esgScoreOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        enabled: false
+      // Determine the API endpoint based on the user's role
+      if (user.role === "Admin") {
+        response = await axios.get("/api/reports/getCompanyReport");
+      } else if (user.role === "FacAdmin") {
+        response = await axios.get("/api/reports/get");
+      } else {
+        throw new Error("Invalid role");
       }
-    },
-    cutout: '70%',
+
+      // Handle "zero" response properly
+      if (response.data.data === "zero") {
+        setReport([]);
+      } else {
+        setReport(response.data.data); // Set report as an array
+        console.log("ReportComponent", response.data.data);
+      }
+    } catch (err) {
+      setError("Failed to fetch reports");
+      console.error("Error fetching reports:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
- const emissionBreakdownData = {
-   datasets: [
-     {
-       // Innermost pie chart (CC)
-       data: [100],
-       backgroundColor: ["#FF6384"],
-       label: "CC",
-     },
-     {
-       // Middle donut chart (Scopes)
-       data: [30, 40, 30],
-       backgroundColor: ["#36A2EB", "#FFCE56", "#4BC0C0"],
-       label: "Scope",
-     },
-     {
-       // Outermost donut chart (Details)
-       data: [12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5],
-       backgroundColor: [
-         "#FF6384",
-         "#36A2EB",
-         "#FFCE56",
-         "#4BC0C0",
-         "#9966FF",
-         "#FF9F40",
-         "#FF6384",
-         "#36A2EB",
-       ],
-       label: "Details",
-     },
-   ],
-   labels: [
-     "CC",
-     "Scope 1",
-     "Scope 2",
-     "Scope 3",
-     "Fuels",
-     "Home",
-     "MaterialsUsed",
-     "OwnedVehicles",
-     "Refrigerants",
-     "WTTFuel",
-     "WasteDisposal",
-     "Water",
-   ],
- };
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
- const emissionBreakdownOptions = {
-   responsive: true,
-   maintainAspectRatio: false,
-   plugins: {
-     tooltip: {
-       callbacks: {
-         label: function (context) {
-           let label = context.label || "";
-           if (label && context.datasetIndex === 0) {
-             label = "CC";
-           } else if (label && context.datasetIndex === 1) {
-             label = ["Scope 1", "Scope 2", "Scope 3"][context.dataIndex];
-           } else if (label) {
-             label = [
-               "Fuels",
-               "Home",
-               "MaterialsUsed",
-               "OwnedVehicles",
-               "Refrigerants",
-               "WTTFuel",
-               "WasteDisposal",
-               "Water",
-             ][context.dataIndex];
-           }
-           if (label && context.parsed !== null) {
-             label += ": " + context.parsed + "%";
-           }
-           return label;
-         },
-       },
-     },
-     legend: {
-       display: false,
-     },
-   },
-   cutout: "0%", // for the innermost pie chart
- };
- 
+const calculateCO2eTotals = (report) => {
+  if (!report) return { total: 0, scope1: 0, scope2: 0, scope3: 0 };
+
+  // Ensure report is treated as an array
+  const reportArray = Array.isArray(report) ? report : [report];
+
+  // Initialize totals
+  let totalEmissions = 0;
+  let scope1Emissions = 0;
+  let scope2Emissions = 0;
+  let scope3Emissions = 0;
+
+  // Helper function to safely sum up CO2e values from an array
+  const sumCO2e = (dataArray) => {
+    return Array.isArray(dataArray)
+      ? dataArray.reduce((sum, item) => sum + parseFloat(item.CO2e || 0), 0)
+      : 0;
+  };
+
+  // Iterate through each report object in the array
+  reportArray.forEach((report) => {
+    // Calculate Scope 1 Emissions (ownedVehicles, bioenergy, refrigerants, fuel)
+    scope1Emissions +=
+      sumCO2e(report.ownedVehicles) +
+      sumCO2e(report.bioenergy) +
+      sumCO2e(report.refrigerants) +
+      sumCO2e(report.fuel);
+
+    // Calculate Scope 2 Emissions (ehctd)
+    scope2Emissions += sumCO2e(report.ehctd);
+
+    // Calculate Scope 3 Emissions (ec, btls, fg, wttfuel, food, material, waste, water, homeOffice)
+    scope3Emissions +=
+      sumCO2e(report.ec) +
+      sumCO2e(report.btls) +
+      sumCO2e(report.fg) +
+      sumCO2e(report.wttfuel) +
+      sumCO2e(report.food) +
+      sumCO2e(report.material) +
+      sumCO2e(report.waste) +
+      sumCO2e(report.water) +
+      sumCO2e(report.homeOffice);
+
+    // Calculate Total Emissions by summing all categories
+    totalEmissions += scope1Emissions + scope2Emissions + scope3Emissions;
+  });
+
+  return {
+    total: totalEmissions,
+    scope1: scope1Emissions,
+    scope2: scope2Emissions,
+    scope3: scope3Emissions,
+  };
+};
+
+  const { total, scope1, scope2, scope3 } = calculateCO2eTotals(report);
+
   return (
     <div className="flex flex-col min-h-screen">
       <NavbarD />
@@ -204,98 +133,62 @@ const Dashboard = () => {
             </div>
           </header>
 
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            {[
-              {
-                title: "Total Emissions Estimate",
-                color: "#2F4F4F",
-                progressColor: "#32CD32",
-                value: "465085.06",
-                textColor: "text-white", // Add this line for text color
-              },
-              {
-                title: "Scope 1 Emissions",
-                color: "#00008B",
-                progressColor: "#FF0000",
-                value: "50976.120",
-                textColor: "text-white", // Add this line for text color
-              },
-              {
-                title: "Scope 2 Emissions",
-                color: "#A6D3A0",
-                progressColor: "#8A2BE2",
-                value: "5085.120",
-                textColor: "text-black", // Default black text color
-              },
-              {
-                title: "Scope 3 Emissions",
-                color: "#DDDCBD",
-                progressColor: "#8B4513",
-                value: "100976.120",
-                textColor: "text-black", // Default black text color
-              },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border border-gray-300 ${item.textColor}`} // Use item.textColor here
-                style={{ backgroundColor: item.color }}
-              >
-                <h3 className="font-semibold">{item.title}</h3>
-                <p className="text-2xl font-bold">{item.value} tCO2e</p>
-                <div className="w-full bg-gray-200 h-4 mt-2 rounded-full border border-gray-300">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      backgroundColor: item.progressColor,
-                      width: "50%",
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* <div className="grid grid-cols-3 gap-6 mb-6">
-            <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300">
-              <h3 className="font-semibold mb-2">Emission Breakdown</h3>
-              <div className="h-64 relative">
-                <Doughnut
-                  data={{
-                    datasets: [
-                      emissionBreakdownData.datasets[0],
-                      { ...emissionBreakdownData.datasets[1], cutout: "30%" },
-                      { ...emissionBreakdownData.datasets[2], cutout: "60%" },
-                    ],
-                    labels: emissionBreakdownData.labels,
-                  }}
-                  options={emissionBreakdownOptions}
-                />
-              </div>
-            </div>
-            <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300">
-              <h3 className="font-semibold mb-2">Carbon Footprint</h3>
-              <p className="text-lg font-bold">2,914t CO2e</p>
-              <Bar data={chartData} options={chartOptions} />
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300 h-1/2">
-                <h3 className="font-semibold mb-2">Against your Industry</h3>
-                {/* Content for industry comparison 
-              </div>
-              <div className="p-4 rounded-lg flex flex-col justify-between bg-white border border-gray-300 h-1/2">
-                <h3 className="font-semibold mb-2">ESG Score</h3>
-                <div className="h-40 relative">
-                  <Doughnut data={esgScoreData} options={esgScoreOptions} />
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-1 h-16 bg-black origin-bottom transform rotate-45"></div>
-                  </div>
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-sm font-bold">
-                    70%
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              {[
+                {
+                  title: "Total Emissions Estimate",
+                  color: "#2F4F4F",
+                  progressColor: "#32CD32",
+                  value: total.toFixed(2), // Display calculated total emissions
+                  textColor: "text-white",
+                },
+                {
+                  title: "Scope 1 Emissions",
+                  color: "#00008B",
+                  progressColor: "#FF0000",
+                  value: scope1.toFixed(2), // Display calculated Scope 1 emissions
+                  textColor: "text-white",
+                },
+                {
+                  title: "Scope 2 Emissions",
+                  color: "#A6D3A0",
+                  progressColor: "#8A2BE2",
+                  value: scope2.toFixed(2), // Display calculated Scope 2 emissions
+                  textColor: "text-black",
+                },
+                {
+                  title: "Scope 3 Emissions",
+                  color: "#DDDCBD",
+                  progressColor: "#8B4513",
+                  value: scope3.toFixed(2), // Display calculated Scope 3 emissions
+                  textColor: "text-black",
+                },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border border-gray-300 ${item.textColor}`}
+                  style={{ backgroundColor: item.color }}
+                >
+                  <h3 className="font-semibold">{item.title}</h3>
+                  <p className="text-2xl font-bold">{item.value} tCO2e</p>
+                  <div className="w-full bg-gray-200 h-4 mt-2 rounded-full border border-gray-300">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        backgroundColor: item.progressColor,
+                        width: "50%",
+                      }}
+                    ></div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div> */}
+          )}
 
           <EmissionBreakdown />
         </div>
@@ -305,4 +198,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

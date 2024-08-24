@@ -1,7 +1,9 @@
+// userModel.js
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+// Define the User schema
 const userSchema = new Schema(
   {
     username: {
@@ -19,10 +21,11 @@ const userSchema = new Schema(
     email: {
       type: String,
       trim: true,
+      unique: true,
       lowercase: true,
       validate: {
         validator: function (v) {
-          if (["SuperUser"].includes(this.role)) {
+          if (["SuperUser"].includes(this.role.roleName)) {
             return !!v; // email is required for SuperUser
           }
           return true; // email is optional for other roles
@@ -35,7 +38,7 @@ const userSchema = new Schema(
       trim: true,
       validate: {
         validator: function (v) {
-          if (["Admin", "FacAdmin", "Employee"].includes(this.role)) {
+          if (["Admin", "FacAdmin", "Employee"].includes(this.role.roleName)) {
             return !!v; // companyName is required for Admin, FacAdmin, and Employee
           }
           return true; // companyName is optional for SuperUser
@@ -43,25 +46,28 @@ const userSchema = new Schema(
         message: (props) => `${props.value} is required for role ${props.path}`,
       },
     },
-    facilityName: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      validate: {
-        validator: function (v) {
-          if (["Admin", "FacAdmin", "Employee"].includes(this.role)) {
-            return !!v; // facilityName is required for Admin, FacAdmin, and Employee
-          }
-          return true; // facilityName is optional for SuperUser
+    facilities: [
+      {
+        facility: {
+          type: Schema.Types.ObjectId,
+          ref: "Facility", // Reference to Facility schema
         },
-        message: (props) => `${props.value} is required for role ${props.path}`,
+        roles: [
+          {
+            role: {
+              type: Schema.Types.ObjectId,
+              ref: "Role", // Reference to Role schema
+            },
+            permissions: [
+              {
+                type: String,
+                enum: ["read", "write", "admin"], // Permission levels
+              },
+            ],
+          },
+        ],
       },
-    },
-    role: {
-      type: String,
-      enum: ["SuperUser", "Admin", "FacAdmin", "Employee"],
-      default: "Employee",
-    },
+    ],
     refreshToken: {
       type: String,
     },
@@ -83,6 +89,8 @@ const userSchema = new Schema(
   }
 );
 
+// Password hashing and token generation methods remain the same
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
@@ -103,9 +111,9 @@ userSchema.methods.generateAccessToken = function () {
     {
       _id: this._id,
       username: this.username,
-      role: this.role,
+      role: this.role.roleName,
       companyName: this.companyName,
-      facilityName: this.facilityName,
+      facilities: this.facilities.map((f) => f.facility), // Include facilities in the token payload
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
