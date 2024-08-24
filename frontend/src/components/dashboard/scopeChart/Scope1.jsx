@@ -538,16 +538,16 @@ const Scope1 = ({ reports }) => {
           <div className="w-1/3 flex flex-row gap-4">
           <div className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
             <h3 className="text-gray-700 font-semibold pb-16 text-sm">Learn more about Scope 1 Emissions</h3>
-            <div className="relative" style={{ paddingBottom: "56.25%", height: 0, overflow: "hidden", maxWidth: "100%", background: "#000" }}>
-              <iframe 
-                src="https://www.youtube.com/embed/aXYqeRaRFS8?si=gkJIrfq8cWWYRtXu" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-                title="Learn more about Scope 1 Emissions"
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "70%"}}
-              ></iframe>
-            </div>
+            <div className="relative" style={{ width: "%", height: "0", paddingBottom: "177.78%", overflow: "hidden" }}>
+                <iframe 
+                  src="https://www.youtube.com/embed/aXYqeRaRFS8?si=gkJIrfq8cWWYRtXu" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                  title="Learn more about Scope 1 Emissions"
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "70%" }}
+                ></iframe>
+              </div>
           </div>
             <div className="w-1/2 p-2 flex flex-col rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
               <h3 className="text-gray-700 font-semibold pb-6 text-sm">Notifications</h3>
