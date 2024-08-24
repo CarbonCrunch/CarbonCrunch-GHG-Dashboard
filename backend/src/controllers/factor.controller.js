@@ -84,6 +84,7 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
 export const CO2eBioenergy = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const bioenergy = JSON.parse(req.query.bioenergy);
+  console.log("Bioenergy :", bioenergy);
 
   if (!reportId || !companyName || !facilityName || !bioenergy) {
     throw new ApiError(
@@ -135,6 +136,7 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
   );
 
   await report.save();
+  console.log("Bionergy :", bioenergy);
 
   res.status(200).json({
     success: true,
@@ -1376,7 +1378,7 @@ export const CO2eHome = asyncHandler(async (req, res) => {
 export const CO2eFa = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const hotelAccommodation = JSON.parse(req.query.hotelAccommodation);
-  // console.log("hotelAccommodation", hotelAccommodation);
+  console.log("hotelAccommodation", hotelAccommodation);
 
   if (!reportId || !companyName || !facilityName || !hotelAccommodation) {
     throw new ApiError(

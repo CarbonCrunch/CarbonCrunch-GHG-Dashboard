@@ -310,7 +310,9 @@ const DataInBoard = () => {
                       cutout: "70%",
                       plugins: {
                         legend: {
-                          display: false,
+                          display: true,
+                          align: "start",
+                          position: "left",
                         },
                       },
                     }}
@@ -318,8 +320,8 @@ const DataInBoard = () => {
                   />
                 </div>
               </div>
-              <div className="w-1/3 pl-4">
-                <div className="border p-4 mb-4 rounded-md">
+              <div className="w-1/2 pl-4 pb-4">
+                <div className="border h-1/2 p-8 mb-4 rounded-md">
                   <h3 className="text-lg font-semibold">Total Footprints</h3>
                   <p className="text-2xl font-bold">
                     {totalFootprint.toFixed(2)} kg CO2-eq
@@ -328,7 +330,7 @@ const DataInBoard = () => {
                     -10% less than industry average
                   </p>
                 </div>
-                <div className="border p-4 rounded-md">
+                <div className="border h-1/2 p-8 rounded-md">
                   <h3 className="text-lg font-semibold">
                     Average Footprint / Activity
                   </h3>

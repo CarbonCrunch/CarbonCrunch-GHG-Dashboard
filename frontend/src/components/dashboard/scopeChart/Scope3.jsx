@@ -712,7 +712,7 @@ const Scope3 = ({ reports }) => {
           </div>
         </div>
 
-        <div className="flex gap-4 h-[450px]">
+        <div className="flex gap-4 h-[400px]">
           <div
             className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
             style={{ backgroundColor: "#F5F5F5" }}
@@ -723,7 +723,7 @@ const Scope3 = ({ reports }) => {
               height={chartHeight}
             />
           </div>
-          <div className="w-1/2 flex flex-col gap-4">
+          <div className="w-[49%] flex flex-col gap-4">
             <div
               className="h-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
               style={{ backgroundColor: "#F5F5F5" }}
@@ -746,7 +746,7 @@ const Scope3 = ({ reports }) => {
                 />
               </div>
               <div
-                className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
+                className="w-[47%] p-2 rounded-lg border border-gray-900 shadow-lg"
                 style={{ backgroundColor: "#F5F5F5" }}
               >
                 <Pie
