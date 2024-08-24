@@ -545,7 +545,7 @@ const Scope1 = ({ reports }) => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen
                 title="Learn more about Scope 1 Emissions"
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "70%"}}
               ></iframe>
             </div>
           </div>
