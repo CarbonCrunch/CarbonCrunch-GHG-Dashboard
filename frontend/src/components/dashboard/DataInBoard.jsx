@@ -310,9 +310,7 @@ const DataInBoard = () => {
                       cutout: "70%",
                       plugins: {
                         legend: {
-                          display: true,
-                          align: "start",
-                          position: "left",
+                          display: false,
                         },
                       },
                     }}

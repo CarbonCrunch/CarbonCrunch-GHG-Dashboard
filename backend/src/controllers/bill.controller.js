@@ -13,7 +13,7 @@ cloudinary.config({
 });
 
 export const getBills = asyncHandler(async (req, res) => {
-  const { companyName, facilityName, userId, username } = req.query;
+  const { companyName, facilityName, username } = req.query;
   // console.log("getBills", companyName, facilityName, userId, username);
 
   // Validate required fields
@@ -30,6 +30,47 @@ export const getBills = asyncHandler(async (req, res) => {
     );
 
     console.log("getBills", bill, username);
+
+    if (!bill) {
+      return res.status(404).json({
+        message: "No bills found for the user.",
+        data: "zero",
+      });
+    }
+
+    // Check if the current user is authorized to view the bill
+    // if (bill.username !== username) {
+    //   throw new ApiError(401, "Unauthorized access to the bill.");
+    // }
+
+    // Send the bill to the frontend
+    res.status(200).json({
+      message: "Bill fetched successfully.",
+      data: bill,
+    });
+  } catch (error) {
+    console.error("Error fetching bill:", error);
+    throw new ApiError(500, "Something went wrong while fetching the bill.");
+  }
+});
+
+export const getCompanyBill = asyncHandler(async (req, res) => {
+  const { companyName, username } = req.query;
+  // console.log("getBills", companyName, facilityName, userId, username);
+
+  // Validate required fields
+  if (!companyName) {
+    throw new ApiError(400, "Company name is required.");
+  }
+
+  try {
+    const bill = await Bill.find({
+      companyName,
+    }).select(
+      "billId billName username createdAt companyName facilityName timePeriod type_off_bill URL"
+    );
+
+    console.log("getCompanyBill", bill, username);
 
     if (!bill) {
       return res.status(404).json({
@@ -126,8 +167,6 @@ export const createBills = asyncHandler(async (req, res) => {
     },
   });
 });
-
-
 
 export const updateBill = asyncHandler(async (req, res) => {
   const { billId, companyName, facilityName } = req.query;

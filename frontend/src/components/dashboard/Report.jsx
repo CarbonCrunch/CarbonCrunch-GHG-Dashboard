@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import NavbarD from "./NavbarD";
 import { FaPlus, FaEllipsisV } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 const Report = () => {
   const [selectedTab, setSelectedTab] = useState("ongoing");
@@ -12,16 +13,26 @@ const Report = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const { user } = useAuth();
 
   const fetchReports = async () => {
     try {
-      const response = await axios.get("/api/reports/get");
-      // handle "zero" response properly
+      let response;
+
+      // Determine the API endpoint based on the user's role
+      if (user.role === "Admin") {
+        response = await axios.get("/api/reports/getCompanyReport");
+      } else if (user.role === "FacAdmin") {
+        response = await axios.get("/api/reports/get");
+      } else {
+        throw new Error("Invalid role");
+      }
+
+      // Handle "zero" response properly
       if (response.data.data === "zero") {
         setReport(null);
       } else {
         setReport(response.data.data); // Set report directly as an object
-        console.log("ReportComponent", report);
         console.log("ReportComponent", response.data.data);
       }
     } catch (err) {

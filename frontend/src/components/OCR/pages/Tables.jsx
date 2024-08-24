@@ -178,7 +178,7 @@ function Tables({ setUploadedImage }) {
       billFormData.append("file", selectedFile);
 
       const createBillResponse = await axios.post(
-        "http://localhost:8000/api/bills/createBills",
+        "https://ghg.carboncrunch.in/api/bills/createBills",
         billFormData,
         {
           headers: {

@@ -21,8 +21,13 @@ const Login = () => {
     const checkExistingToken = async () => {
       const token = localStorage.getItem("accessToken");
       if (token) {
-        axios.defaults.baseURL = "http://127.0.0.1:8000";
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        // axios.defaults.baseURL = "http://127.0.0.1:8000";
+        axios.defaults.baseURL = "https://ghg.carboncrunch.in";
+
+        
+        https: axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${token}`;
         try {
           const response = await axios.get("/api/users/verify-token");
           if (response.data.isValid) {

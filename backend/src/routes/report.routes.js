@@ -5,7 +5,7 @@ import {
   // getCurrentTab,
   createNewReport,
   deleteReport,
-  getReport,
+  getCompanyReport,
   getUserReports,
   updateBioenergyData,
   updateBTLSData,
@@ -46,9 +46,13 @@ router
   .route("/create")
   .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
 router.route("/get").get(verifyJWT, getUserReports);
-router.route("/:reportId/delete").delete(verifyJWT, deleteReport);
+router
+  .route("/:reportId/delete")
+  .delete(verifyJWT, restrictTo("FacAdmin", "Admin"), deleteReport);
 
-router.route("/:reportId/get").get(getReport);
+router
+  .route("/getCompanyReport")
+  .get(verifyJWT, restrictTo("Admin"), getCompanyReport);
 
 router
   .route("/:reportId/fuel/put")

@@ -70,40 +70,29 @@ export const createNewReport = asyncHandler(async (req, res) => {
   });
 });
 
-export const getReport = asyncHandler(async (req, res) => {
-  const { reportId } = req.params;
-  const { companyName, facilityName } = req.query;
-  console.log("getReport", reportId, companyName, facilityName);
-
+export const getCompanyReport = asyncHandler(async (req, res) => {
+  const user = req.user;
+  console.log("getUserReports", user);
+  if (!user) {
+    throw new ApiError(401, "Cannot access reports");
+  }
   try {
-    let query = { reportId: reportId };
+    const userReports = await Report.findOne({
+      companyName: user.companyName,
+    }).select(
+      "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
+    );
 
-    if (companyName) {
-      query.companyName = companyName;
-    }
-
-    if (facilityName) {
-      query.facilityName = facilityName;
-    }
-
-    const report = await Report.find(query)
-      .select(
-        "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
-      )
-      .lean();
-
-    // console.log("getReport", report);
-
-    if (!report || report.length === 0) {
+    // console.log("getUserReports", userReports);
+    if (!userReports || userReports.length === 0) {
       return res.status(404).json({
         message: "No reports found for the user.",
-        data: [],
+        data: "zero",
       });
     }
-
     res.status(200).json({
       message: "Reports fetched successfully.",
-      data: report,
+      data: userReports,
     });
   } catch (error) {
     console.error("Error fetching user reports:", error);
@@ -157,7 +146,7 @@ export const deleteReport = asyncHandler(async (req, res) => {
 
 export const getUserReports = asyncHandler(async (req, res) => {
   const user = req.user;
-  // console.log("getUserReports", user);
+  console.log("getUserReports", user);
   if (!user) {
     throw new ApiError(401, "Cannot access reports");
   }
