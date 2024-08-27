@@ -3,9 +3,8 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { AuthProvider } from "./context/AuthContext";
-// Import Leaflet and necessary assets
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';  // Import Leaflet's CSS
+import 'leaflet/dist/leaflet.css';  
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 

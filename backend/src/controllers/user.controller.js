@@ -4,13 +4,15 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
+import bcrypt from "bcrypt";
+import { Facility } from "../models/facility.model.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
-
+    console.log("generateAccessAndRefreshTokens", accessToken, refreshToken);
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
@@ -23,19 +25,10 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
-
-const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = asyncHandler(async (req, res) => {
   const { username, password, companyName, facilityName, role, email } =
     req.body;
-    console.log(
-      "Register",
-      username,
-      password,
-      companyName,
-      facilityName,
-      role,
-      email
-    );
+  console.log("Register", username, password, companyName, role, email);
 
   // Role-specific validation
   if (["Admin", "FacAdmin", "Employee"].includes(role)) {
@@ -50,22 +43,21 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Check for existing user by username and facility name
     const existedUser = await User.findOne({
-      username: username.toLowerCase(),
-      facilityName: facilityName.toLowerCase(),
+      username: username,
+      companyName: companyName,
     });
 
     if (existedUser) {
       throw new ApiError(
         409,
-        "User with this username and facility name already exists"
+        "User with this username and companyName already exists"
       );
     }
 
     const user = await User.create({
-      username: username.toLowerCase(),
+      username: username,
       password,
       companyName,
-      facilityName: facilityName.toLowerCase(),
       role,
     });
 
@@ -105,8 +97,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Check for existing user by username and email
     const existedUser = await User.findOne({
-      username: username.toLowerCase(),
-      email: email.toLowerCase(),
+      username: username,
+      email: email,
     });
 
     if (existedUser) {
@@ -151,16 +143,16 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-const loginUser = asyncHandler(async (req, res) => {
+export const loginUser = asyncHandler(async (req, res) => {
   const { username, password, facilityName, role, email } = req.body;
-  console.log(username, password, facilityName, role, email);
+  console.log("login", username, password, facilityName, role, email);
 
   // Common validation for required fields
   if (!username || !password) {
     throw new ApiError(400, "Username and password are required");
   }
 
-  let user;
+  let user; // Declare user variable once at the top
 
   if (["Admin", "FacAdmin", "Employee"].includes(role)) {
     // Role-specific validation for Admin, FacAdmin, Employee
@@ -169,18 +161,39 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     // Find user by username and facility name for these roles
-    user = await User.findOne({
-      username: username.toLowerCase(),
-      facilityName: facilityName.toLowerCase(),
-      role: role
-    });
+    const users = await User.aggregate([
+      {
+        $match: {
+          username: username,
+          role: role,
+        },
+      },
+      {
+        $lookup: {
+          from: "facilities", // The name of the facilities collection
+          localField: "facilities",
+          foreignField: "_id",
+          as: "facilities",
+        },
+      },
+      {
+        $match: {
+          "facilities.facilityName": facilityName,
+        },
+      },
+    ]);
 
-    if (!user) {
+    // console.log("users", users);
+
+    if (users.length === 0) {
       throw new ApiError(
         400,
         "User does not exist for this username, facility, and role"
       );
     }
+
+    // Extract the user from the users array
+    user = users[0];
   } else if (role === "SuperUser") {
     // Role-specific validation for SuperUser
     if (!email) {
@@ -189,8 +202,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Find user by username and email for SuperUser
     user = await User.findOne({
-      username: username.toLowerCase(),
-      email: email.toLowerCase(),
+      username: username,
+      email: email,
     });
 
     if (!user) {
@@ -203,8 +216,10 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid role provided");
   }
 
+  console.log("user2", user);
+
   // Validate password
-  const isPasswordValid = await user.isPasswordCorrect(password);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials");
@@ -246,7 +261,6 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     );
 });
-
 
 export const verifyToken = asyncHandler(async (req, res) => {
   // Get token from header
@@ -306,7 +320,7 @@ export const verifyToken = asyncHandler(async (req, res) => {
   }
 });
 
-const logoutUser = asyncHandler(async (req, res) => {
+export const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
@@ -331,7 +345,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logged Out"));
 });
 
-const refreshAccessToken = asyncHandler(async (req, res) => {
+export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
 
@@ -379,16 +393,204 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-const getCurrentUser = asyncHandler(async (req, res) => {
+export const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
-export {
-  registerUser,
-  loginUser,
-  logoutUser,
-  refreshAccessToken,
-  getCurrentUser,
-};
+export const getCompanyUsers = asyncHandler(async (req, res) => {
+  const { companyName } = req.query; // Get company name from query parameters
+
+  if (!companyName) {
+    // If companyName is not provided, return a 400 error
+    throw new ApiError(400, "Company name is required");
+  }
+
+  try {
+    const users = await User.find({ companyName });
+    // console.log("users", users);
+
+    if (users.length === 0) {
+      // If no users are found, return a 404 error
+      throw new ApiError(404, "No users found for the provided company name");
+    }
+
+    // If users are found, return them in the response
+    return res
+      .status(200)
+      .json(new ApiResponse(200, users, "Users fetched successfully"));
+  } catch (error) {
+    // Handle any unexpected errors
+    throw new ApiError(500, "An error occurred while fetching users", error);
+  }
+});
+
+export const updateUserPermission = asyncHandler(async (req, res) => {
+  const { username, facilityName, userId, permissions } = req.body; // Extract data from the request body
+  console.log(
+    "updateUserPermission",
+    username,
+    facilityName,
+    userId,
+    permissions
+  );
+  console.log("permission", permissions);
+
+  // Validate the required fields
+  if (!username || !facilityName || !userId || !permissions) {
+    throw new ApiError(
+      400,
+      "Username, facilityName, userId, and permissions are required"
+    );
+  }
+
+  try {
+    // Find the facility by facilityName
+    const facility = await Facility.findOne({ facilityName });
+
+    if (!facility) {
+      throw new ApiError(404, "Facility not found");
+    }
+
+    // Find the user role within the facility
+    const userRole = facility.userRoles.find(
+      (role) => role.username === username
+    );
+
+    if (!userRole) {
+      throw new ApiError(404, "User role not found in the specified facility");
+    }
+
+    // Process each permission in the request body
+    permissions.forEach(({ entity, actions, flag }) => {
+      const permissionIndex = userRole.permissions.findIndex(
+        (perm) => perm.entity === entity
+      );
+
+      if (flag === "update") {
+        if (permissionIndex !== -1) {
+          // If permission exists, update its actions based on "on" and "off"
+          actions.forEach((action) => {
+            if (action.status === "on") {
+              // Ensure action is in the list
+              if (
+                !userRole.permissions[permissionIndex].actions.includes(
+                  action.name
+                )
+              ) {
+                userRole.permissions[permissionIndex].actions.push(action.name);
+              }
+            } else if (action.status === "off") {
+              // Remove action if it exists in the list
+              userRole.permissions[permissionIndex].actions =
+                userRole.permissions[permissionIndex].actions.filter(
+                  (a) => a !== action.name
+                );
+            }
+          });
+        } else {
+          // If permission does not exist, create a new permission entry
+          userRole.permissions.push({
+            entity,
+            actions: actions.map((action) => action.name),
+          });
+        }
+      } else if (flag === "delete") {
+        if (permissionIndex !== -1) {
+          // If permission exists, remove it
+          userRole.permissions.splice(permissionIndex, 1);
+        }
+      } else if (flag === "add") {
+        if (permissionIndex !== -1) {
+          // If the entity already exists, add missing actions to it
+          actions.forEach((action) => {
+            if (
+              !userRole.permissions[permissionIndex].actions.includes(
+                action.name
+              )
+            ) {
+              userRole.permissions[permissionIndex].actions.push(action.name);
+            }
+          });
+        } else {
+          // If the entity does not exist, create a new entry with actions
+          userRole.permissions.push({
+            entity,
+            actions: actions.map((action) => action.name),
+          });
+        }
+      }
+    });
+
+    // Use findOneAndUpdate to directly save changes to the database
+    await Facility.findOneAndUpdate(
+      { facilityName },
+      { $set: { userRoles: facility.userRoles } },
+      { new: true }
+    );
+
+    // Respond with success
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, facility, "User permissions updated successfully")
+      );
+  } catch (error) {
+    // Handle any unexpected errors
+    console.error("Error updating user permissions:", error);
+    throw new ApiError(
+      500,
+      "An error occurred while updating user permissions",
+      error
+    );
+  }
+});
+
+
+
+export const deleteUserPermission = asyncHandler(async (req, res) => {
+  const { username, userId, facilityName } = req.body; // Extract data from the request body
+  console.log("deleteUserPermission", username, userId, facilityName);
+  // Validate the required fields
+  if (!username || !userId || !facilityName) {
+    throw new ApiError(400, "Username, userId, and facilityName are required");
+  }
+
+  try {
+    // Find the facility by facilityName
+    const facility = await Facility.findOne({ facilityName });
+
+    if (!facility) {
+      throw new ApiError(404, "Facility not found");
+    }
+
+    // Find the index of the user role in the userRoles array by username
+    const userRoleIndex = facility.userRoles.findIndex(
+      (role) => role.username === username
+    );
+
+    if (userRoleIndex === -1) {
+      throw new ApiError(404, "User role not found in the specified facility");
+    }
+
+    // Remove the entire user role object from the userRoles array
+    facility.userRoles.splice(userRoleIndex, 1);
+
+    // Save the updated facility document
+    await facility.save();
+
+    // Respond with success
+    return res
+      .status(200)
+      .json(new ApiResponse(200, facility, "User role deleted successfully"));
+  } catch (error) {
+    // Handle any unexpected errors
+    console.error("Error deleting user role from facility:", error);
+    throw new ApiError(
+      500,
+      "An error occurred while deleting user role",
+      error
+    );
+  }
+});

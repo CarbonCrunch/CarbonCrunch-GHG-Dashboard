@@ -7,6 +7,7 @@ import path, {dirname, resolve} from "path";
 import userRouter from "./routes/user.routes.js";
 import reportRouter from "./routes/report.routes.js";
 import billRouter from "./routes/bill.routes.js";
+import facilityRouter from "./routes/facility.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,6 +34,7 @@ app.use(cookieParser());
 
 app.use(express.static(resolve(__dirname, "../../frontend/dist")));
 
+app.use("/api/facilities", facilityRouter);
 app.use("/api/users", userRouter);
 app.use("/api/reports", reportRouter);
 app.use("/api/bills", billRouter)

@@ -23,9 +23,11 @@ import ImageViewer from "./components/OCR/pages/ImageViewer";
 import Tables from "./components/OCR/pages/Tables";
 import Insights from "./components/dashboard/Insights";
 import RootDashboard from "./components/Root/RootDashboard";
-import Settings from "./components/dashboard/Settings";
+import Settings from "./components/dashboard/settings/Settings";
 import ViewBills from "./components/Root/ViewBills";
 import EditBill from "./components/Root/EditBill";
+import ManageFacilities from "./components/dashboard/settings/ManageFacilities";
+import ManageUser from "./components/dashboard/settings/ManageUser";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -185,6 +187,22 @@ function App() {
           element={
             <ProtectedRoute>
               <EditBill />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manageUsers"
+          element={
+            <ProtectedRoute>
+              <ManageUser />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manageFacilities"
+          element={
+            <ProtectedRoute>
+              <ManageFacilities />
             </ProtectedRoute>
           }
         />
