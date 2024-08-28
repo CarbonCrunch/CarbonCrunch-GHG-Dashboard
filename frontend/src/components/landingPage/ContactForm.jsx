@@ -8,16 +8,15 @@ const ContactForm = () => {
     >
       <div className="container mx-auto px-4 py-8">
         <div
-          className="text-center text-4xl mb-12 mt-7 "
+          className="text-center text-4xl mb-12 mt-7"
           style={{ color: "white", fontWeight: 600 }}
         >
           Want to learn more?
         </div>
         <div className="flex flex-wrap -mx-4">
-          <div className="w-full md:w-1/2 px-4 mb-8 md:mb-0">
-            <h2 className="text-2xl font-bold mb-4 text-white">
-              Let's Connect!
-            </h2>
+          {/* Left side content - Responsive adjustments */}
+          <div className="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
+            <h2 className="text-2xl font-bold mb-4 text-white">Let's Connect!</h2>
             <p className="mb-6 text-white">
               Please fill in your contact details and we'll be in touch
             </p>
@@ -36,7 +35,9 @@ const ContactForm = () => {
               </p>
             </div>
           </div>
-          <div className="w-full md:w-1/2 px-4 ">
+
+          {/* Right side form - Responsive adjustments */}
+          <div className="w-full lg:w-1/2 px-4">
             <form className="space-y-4">
               <div>
                 <label htmlFor="name" className="block mb-1 text-white">
@@ -70,7 +71,7 @@ const ContactForm = () => {
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
               >
                 Send
               </button>
