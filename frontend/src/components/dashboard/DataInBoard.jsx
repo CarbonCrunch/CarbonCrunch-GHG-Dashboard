@@ -77,6 +77,7 @@ const DataInBoard = () => {
       } else {
         // Save all reports for calculating total CO2e
         setAllReports(response.data.data);
+        console.log("All Reports:", response.data.data);
 
         // Filter reports by facilityName for Admin role
         const filteredReports = response.data.data.filter(

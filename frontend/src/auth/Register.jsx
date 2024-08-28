@@ -15,26 +15,53 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullAccess, setFullAccess] = useState(false);
   const [email, setEmail] = useState("");
-  const [category, setCategory] = useState("");
-  const [action, setAction] = useState("");
-  const [error, setError] = useState("");
   const [roleH, setRoleH] = useState("");
   const [permissions, setPermissions] = useState([
     { category: "", action: "" },
   ]);
   const [isRootUser, setIsRootUser] = useState(false); // New state to manage root user registration
   const [companyName, setCompanyName] = useState(""); // Make companyName stateful and editable
+  const [error, setError] = useState("");
 
-  const { login, user } = useAuth();
+  const { user } = useAuth();
 
-  // Automatically set role from authenticated user context
-  const role = user?.role;
+  // Permissions check
+  const canRegisterUser =
+    user?.role === "SuperUser" ||
+    user?.facilities?.some((facility) =>
+      facility.userRoles.some((role) =>
+        role.permissions.some(
+          (permission) =>
+            permission.entity === "Role" &&
+            (permission.actions.includes("create") ||
+              permission.actions.includes("manage"))
+        )
+      )
+    );
 
-  useEffect(() => {
-    if (role === "FacAdmin" || role === "Admin") {
-      setEmail(""); // Clear email if role does not require it
-    }
-  }, [role]);
+  const canCreateFacility =
+    user?.role === "SuperUser" ||
+    user?.facilities?.some((facility) =>
+      facility.userRoles.some((role) =>
+        role.permissions.some(
+          (permission) =>
+            permission.entity === "Facility" &&
+            permission.actions.includes("create")
+        )
+      )
+    );
+
+  const canAssignPermissions =
+    user?.role === "SuperUser" ||
+    user?.facilities?.some((facility) =>
+      facility.userRoles.some((role) =>
+        role.permissions.some(
+          (permission) =>
+            permission.entity === "Facility" &&
+            permission.actions.includes("create")
+        )
+      )
+    );
 
   const handleCreateFacility = async (e) => {
     e.preventDefault();
@@ -60,7 +87,7 @@ const Register = () => {
     }
 
     try {
-      const res = await axios.post("/api/users/register", {
+      await axios.post("/api/users/register", {
         username,
         password,
         email: isRootUser ? email : undefined, // Include email only if registering root user
@@ -68,9 +95,6 @@ const Register = () => {
         role: roleH,
       });
 
-      const { user, accessToken } = res.data.data;
-      localStorage.setItem("accessToken", accessToken);
-      login(user, accessToken);
       toast.success("User created successfully!");
       setActiveTab("addUserPermission"); // Switch to next tab
     } catch (error) {
@@ -94,8 +118,6 @@ const Register = () => {
       setPassword("");
       setConfirmPassword("");
       setEmail("");
-      setCategory("");
-      setAction("");
       setPermissions([{ category: "", action: "" }]); // Reset permissions
       setFullAccess(false); // Reset full access
     } catch (error) {
@@ -285,6 +307,7 @@ const Register = () => {
                   <button
                     type="submit"
                     className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    disabled={!canRegisterUser} // Disable button if user cannot register
                   >
                     Register User
                   </button>
@@ -326,6 +349,7 @@ const Register = () => {
                   <button
                     type="submit"
                     className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    disabled={!canCreateFacility} // Disable button if user cannot create facility
                   >
                     Create Facility
                   </button>
@@ -473,6 +497,7 @@ const Register = () => {
                   <button
                     type="submit"
                     className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    disabled={!canAssignPermissions} // Disable button if user cannot assign permissions
                   >
                     Assign Permissions
                   </button>

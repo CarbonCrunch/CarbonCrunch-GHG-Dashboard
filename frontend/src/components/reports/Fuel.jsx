@@ -57,7 +57,7 @@ const Fuel = ({ report }) => {
     timePeriod = {},
     fuel = [],
   } = reportData || {};
-  console.log("reportData", reportData);
+  // console.log("reportData", reportData);
 
   useEffect(() => {
     if (Array.isArray(fuel)) {

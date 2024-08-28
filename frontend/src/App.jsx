@@ -32,7 +32,7 @@ import ManageUser from "./components/dashboard/settings/ManageUser";
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
   const location = useLocation();
-  // console.log(user);
+  // console.log('App.jsx',user);
 
   if (!user) {
     toast.error("You must be logged in to access this page.", {

@@ -72,7 +72,7 @@ export const createNewReport = asyncHandler(async (req, res) => {
 
 export const getCompanyReport = asyncHandler(async (req, res) => {
   const user = req.user;
-  console.log("getUserReports", user);
+  console.log("getCompanyReport", user);
   if (!user) {
     throw new ApiError(401, "Cannot access reports");
   }
@@ -148,13 +148,14 @@ export const deleteReport = asyncHandler(async (req, res) => {
 
 export const getUserReports = asyncHandler(async (req, res) => {
   const user = req.user;
-  console.log("getUserReports", user);
+  const { reportId } = req.query;
+  console.log("getUserReports", user, reportId);
   if (!user) {
     throw new ApiError(401, "Cannot access reports");
   }
   try {
     const userReports = await Report.findOne({
-      username: user.username,
+      reportId: reportId,
       companyName: user.companyName,
       // facilityName: user.facilityName,
     }).select(

@@ -15,7 +15,9 @@ const ViewReport = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get("/api/reports/get");
+        const response = await axios.get(`/api/reports/get`, {
+          params: { reportId },
+        });
         if (response.data.data === "zero") {
           setReport(null);
         } else {

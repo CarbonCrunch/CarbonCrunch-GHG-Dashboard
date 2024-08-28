@@ -82,11 +82,21 @@ const facilitySchema = new Schema({
 facilitySchema.pre("save", function (next) {
   this.userRoles.forEach((userRole) => {
     if (userRole.fullAccess) {
-      // Grant all permissions for each entity
-      userRole.permissions = ENTITY_ENUM.map((entity) => ({
-        entity,
-        actions: ACTIONS_ENUM,
-      }));
+      // Grant full permissions for "Role" and "Facility" entities, and limited permissions for other entities
+      userRole.permissions = ENTITY_ENUM.map((entity) => {
+        // Check if the entity is "Role" or "Facility"
+        if (["Role", "Facility"].includes(entity)) {
+          return {
+            entity,
+            actions: ACTIONS_ENUM, // Grant all actions, including "manage"
+          };
+        } else {
+          return {
+            entity,
+            actions: ACTIONS_ENUM.filter(action => action !== "manage"), // Grant all actions except "manage"
+          };
+        }
+      });
     }
   });
   next();

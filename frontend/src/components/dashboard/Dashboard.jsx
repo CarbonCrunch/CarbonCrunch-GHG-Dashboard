@@ -18,7 +18,7 @@ const Dashboard = () => {
       // Determine the API endpoint based on the user's role
       if (user.role === "Admin") {
         response = await axios.get("/api/reports/getCompanyReport");
-      } else if (user.role === "FacAdmin") {
+      } else if (user.role === "FacAdmin" || "Employee") {
         response = await axios.get("/api/reports/get");
       } else {
         throw new Error("Invalid role");

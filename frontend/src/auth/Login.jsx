@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from "js-cookie"; // Import the js-cookie library
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/landingPage/NavBar";
@@ -9,80 +10,53 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [facilityName, setFacilityName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Admin"); // Default role for user login
-  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState("Admin");
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("user"); // New state for active tab
+  const [activeTab, setActiveTab] = useState("user");
 
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
+  // Effect to handle navigation after user login
   useEffect(() => {
-    const checkExistingToken = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        axios.defaults.baseURL = "http://127.0.0.1:8000";
-        // axios.defaults.baseURL = "https://ghg.carboncrunch.in";
-
-        
-        https: axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${token}`;
-        try {
-          const response = await axios.get("/api/users/verify-token");
-          if (response.data.isValid) {
-            login(response.data.user, token);
-            navigate("/dashboard");
-          } else {
-            localStorage.removeItem("accessToken");
-          }
-        } catch (error) {
-          console.error("Error verifying token:", error);
-          localStorage.removeItem("accessToken");
-        }
-      }
-      setIsLoading(false);
-    };
-
-    checkExistingToken();
-  }, [login, navigate]);
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("/api/users/login", {
-        username: username,
-        password: password,
-        email: activeTab === "root" ? email : undefined, // Conditionally include email
-        facilityName: activeTab === "user" ? facilityName : undefined, // Conditionally include facilityName
-        role: activeTab === "root" ? "SuperUser" : role, // Conditionally include role
-      });
-
-      const { user, accessToken } = res.data.data;
-      localStorage.setItem("accessToken", accessToken);
-      login(user, accessToken);
-
-      // Navigate based on the role
+    if (user) {
       if (activeTab === "root") {
         navigate("/rootDashboard");
       } else {
         navigate("/dashboard");
       }
+    }
+  }, [user, activeTab, navigate]); // Dependencies to trigger effect
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true); // Start loading on form submission
+    try {
+      const res = await axios.post("/api/users/login", {
+        username: username,
+        password: password,
+        email: activeTab === "root" ? email : undefined,
+        facilityName: activeTab === "user" ? facilityName : undefined,
+        role: activeTab === "root" ? "SuperUser" : role,
+      });
+
+      const { user, accessToken, refreshToken } = res.data.data;
+      console.log(user)
+      // Call login to set user in context
+      login(user, accessToken);
     } catch (error) {
       setError(
         "Invalid Username/Password" +
           (activeTab === "user" ? " or Facility Name" : "")
       );
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
   if (isLoading) {
     return <div>Loading...</div>;
-  }
-
-  if (user) {
-    navigate("/dashboard");
-    return null;
   }
 
   return (

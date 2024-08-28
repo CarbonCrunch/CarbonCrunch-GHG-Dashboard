@@ -33,6 +33,12 @@ const Sidebar = () => {
   const dashboardLink =
     user.role === "SuperUser" ? "/rootDashboard" : "/dashboard";
 
+  // Extract facilityName if available
+  const facilityName =
+    user.facilities && user.facilities.length > 0
+      ? user.facilities[0].facilityName
+      : "";
+
   return (
     <div className="bg-[rgb(251,175,88)] h-screen flex flex-col justify-between p-4">
       <div className="space-y-4">
@@ -72,7 +78,7 @@ const Sidebar = () => {
         {user.role !== "SuperUser" && (
           <SidebarItem
             icon={<FaBuilding />}
-            text={`${user.companyName}, ${user.facilityName}`}
+            text={`${user.companyName}, ${facilityName}`} // Use extracted facilityName
           />
         )}
         {user.role === "SuperUser" && (

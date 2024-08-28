@@ -170,15 +170,26 @@ export const loginUser = asyncHandler(async (req, res) => {
       },
       {
         $lookup: {
-          from: "facilities", // The name of the facilities collection
+          from: "facilities",
           localField: "facilities",
           foreignField: "_id",
           as: "facilities",
         },
       },
       {
+        $addFields: {
+          facilities: {
+            $filter: {
+              input: "$facilities",
+              as: "facility",
+              cond: { $eq: ["$$facility.facilityName", facilityName] },
+            },
+          },
+        },
+      },
+      {
         $match: {
-          "facilities.facilityName": facilityName,
+          "facilities.0": { $exists: true }, // Ensures at least one facility matches
         },
       },
     ]);
@@ -240,26 +251,30 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   const options = {
     httpOnly: true,
-    secure: true,
-    sameSite: "None",
+    secure: process.env.NODE_ENV === "production", // secure flag only for HTTPS in production
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allow cross-site cookies only in production
+    maxAge: 24 * 60 * 60 * 1000, // Set expiry to 1 day
   };
 
+  // Set cookies
+  res.cookie("accessToken", accessToken, options);
+  res.cookie("refreshToken", refreshToken, options);
+
+  // Debugging
+  console.log("Set-Cookie headers:", res.getHeaders()["set-cookie"]);
+
   // Return response with tokens and user information
-  return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          user: loggedInUser,
-          accessToken,
-          refreshToken,
-        },
-        "User logged In Successfully"
-      )
-    );
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        user: loggedInUser,
+        accessToken,
+        refreshToken,
+      },
+      "User logged In Successfully"
+    )
+  );
 });
 
 export const verifyToken = asyncHandler(async (req, res) => {

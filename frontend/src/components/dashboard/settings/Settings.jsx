@@ -2,8 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import Sidebar from "../Sidebar";
 import NavbarD from "../NavbarD";
+import { useAuth } from "../../../context/AuthContext";
 
 const Settings = () => {
+
+    const { user } = useAuth();
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-white">
       {/* Navbar */}
