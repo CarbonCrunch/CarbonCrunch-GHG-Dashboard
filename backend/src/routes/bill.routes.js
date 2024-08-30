@@ -14,7 +14,7 @@ router
   .get(getBills);
 router
   .route("/getCompanyBill")
-  .get(verifyJWT, restrictTo("Admin"), getCompanyBill);
+  .get(getCompanyBill);
 router
   .route("/createBills", verifyJWT, restrictTo("FacAdmin", "Admin"))
   .post(createBills);

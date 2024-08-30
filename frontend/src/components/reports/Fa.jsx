@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useAuth } from "../../context/AuthContext";
 
 const Fa = ({ report }) => {
   const [hotelData, setHotelData] = useState([]);
@@ -23,6 +24,7 @@ const Fa = ({ report }) => {
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [activeTab, setActiveTab] = useState("hotel");
+  const { user } = useAuth();
 
   const reportData = report;
   const {
@@ -66,7 +68,12 @@ const Fa = ({ report }) => {
         setHotelData(updatedHotelData);
         setEditIndex(-1);
       }
-      setNewHotel({ occupiedRooms: "", nightsPerRoom: "", date: null, abc: "abc" });
+      setNewHotel({
+        occupiedRooms: "",
+        nightsPerRoom: "",
+        date: null,
+        abc: "abc",
+      });
     } else {
       toast.error("Please fill all fields");
     }
@@ -135,6 +142,10 @@ const Fa = ({ report }) => {
             companyName,
             facilityName,
           },
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+          },
+          withCredentials: true, // Ensure cookies are sent
         }
       );
       if (response.data.success) {

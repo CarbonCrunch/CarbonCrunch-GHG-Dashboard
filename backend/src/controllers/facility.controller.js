@@ -7,7 +7,7 @@ export const createNewFacility = asyncHandler(async (req, res) => {
   const { facilityName, facilityLocation } = req.body;
 
   // Validate request data
-  if (!req.user || !facilityName || !facilityLocation) {
+  if ( !facilityName || !facilityLocation) {
     throw new ApiError(
       401,
       "Unauthorized request or missing data to create a new facility"
@@ -39,7 +39,7 @@ export const createPermission = asyncHandler(async (req, res) => {
   const { username, facilityName, permissions } = req.body;
   //   console.log("createPermission", req.body);
   // Validate request data
-  if (!req.user || !facilityName || !username) {
+  if ( !facilityName || !username) {
     throw new ApiError(
       401,
       "Unauthorized request or missing data to create or update permissions"

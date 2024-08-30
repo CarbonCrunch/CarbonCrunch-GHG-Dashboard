@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useAuth } from "../../context/AuthContext";
 
 const Water = ({ report }) => {
   const [waterData, setWaterData] = useState([]);
@@ -15,6 +16,8 @@ const Water = ({ report }) => {
     amount: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
+    const { user } = useAuth();
+
 
   const emissionOptions = ["Water Supply", "Water Treatment"];
   const unitOptions = ["cubic meter"];
@@ -105,6 +108,10 @@ const Water = ({ report }) => {
             companyName,
             facilityName,
           },
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+          },
+          withCredentials: true, // Ensure cookies are sent
         }
       );
       if (response.data.success) {

@@ -5,19 +5,31 @@ import NavbarD from "./NavbarD";
 import Sidebar from "./Sidebar";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { useAuth } from "../../context/AuthContext";
 
 const ViewReport = () => {
   const { reportId } = useParams();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get(`/api/reports/get`, {
-          params: { reportId },
-        });
+        const response = await axios.post(
+          `/api/reports/get`,
+          {
+            user, // Send user data in the request body
+          },
+          {
+            params: { reportId },
+            headers: {
+              Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+            },
+            withCredentials: true, // Ensure cookies are sent
+          }
+        );
         if (response.data.data === "zero") {
           setReport(null);
         } else {

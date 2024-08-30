@@ -56,7 +56,7 @@ export const getBills = asyncHandler(async (req, res) => {
 
 export const getCompanyBill = asyncHandler(async (req, res) => {
   const { companyName, username } = req.query;
-  // console.log("getBills", companyName, facilityName, userId, username);
+  console.log("getCompanyBills", companyName, username);
 
   // Validate required fields
   if (!companyName) {

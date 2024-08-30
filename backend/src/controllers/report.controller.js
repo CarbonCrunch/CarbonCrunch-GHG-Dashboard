@@ -7,14 +7,14 @@ export const createNewReport = asyncHandler(async (req, res) => {
   const { reportName, facilityName, timePeriod, companyName, username } =
     req.body;
 
-  if (!req.user || !companyName || !username) {
+  if (!companyName || !username) {
     throw new ApiError(401, "Unauthorized Request to create new report");
   }
 
   // Verify that the username in the request matches the authenticated user
-  if (req.user.username !== username) {
-    throw new ApiError(403, "Username mismatch");
-  }
+  // if (req.user.username !== username) {
+  //   throw new ApiError(403, "Username mismatch");
+  // }
 
   const lastReport = await Report.findOne().sort({ reportId: -1 }).exec();
   let reportId = "000001";
@@ -281,9 +281,9 @@ export const updateFuelData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update fuel data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update fuel data.");
+  // }
 
   // Update the fuel data
   report.fuel = fuel;
@@ -472,9 +472,9 @@ export const updateBioenergyData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update bioenergy data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update bioenergy data.");
+  // }
 
   // Update the bioenergy data
   report.bioenergy = bioenergy;
@@ -509,9 +509,9 @@ export const updateRefrigerantsData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update refrigerants data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update refrigerants data.");
+  // }
 
   // Update the refrigerants data
   report.refrigerants = refrigerants;
@@ -547,9 +547,9 @@ export const updateEHCTDData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update EHCTD data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update EHCTD data.");
+  // }
 
   // const { electricity, heating, cooling } = ehctd;
 
@@ -599,9 +599,9 @@ export const updateWTTFuelData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update WTTFuel data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update WTTFuel data.");
+  // }
 
   report.wttfuel = wttfuel;
 
@@ -636,9 +636,9 @@ export const updateMaterialUseData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update Material Use data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update Material Use data.");
+  // }
 
   // Update the material use data
   report.material = material;
@@ -665,12 +665,12 @@ export const updateWasteDisposalData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(
-      401,
-      "Unauthorized access to update Waste Disposal data."
-    );
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(
+  //     401,
+  //     "Unauthorized access to update Waste Disposal data."
+  //   );
+  // }
 
   report.waste = waste;
 
@@ -699,9 +699,9 @@ export const updateBTLSData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update BTLS data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update BTLS data.");
+  // }
 
   report.btls = btls;
 
@@ -728,9 +728,9 @@ export const updateECData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update EC data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update EC data.");
+  // }
 
   report.ec = ec;
 
@@ -764,9 +764,9 @@ export const updateFoodData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update food data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update food data.");
+  // }
 
   // Update the food data
   report.food = food;
@@ -796,9 +796,9 @@ export const updateWaterData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update Water data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update Water data.");
+  // }
 
   report.water = water;
 
@@ -824,9 +824,9 @@ export const updateFGData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update FG data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update FG data.");
+  // }
 
   report.fg = fg;
 
@@ -855,9 +855,9 @@ export const updateHomeOfficeData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update home office data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update home office data.");
+  // }
 
   report.homeOffice = homeOffice;
 
@@ -882,12 +882,12 @@ export const updateOwnedVehiclesData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(
-      401,
-      "Unauthorized access to update owned vehicles data."
-    );
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(
+  //     401,
+  //     "Unauthorized access to update owned vehicles data."
+  //   );
+  // }
 
   report.ownedVehicles = ownedVehicles;
 
@@ -916,9 +916,9 @@ export const updateFAData = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update FA data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update FA data.");
+  // }
 
   report.fa = { hotelAccommodation, flightAccommodation };
 
