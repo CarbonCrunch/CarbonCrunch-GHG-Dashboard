@@ -45,14 +45,11 @@ const router = Router();
 router
   .route("/create")
   .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
-router.route("/get").get(verifyJWT, getUserReports);
-router
-  .route("/getCompanyReport")
-  .get(verifyJWT, restrictTo("Admin"), getCompanyReport);
+router.route("/get").post(getUserReports);
+router.route("/getCompanyReport").post(getCompanyReport);
 router
   .route("/:reportId/delete")
   .delete(verifyJWT, restrictTo("FacAdmin", "Admin"), deleteReport);
-
 
 router
   .route("/:reportId/fuel/put")
@@ -107,61 +104,31 @@ router
 // router
 //   .route("/:reportId/tab/get")
 //   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), getCurrentTab);
-router
-  .route("/:reportId/CO2eFuel")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFuel);
+router.route("/:reportId/CO2eFuel").get(CO2eFuel);
 
-router
-  .route("/:reportId/CO2eBioenergy")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eBioenergy);
-router
-  .route("/:reportId/CO2eRefrigerants")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eRefrigerants);
-router
-  .route("/:reportId/CO2eEhctd")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eEhctd);
-router
-  .route("/:reportId/CO2eOv")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eOv);
+router.route("/:reportId/CO2eBioenergy").get(CO2eBioenergy);
+router.route("/:reportId/CO2eRefrigerants").get(CO2eRefrigerants);
+router.route("/:reportId/CO2eEhctd").get(CO2eEhctd);
+router.route("/:reportId/CO2eOv").get(CO2eOv);
 
-router
-  .route("/:reportId/CO2eFa")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFa);
+router.route("/:reportId/CO2eFa").get(CO2eFa);
 
-router
-  .route("/:reportId/CO2eBtls")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eBtls);
+router.route("/:reportId/CO2eBtls").get(CO2eBtls);
 
-router
-  .route("/:reportId/CO2eFg")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFg);
+router.route("/:reportId/CO2eFg").get(CO2eFg);
 
-router
-  .route("/:reportId/CO2eEc")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eEc);
+router.route("/:reportId/CO2eEc").get(CO2eEc);
 
-router
-  .route("/:reportId/CO2eWTTFuel")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eWttFuels);
-router
-  .route("/:reportId/CO2eFood")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eFood);
+router.route("/:reportId/CO2eWTTFuel").get(CO2eWttFuels);
+router.route("/:reportId/CO2eFood").get(CO2eFood);
 
-router
-  .route("/:reportId/CO2eMaterialsUsed")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eMaterialUse);
+router.route("/:reportId/CO2eMaterialsUsed").get(CO2eMaterialUse);
 
-router
-  .route("/:reportId/CO2eWasteDisposal")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eWaste);
+router.route("/:reportId/CO2eWasteDisposal").get(CO2eWaste);
 
-router
-  .route("/:reportId/CO2eHome")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eHome);
+router.route("/:reportId/CO2eHome").get(CO2eHome);
 
-router
-  .route("/:reportId/CO2eWater")
-  .get(verifyJWT, restrictTo("FacAdmin", "Admin"), CO2eWater);
+router.route("/:reportId/CO2eWater").get(CO2eWater);
 
 // router.route("/:reportId/getFuel/:specificDate").get(getFuelReport);
 // router.route("/:reportId/getBiogas/:specificDate").get(getBiogasReport);

@@ -46,7 +46,12 @@ const ManageUser = () => {
         if (user && user.companyName) {
           const response = await axios.get("/api/users/getCompanyUsers", {
             params: { companyName: user.companyName },
+            headers: {
+              Authorization: `Bearer ${user.accessToken}`, // Include accessToken in the headers
+            },
+            withCredentials: true, // Ensure cookies are sent with the request
           });
+
           setCompanyUsers(response.data.data); // Store the users in state
           console.log("companyUsers", companyUsers);
         }
@@ -95,12 +100,21 @@ const ManageUser = () => {
 
       console.log("permissions2", permissionsToSend);
 
-      await axios.patch("/api/users/updateUserPermission", {
-        userId: selectedUser._id,
-        username: selectedUser.username, // Add username to the request body
-        facilityName: selectedUser.facilities[0].facilityName, // Add facilityName to the request body
-        permissions: permissionsToSend,
-      });
+      await axios.patch(
+        "/api/users/updateUserPermission",
+        {
+          userId: selectedUser._id,
+          username: selectedUser.username, // Add username to the request body
+          facilityName: selectedUser.facilities[0].facilityName, // Add facilityName to the request body
+          permissions: permissionsToSend,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in the headers
+          },
+          withCredentials: true, // Ensure cookies are sent with the request
+        }
+      );
 
       toast.success("Permissions updated successfully!", {
         position: "top-right",
@@ -146,13 +160,18 @@ const ManageUser = () => {
         )
       ) {
         try {
-          await axios.delete("/api/users/deleteUserPermission", {
-            data: {
-              username: selectedUser.username,
-              userId: selectedUser._id,
-              facilityName: selectedUser.facilities[0].facilityName,
-            }, // Send required data to delete
-          });
+        await axios.delete("/api/users/deleteUserPermission", {
+          data: {
+            username: selectedUser.username,
+            userId: selectedUser._id,
+            facilityName: selectedUser.facilities[0].facilityName,
+          }, // Send required data to delete
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+          },
+          withCredentials: true, // Ensure cookies are sent
+        });
+
 
           setCompanyUsers((prevUsers) =>
             prevUsers.filter((user) => user._id !== selectedUser._id)

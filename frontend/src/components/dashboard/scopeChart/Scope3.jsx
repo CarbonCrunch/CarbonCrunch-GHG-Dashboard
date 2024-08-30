@@ -34,144 +34,408 @@ const Scope3 = ({ reports }) => {
   const [homeOfficeData, setHomeOfficeData] = useState([]);
   const [hotelAccommodationData, setHotelAccommodationData] = useState([]);
 
-  const reportData = reports || {};
-  const {
-    companyName = "",
-    facilityName = "",
-    reportId = "",
-    ec = [],
-    btls = [],
-    fg = [],
-    fa = [],
-    wttfuel = [],
-    food = [],
-    material = [],
-    waste = [],
-    water = [],
-    homeOffice = [],
-  } = reportData;
-  const { hotelAccommodation, flightAccommodation } = fa;
-  // console.log("reportData", reportData);
-  // console.log("hotelAccommodationData", fa);
-
+  // console.log("ecData", ecData);
+  // console.log("btlsData", btlsData);
+  // console.log("fgData", fgData);
+  // console.log("wttFuelData", wttFuelData);
+  // console.log("foodData", foodData);
+  // console.log("materialData", materialData);
+  // console.log("wasteData", wasteData);
+  // console.log("waterData", waterData);
+  // console.log("homeOfficeData", homeOfficeData);
+  // console.log("hotelAccommodationData", hotelAccommodationData);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [
-          ecResponse,
-          btlsResponse,
-          fgResponse,
-          wttFuelResponse,
-          foodResponse,
-          materialResponse,
-          wasteResponse,
-          waterResponse,
-          homeOfficeResponse,
-          hotelAccommodationResponse,
-        ] = await Promise.all([
-          axios.get(`/api/reports/${reportId}/CO2eEc`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              ec: JSON.stringify(ec),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eBtls`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              btls: JSON.stringify(btls),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eFg`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              fg: JSON.stringify(fg),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eWTTFuel`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              wttfuel: JSON.stringify(wttfuel),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eFood`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              food: JSON.stringify(food),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eMaterialsUsed`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              material: JSON.stringify(material),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eWasteDisposal`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              waste: JSON.stringify(waste),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eWater`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              water: JSON.stringify(water),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eHome`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              homeOffice: JSON.stringify(homeOffice),
-            },
-          }),
-          axios.get(`/api/reports/${reportId}/CO2eFa`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              hotelAccommodation: JSON.stringify(hotelAccommodation),
-            },
-          }),
-        ]);
+        if (reports.length === 1) {
+          // If reports array has only one object
+          const report = reports[0];
+          const {
+            companyName = "",
+            facilityName = "",
+            reportId = "",
+            ec = [],
+            btls = [],
+            fg = [],
+            fa = [],
+            wttfuel = [],
+            food = [],
+            material = [],
+            waste = [],
+            water = [],
+            homeOffice = [],
+          } = report;
+          const { hotelAccommodation } = fa;
 
-        setEcData(ecResponse.data.data);
-        setBtlsData(btlsResponse.data.data);
-        setFgData(fgResponse.data.data);
-        setWttFuelData(wttFuelResponse.data.data);
-        setFoodData(foodResponse.data.data);
-        setMaterialData(materialResponse.data.data);
-        setWasteData(wasteResponse.data.data);
-        setWaterData(waterResponse.data.data);
-        setHomeOfficeData(homeOfficeResponse.data.data);
-        setHotelAccommodationData(hotelAccommodationResponse.data.data);
-        // console.log(
-        //   "hotelAccommodationData",
-        //   hotelAccommodationResponse.data.data
-        // );
+          const requests = [];
+
+          if (ec.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eEc`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  ec: JSON.stringify(ec),
+                },
+              })
+            );
+          }
+
+          if (btls.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eBtls`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  btls: JSON.stringify(btls),
+                },
+              })
+            );
+          }
+
+          if (fg.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eFg`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  fg: JSON.stringify(fg),
+                },
+              })
+            );
+          }
+
+          if (wttfuel.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eWTTFuel`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  wttfuel: JSON.stringify(wttfuel),
+                },
+              })
+            );
+          }
+
+          if (food.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eFood`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  food: JSON.stringify(food),
+                },
+              })
+            );
+          }
+
+          if (material.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eMaterialsUsed`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  material: JSON.stringify(material),
+                },
+              })
+            );
+          }
+
+          if (waste.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eWasteDisposal`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  waste: JSON.stringify(waste),
+                },
+              })
+            );
+          }
+
+          if (water.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eWater`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  water: JSON.stringify(water),
+                },
+              })
+            );
+          }
+
+          if (homeOffice.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eHome`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  homeOffice: JSON.stringify(homeOffice),
+                },
+              })
+            );
+          }
+
+          if (hotelAccommodation && hotelAccommodation.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eFa`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  hotelAccommodation: JSON.stringify(hotelAccommodation),
+                },
+              })
+            );
+          }
+
+          const responses = await Promise.all(requests);
+
+          // Process responses and set data states
+          let responseIndex = 0;
+          if (ec.length > 0) setEcData(responses[responseIndex++].data.data);
+          if (btls.length > 0)
+            setBtlsData(responses[responseIndex++].data.data);
+          if (fg.length > 0) setFgData(responses[responseIndex++].data.data);
+          if (wttfuel.length > 0)
+            setWttFuelData(responses[responseIndex++].data.data);
+          if (food.length > 0)
+            setFoodData(responses[responseIndex++].data.data);
+          if (material.length > 0)
+            setMaterialData(responses[responseIndex++].data.data);
+          if (waste.length > 0)
+            setWasteData(responses[responseIndex++].data.data);
+          if (water.length > 0)
+            setWaterData(responses[responseIndex++].data.data);
+          if (homeOffice.length > 0)
+            setHomeOfficeData(responses[responseIndex++].data.data);
+          if (hotelAccommodation && hotelAccommodation.length > 0)
+            setHotelAccommodationData(responses[responseIndex++].data.data);
+        } else {
+          // If reports array has multiple objects
+          const combinedEc = [];
+          const combinedBtls = [];
+          const combinedFg = [];
+          const combinedWttFuel = [];
+          const combinedFood = [];
+          const combinedMaterial = [];
+          const combinedWaste = [];
+          const combinedWater = [];
+          const combinedHomeOffice = [];
+          const combinedHotelAccommodation = [];
+
+          await Promise.all(
+            reports.map(async (report) => {
+              const {
+                companyName = "",
+                facilityName = "",
+                reportId = "",
+                ec = [],
+                btls = [],
+                fg = [],
+                fa = [],
+                wttfuel = [],
+                food = [],
+                material = [],
+                waste = [],
+                water = [],
+                homeOffice = [],
+              } = report;
+              const { hotelAccommodation } = fa;
+
+              const requests = [];
+
+              if (ec.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eEc`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      ec: JSON.stringify(ec),
+                    },
+                  })
+                );
+              }
+
+              if (btls.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eBtls`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      btls: JSON.stringify(btls),
+                    },
+                  })
+                );
+              }
+
+              if (fg.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eFg`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      fg: JSON.stringify(fg),
+                    },
+                  })
+                );
+              }
+
+              if (wttfuel.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eWTTFuel`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      wttfuel: JSON.stringify(wttfuel),
+                    },
+                  })
+                );
+              }
+
+              if (food.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eFood`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      food: JSON.stringify(food),
+                    },
+                  })
+                );
+              }
+
+              if (material.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eMaterialsUsed`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      material: JSON.stringify(material),
+                    },
+                  })
+                );
+              }
+
+              if (waste.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eWasteDisposal`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      waste: JSON.stringify(waste),
+                    },
+                  })
+                );
+              }
+
+              if (water.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eWater`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      water: JSON.stringify(water),
+                    },
+                  })
+                );
+              }
+
+              if (homeOffice.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eHome`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      homeOffice: JSON.stringify(homeOffice),
+                    },
+                  })
+                );
+              }
+
+              if (hotelAccommodation && hotelAccommodation.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eFa`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      hotelAccommodation: JSON.stringify(hotelAccommodation),
+                    },
+                  })
+                );
+              }
+
+              const responses = await Promise.all(requests);
+
+              // Process responses and combine data
+              let responseIndex = 0;
+              if (ec.length > 0)
+                combinedEc.push(...responses[responseIndex++].data.data);
+              if (btls.length > 0)
+                combinedBtls.push(...responses[responseIndex++].data.data);
+              if (fg.length > 0)
+                combinedFg.push(...responses[responseIndex++].data.data);
+              if (wttfuel.length > 0)
+                combinedWttFuel.push(...responses[responseIndex++].data.data);
+              if (food.length > 0)
+                combinedFood.push(...responses[responseIndex++].data.data);
+              if (material.length > 0)
+                combinedMaterial.push(...responses[responseIndex++].data.data);
+              if (waste.length > 0)
+                combinedWaste.push(...responses[responseIndex++].data.data);
+              if (water.length > 0)
+                combinedWater.push(...responses[responseIndex++].data.data);
+              if (homeOffice.length > 0)
+                combinedHomeOffice.push(
+                  ...responses[responseIndex++].data.data
+                );
+              if (hotelAccommodation && hotelAccommodation.length > 0)
+                combinedHotelAccommodation.push(
+                  ...responses[responseIndex++].data.data
+                );
+            })
+          );
+
+          // Set combined data states
+          setEcData(combinedEc);
+          setBtlsData(combinedBtls);
+          setFgData(combinedFg);
+          setWttFuelData(combinedWttFuel);
+          setFoodData(combinedFood);
+          setMaterialData(combinedMaterial);
+          setWasteData(combinedWaste);
+          setWaterData(combinedWater);
+          setHomeOfficeData(combinedHomeOffice);
+          setHotelAccommodationData(combinedHotelAccommodation);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [reports]); // Add 'reports' to dependency array to refetch data when it changes
 
   const chartHeight = 450;
 
@@ -350,7 +614,8 @@ const Scope3 = ({ reports }) => {
       return {
         label: fuel,
         data: carCategories.map((category) => {
-          const filteredData = ec.filter(
+          // Use ecData instead of ec
+          const filteredData = ecData.filter(
             (item) =>
               item.vehicle === "Car" &&
               item.type === category &&
@@ -381,7 +646,7 @@ const Scope3 = ({ reports }) => {
       return {
         label: fuel,
         data: vehicleCategories.map((category) => {
-          const filteredData = ec.filter(
+          const filteredData = ecData.filter(
             (item) =>
               (item.vehicle === category ||
                 (category === "Taxi" &&
@@ -473,7 +738,7 @@ const Scope3 = ({ reports }) => {
     rail: [],
   };
 
-  fg.forEach((item) => {
+  fgData.forEach((item) => {
     if (
       ["HGV (all diesel)", "HGV refrigerated (all diesel)"].includes(
         item.category
@@ -551,7 +816,7 @@ const Scope3 = ({ reports }) => {
         >
           <Line
             data={{
-              labels: fg.map((item) => item.distance || "Unknown"),
+              labels: fgData.map((item) => item.distance || "Unknown"),
               datasets: [
                 {
                   label: "Trucks",

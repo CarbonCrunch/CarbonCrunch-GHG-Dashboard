@@ -42,7 +42,7 @@ const Login = () => {
       });
 
       const { user, accessToken, refreshToken } = res.data.data;
-      console.log(user)
+      console.log('login',user, accessToken)
       // Call login to set user in context
       login(user, accessToken);
     } catch (error) {

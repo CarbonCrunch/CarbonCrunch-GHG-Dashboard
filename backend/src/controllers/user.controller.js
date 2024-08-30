@@ -6,6 +6,15 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import bcrypt from "bcrypt";
 import { Facility } from "../models/facility.model.js";
+import cloudinary from 'cloudinary';
+
+
+// Configure Cloudinary with environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dkiowo64c",
+  api_key: process.env.CLOUDINARY_CLOUD_API_KEY || "141629487434466",
+  api_secret: process.env.CLOUDINARY_CLOUD_API_SECRET || "duCohk5LZqFdbHt4lux5lE5IXSQ",
+});
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -13,8 +22,8 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
     console.log("generateAccessAndRefreshTokens", accessToken, refreshToken);
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+    // user.refreshToken = refreshToken;
+    // await user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
   } catch (error) {
@@ -227,7 +236,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid role provided");
   }
 
-  console.log("user2", user);
+  // console.log("user2", user);
 
   // Validate password
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -251,8 +260,8 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   const options = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // secure flag only for HTTPS in production
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allow cross-site cookies only in production
+    secure: false, // Ensure this is true if you're using HTTPS
+    sameSite: "Strict",
     maxAge: 24 * 60 * 60 * 1000, // Set expiry to 1 day
   };
 
@@ -280,13 +289,13 @@ export const loginUser = asyncHandler(async (req, res) => {
 export const verifyToken = asyncHandler(async (req, res) => {
   // Get token from header
   const token = req.headers.authorization?.split(" ")[1]; // Try to get token from header or cookie
-
+  // console.log("token1", token) 
   if (!token) {
     return res
       .status(401)
       .json({ isValid: false, message: "No token provided" });
   }
-  console.log("token", token);
+  // console.log("token2", token);
   try {
     // Verify token
     const decoded = await promisify(jwt.verify)(
@@ -297,26 +306,21 @@ export const verifyToken = asyncHandler(async (req, res) => {
 
     // Find user by id
     const user = await User.findById(decoded._id).select("-password");
-    // console.log(user);
+    // console.log('user1',user);
+    req.user = user;
     if (!user) {
       return res
         .status(404)
         .json({ isValid: false, message: "User not found" });
     }
-    // console.log("user",user);
+    // console.log("user2",user);
 
     // Return response
     return res.json({
       isValid: true,
-      user: {
-        _id: user._id,
-        username: user.username,
-        role: user.role,
-        companyName: user.companyName,
-        facilityName: user.facilityName,
-        // Add any other user fields you want to send to the frontend
-      },
+      user: user
     });
+
   } catch (error) {
     console.error("Token verification error:", error);
 
@@ -607,5 +611,53 @@ export const deleteUserPermission = asyncHandler(async (req, res) => {
       "An error occurred while deleting user role",
       error
     );
+  }
+});
+
+export const uploadLogo = asyncHandler(async (req, res) => {
+  const file = req.files.file; // Access the uploaded file from the request
+ const userId = req.body.userId; // Assume that user is authenticated and user ID is available on req.user
+  // console.log("user", userId)
+  // Check if file exists
+  if (!file) {
+    throw new ApiError(400, "No file uploaded");
+  }
+
+  try {
+    // Upload image to Cloudinary
+    const cloudinaryResult = await cloudinary.uploader.upload(
+      file.tempFilePath,
+      {
+        folder: "company_logos", // Specify the folder where logos should be uploaded
+      }
+    );
+
+    // Check if Cloudinary upload was successful
+    if (!cloudinaryResult || !cloudinaryResult.secure_url) {
+      throw new ApiError(500, "Failed to upload logo to Cloudinary");
+    }
+
+    // Update user's profile with the logo URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { photo: cloudinaryResult.secure_url }, // Save the secure URL to the user's profile
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      throw new ApiError(404, "User not found");
+    }
+
+    // Send success response
+    res.status(200).json({
+      success: true,
+      message: "Logo uploaded successfully",
+      data: {
+        photo: cloudinaryResult.secure_url, // Return the URL of the uploaded logo
+      },
+    });
+  } catch (error) {
+    console.error("Error uploading logo:", error);
+    throw new ApiError(500, "An error occurred while uploading the logo");
   }
 });

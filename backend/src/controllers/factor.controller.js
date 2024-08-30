@@ -19,14 +19,15 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
     companyName,
     facilityName,
   });
-
+  
   if (!report) {
+    console.log('report', report)
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update fuel data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update fuel data.");
+  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -69,8 +70,8 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
 
   // Update the report's fuel data and store CO2e
   report.fuel = updatedFuelData;
-  report.CO2eFuel = updatedFuelData.reduce((acc, curr) => acc + curr.CO2e, 0);
-  // console.log("fuel", report.fuel);
+  // report.CO2eFuel = updatedFuelData.reduce((acc, curr) => acc + curr.CO2e, 0);
+  console.log("CO2eFuel", report.fuel);
   // console.log("CO2eFuel", report.CO2eFuel);
   await report.save();
 
@@ -84,7 +85,7 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
 export const CO2eBioenergy = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const bioenergy = JSON.parse(req.query.bioenergy);
-  console.log("Bioenergy :", bioenergy);
+  // console.log("Bioenergy :", bioenergy);
 
   if (!reportId || !companyName || !facilityName || !bioenergy) {
     throw new ApiError(
@@ -103,9 +104,9 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update bioenergy data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update bioenergy data.");
+  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -144,6 +145,7 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
     data: report.bioenergy,
   });
 });
+
 export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const refrigerants = JSON.parse(req.query.refrigerants);
@@ -165,9 +167,9 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update refrigerants data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update refrigerants data.");
+  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -274,15 +276,15 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
     data: report.refrigerants,
   });
 });
-export const CO2eEhctd = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
-  const ehctd = JSON.parse(req.query.ehctd);
-  // console.log("ehctd", ehctd, reportId, companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !ehctd) {
+export const CO2eOv = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const ownedVehicles = JSON.parse(req.query.ownedVehicles);
+
+  if (!reportId || !companyName || !facilityName || !ownedVehicles) {
     throw new ApiError(
       400,
-      "Report ID, company name, facility name, and EHCTD data are required."
+      "Report ID, company name, facility name, and vehicle data are required."
     );
   }
 
@@ -296,9 +298,156 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update EHCTD data.");
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update vehicle data.");
+  // }
+
+  const conversionRates = {
+    "Passenger vehicles": {
+      "Cars (by size)": {
+        "Small car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.022 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.138 },
+          Petrol: { unit: "km", factor: 0.149 },
+          Hybrid: { unit: "km", factor: 0.105 },
+          Unknown: { unit: "km", factor: 0.145 },
+        },
+        "Medium car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.069 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.165 },
+          Petrol: { unit: "km", factor: 0.188 },
+          Hybrid: { unit: "km", factor: 0.11 },
+          CNG: { unit: "km", factor: 0.159 },
+          LPG: { unit: "km", factor: 0.179 },
+          Unknown: { unit: "km", factor: 0.176 },
+        },
+        "Large car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.077 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.207 },
+          Petrol: { unit: "km", factor: 0.279 },
+          Hybrid: { unit: "km", factor: 0.152 },
+          CNG: { unit: "km", factor: 0.236 },
+          LPG: { unit: "km", factor: 0.266 },
+          Unknown: { unit: "km", factor: 0.226 },
+        },
+        "Average car": {
+          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.071 },
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.168 },
+          Petrol: { unit: "km", factor: 0.174 },
+          Hybrid: { unit: "km", factor: 0.12 },
+          CNG: { unit: "km", factor: 0.176 },
+          LPG: { unit: "km", factor: 0.198 },
+          Unknown: { unit: "km", factor: 0.171 },
+        },
+      },
+      Motorbikes: {
+        Small: { unit: "km", factor: 0.083 },
+        Medium: { unit: "km", factor: 0.101 },
+        Large: { unit: "km", factor: 0.132 },
+        Average: { unit: "km", factor: 0.114 },
+      },
+    },
+    "Delivery vehicles": {
+      Vans: {
+        "Small van": {
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.147 },
+          Petrol: { unit: "km", factor: 0.2 },
+          CNG: { unit: "km", factor: 0 },
+          LPG: { unit: "km", factor: 0 },
+          Unknown: { unit: "km", factor: 0 },
+        },
+        "Medium van": {
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.183 },
+          Petrol: { unit: "km", factor: 0.198 },
+          CNG: { unit: "km", factor: 0 },
+          LPG: { unit: "km", factor: 0 },
+          Unknown: { unit: "km", factor: 0 },
+        },
+        "Large van": {
+          "Battery Electric Vehicle": { unit: "km", factor: 0 },
+          Diesel: { unit: "km", factor: 0.265 },
+          Petrol: { unit: "km", factor: 0.313 },
+          CNG: { unit: "km", factor: 0 },
+          LPG: { unit: "km", factor: 0 },
+          Unknown: { unit: "km", factor: 0 },
+        },
+      },
+    },
+  };
+
+  // Update the vehicle data with calculated CO2e amounts
+  const updatedVehicleData = ownedVehicles.map((vehicleEntry) => {
+    const { level1, level2, level3, fuel, distance } = vehicleEntry; // Ensure distance is used instead of amount
+    let conversionRate = 0;
+
+    // Special handling for Motorbikes
+    if (level2 === "Motorbikes" && conversionRates[level1][level2][level3]) {
+      conversionRate = conversionRates[level1][level2][level3].factor;
+    }
+    // Standard handling for other vehicles
+    else if (
+      conversionRates[level1] &&
+      conversionRates[level1][level2] &&
+      conversionRates[level1][level2][level3] &&
+      conversionRates[level1][level2][level3][fuel]
+    ) {
+      conversionRate = conversionRates[level1][level2][level3][fuel].factor;
+    } else {
+      console.warn(
+        `No conversion factor found for: ${JSON.stringify(vehicleEntry)}`
+      );
+    }
+
+    const CO2e = parseFloat(distance) * conversionRate; // Calculate CO2e emissions based on distance
+    return { ...vehicleEntry, CO2e };
+  });
+
+  // Update the report's vehicle data and store CO2e
+  report.ownedVehicles = updatedVehicleData;
+  report.CO2eVehicle = updatedVehicleData.reduce(
+    (acc, curr) => acc + (curr.CO2e || 0), // Handle cases where CO2e might be undefined
+    0
+  );
+
+  await report.save();
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully for vehicles",
+    data: report.ownedVehicles,
+  });
+});
+
+export const CO2eEhctd = asyncHandler(async (req, res) => {
+  const { reportId, companyName, facilityName } = req.query;
+  const ehctd = JSON.parse(req.query.ehctd);
+  // console.log("ehctd", ehctd, reportId, companyName, facilityName);
+
+  if (!reportId || !companyName || !facilityName || !ehctd) {
+    throw new ApiError(
+      400,
+      "Report ID, company name, facility name, and EHCTD data are required."
+    );
   }
+  
+  const report = await Report.findOne({
+    reportId,
+    companyName,
+    facilityName,
+  });
+  
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update EHCTD data.");
+  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -361,12 +510,12 @@ export const CO2eEc = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(
-      401,
-      "Unauthorized access to update employee commuting data."
-    );
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(
+  //     401,
+  //     "Unauthorized access to update employee commuting data."
+  //   );
+  // }
 
   const conversionRates = {
     Car: {
@@ -510,9 +659,9 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update BTLS data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update BTLS data.");
+  // }
 
   const conversionRates = {
     "Cars (by size)": {
@@ -633,12 +782,12 @@ export const CO2eFg = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(
-      401,
-      "Unauthorized access to update freighting goods data."
-    );
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(
+  //     401,
+  //     "Unauthorized access to update freighting goods data."
+  //   );
+  // }
 
   // Define conversion rates based on category and type only
   const conversionRates = {
@@ -734,9 +883,9 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update WTT fuels data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update WTT fuels data.");
+  // }
 
   // Define conversion rates based on the provided information
   const conversionRates = {
@@ -818,9 +967,9 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update material use data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update material use data.");
+  // }
 
   // Define conversion rates based on the provided information
   const conversionRates = {
@@ -931,12 +1080,12 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(
-      401,
-      "Unauthorized access to update waste disposal data."
-    );
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(
+  //     401,
+  //     "Unauthorized access to update waste disposal data."
+  //   );
+  // }
 
   // Define conversion rates based on the provided information
   const conversionRates = {
@@ -1046,12 +1195,12 @@ export const CO2eFood = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(
-      401,
-      "Unauthorized access to update food disposal data."
-    );
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(
+  //     401,
+  //     "Unauthorized access to update food disposal data."
+  //   );
+  // }
 
   const conversionRates = {
     "1 standard breakfast": { unit: "breakfast", factor: 0.84 },
@@ -1097,151 +1246,6 @@ export const CO2eFood = asyncHandler(async (req, res) => {
   });
 });
 
-export const CO2eOv = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
-  const ownedVehicles = JSON.parse(req.query.ownedVehicles);
-
-  if (!reportId || !companyName || !facilityName || !ownedVehicles) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and vehicle data are required."
-    );
-  }
-
-  const report = await Report.findOne({
-    reportId,
-    companyName,
-    facilityName,
-  });
-
-  if (!report) {
-    throw new ApiError(404, "Report not found.");
-  }
-
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update vehicle data.");
-  }
-
-  const conversionRates = {
-    "Passenger vehicles": {
-      "Cars (by size)": {
-        "Small car": {
-          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.022 },
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.138 },
-          Petrol: { unit: "km", factor: 0.149 },
-          Hybrid: { unit: "km", factor: 0.105 },
-          Unknown: { unit: "km", factor: 0.145 },
-        },
-        "Medium car": {
-          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.069 },
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.165 },
-          Petrol: { unit: "km", factor: 0.188 },
-          Hybrid: { unit: "km", factor: 0.11 },
-          CNG: { unit: "km", factor: 0.159 },
-          LPG: { unit: "km", factor: 0.179 },
-          Unknown: { unit: "km", factor: 0.176 },
-        },
-        "Large car": {
-          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.077 },
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.207 },
-          Petrol: { unit: "km", factor: 0.279 },
-          Hybrid: { unit: "km", factor: 0.152 },
-          CNG: { unit: "km", factor: 0.236 },
-          LPG: { unit: "km", factor: 0.266 },
-          Unknown: { unit: "km", factor: 0.226 },
-        },
-        "Average car": {
-          "Plug-in Hybrid Electric Vehicle": { unit: "km", factor: 0.071 },
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.168 },
-          Petrol: { unit: "km", factor: 0.174 },
-          Hybrid: { unit: "km", factor: 0.12 },
-          CNG: { unit: "km", factor: 0.176 },
-          LPG: { unit: "km", factor: 0.198 },
-          Unknown: { unit: "km", factor: 0.171 },
-        },
-      },
-      Motorbikes: {
-        Small: { unit: "km", factor: 0.083 },
-        Medium: { unit: "km", factor: 0.101 },
-        Large: { unit: "km", factor: 0.132 },
-        Average: { unit: "km", factor: 0.114 },
-      },
-    },
-    "Delivery vehicles": {
-      Vans: {
-        "Small van": {
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.147 },
-          Petrol: { unit: "km", factor: 0.2 },
-          CNG: { unit: "km", factor: 0 },
-          LPG: { unit: "km", factor: 0 },
-          Unknown: { unit: "km", factor: 0 },
-        },
-        "Medium van": {
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.183 },
-          Petrol: { unit: "km", factor: 0.198 },
-          CNG: { unit: "km", factor: 0 },
-          LPG: { unit: "km", factor: 0 },
-          Unknown: { unit: "km", factor: 0 },
-        },
-        "Large van": {
-          "Battery Electric Vehicle": { unit: "km", factor: 0 },
-          Diesel: { unit: "km", factor: 0.265 },
-          Petrol: { unit: "km", factor: 0.313 },
-          CNG: { unit: "km", factor: 0 },
-          LPG: { unit: "km", factor: 0 },
-          Unknown: { unit: "km", factor: 0 },
-        },
-      },
-    },
-  };
-
-  // Update the vehicle data with calculated CO2e amounts
-  const updatedVehicleData = ownedVehicles.map((vehicleEntry) => {
-    const { level1, level2, level3, fuel, distance } = vehicleEntry; // Ensure distance is used instead of amount
-    let conversionRate = 0;
-
-    // Special handling for Motorbikes
-    if (level2 === "Motorbikes" && conversionRates[level1][level2][level3]) {
-      conversionRate = conversionRates[level1][level2][level3].factor;
-    }
-    // Standard handling for other vehicles
-    else if (
-      conversionRates[level1] &&
-      conversionRates[level1][level2] &&
-      conversionRates[level1][level2][level3] &&
-      conversionRates[level1][level2][level3][fuel]
-    ) {
-      conversionRate = conversionRates[level1][level2][level3][fuel].factor;
-    } else {
-      console.warn(
-        `No conversion factor found for: ${JSON.stringify(vehicleEntry)}`
-      );
-    }
-
-    const CO2e = parseFloat(distance) * conversionRate; // Calculate CO2e emissions based on distance
-    return { ...vehicleEntry, CO2e };
-  });
-
-  // Update the report's vehicle data and store CO2e
-  report.ownedVehicles = updatedVehicleData;
-  report.CO2eVehicle = updatedVehicleData.reduce(
-    (acc, curr) => acc + (curr.CO2e || 0), // Handle cases where CO2e might be undefined
-    0
-  );
-
-  await report.save();
-  res.status(200).json({
-    success: true,
-    message: "CO2e calculated successfully for vehicles",
-    data: report.ownedVehicles,
-  });
-});
 
 export const CO2eWater = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
@@ -1265,9 +1269,9 @@ export const CO2eWater = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update water data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update water data.");
+  // }
 
   const conversionRates = {
     "Water Supply": { unit: "cubic meter", factor: 0.149 },
@@ -1321,9 +1325,9 @@ export const CO2eHome = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(401, "Unauthorized access to update home office data.");
-  }
+  // if (report.username !== req.user.username) {
+  //   throw new ApiError(401, "Unauthorized access to update home office data.");
+  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -1397,15 +1401,9 @@ export const CO2eFa = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  if (report.username !== req.user.username) {
-    throw new ApiError(
-      401,
-      "Unauthorized access to update accommodation data."
-    );
-  }
-
   // Define conversion factors
   const hotelFactor = 93.2;
+
   // Update the hotel accommodation data with calculated CO2e amounts
   const updatedHotelAccommodationData = hotelAccommodation.map((hotelEntry) => {
     const { occupiedRooms, nightsPerRoom } = hotelEntry;
@@ -1413,16 +1411,20 @@ export const CO2eFa = asyncHandler(async (req, res) => {
     return { ...hotelEntry, CO2e };
   });
 
-  // Update the report's accommodation data and store CO2e
-  report.fa.hotelAccommodation = updatedHotelAccommodationData;
-  // console.log("report.fa1", report.fa.hotelAccommodation);
-  // Save the updated report
-  await report.save();
-  // console.log("report.fa2", report.fa);
+  // Update the report's accommodation data and store CO2e using findOneAndUpdate
+  const updatedReport = await Report.findOneAndUpdate(
+    { reportId, companyName, facilityName },
+    { $set: { "fa.hotelAccommodation": updatedHotelAccommodationData } },
+    { new: true } // Returns the updated document
+  );
+
+  if (!updatedReport) {
+    throw new ApiError(404, "Failed to update report accommodation data.");
+  }
 
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully",
-    data: report.fa.hotelAccommodation,
+    data: updatedReport.fa.hotelAccommodation,
   });
 });

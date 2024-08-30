@@ -61,13 +61,23 @@ const CreateReport = () => {
       return;
     }
     try {
-      const response = await axios.post("/api/reports/create", {
-        reportName,
-        facilityName,
-        timePeriod,
-        companyName: user.companyName,
-        username: user.username,
-      });
+  const response = await axios.post(
+    "/api/reports/create",
+    {
+      reportName,
+      facilityName,
+      timePeriod,
+      companyName: user.companyName,
+      username: user.username,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+      },
+      withCredentials: true, // Ensure cookies are sent
+    }
+  );
+
 
       toast.success("Report created successfully!");
       navigate("/datainboard");

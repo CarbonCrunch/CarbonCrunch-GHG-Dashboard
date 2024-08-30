@@ -10,6 +10,7 @@ const NavbarD = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // console.log("NavbarD", user);
   const handleAvatarClick = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -48,10 +49,20 @@ const NavbarD = () => {
           <FaCog className="text-gray-600 text-xl" />
           <FaBell className="text-gray-600 text-xl" />
           <div className="relative" ref={dropdownRef}>
-            <FaUserCircle
-              onClick={handleAvatarClick}
-              className="text-gray-600 text-2xl cursor-pointer"
-            />
+            {/* Conditionally render user's photo or FaUserCircle */}
+            {user.photo ? (
+              <img
+                src={user.photo}
+                alt="User Avatar"
+                className="h-8 w-8 rounded-full cursor-pointer"
+                onClick={handleAvatarClick}
+              />
+            ) : (
+              <FaUserCircle
+                onClick={handleAvatarClick}
+                className="text-gray-600 text-2xl cursor-pointer"
+              />
+            )}
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10">
                 <div className="px-4 py-2 text-gray-800 font-bold">

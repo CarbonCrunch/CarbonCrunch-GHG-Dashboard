@@ -21,9 +21,25 @@ const Report = () => {
 
       // Determine the API endpoint based on the user's role
       if (user.role === "Admin") {
-        response = await axios.get("/api/reports/getCompanyReport");
+        response = await axios.post(
+          "/api/reports/getCompanyReport",
+          {
+            user, // Send user data in the request body
+          },
+          {
+            withCredentials: true, // Ensure cookies are sent
+          }
+        );
       } else if (user.role === "FacAdmin") {
-        response = await axios.get("/api/reports/get");
+        response = await axios.post(
+          "/api/reports/get",
+          {
+            user, // Send user data in the request body
+          },
+          {
+            withCredentials: true, // Ensure cookies are sent with the request
+          }
+        );
       } else {
         throw new Error("Invalid role");
       }

@@ -3,10 +3,20 @@ import logoCC from "./assets/logoCC.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaUser, FaCaretDown } from "react-icons/fa";
+import anomaly from "./assets/anomaly.png";
+import csri from "./assets/csri.png";
+import brsr from "./assets/brsr.png";
+import esrs from "./assets/esrs.png";
+import ghg from "./assets/ghg.png";
+import gri from "./assets/gri.png";
+import repanalysis from "./assets/repanalysis.png";
+import selfai from "./assets/selfai.png";
+import supply from "./assets/supply.png";
+
 
 const ServiceItem = ({ text, imgSrc }) => (
   <div className="flex items-center mb-4">
-    <img src={imgSrc} alt="" className="w-5 h-5 mr-3" />
+    <img src={imgSrc} alt="" className="w-16 h-16 mr-3" />
     <span className="text-gray-700">{text}</span>
   </div>
 );
@@ -18,26 +28,26 @@ const ServiceGrid = () => {
       items: [
         {
           text: "GHG Accounting - Scope 1, Scope 2, Scope 3",
-          imgSrc: "path/to/measure1.png",
+          imgSrc: ghg, // Corrected the curly braces here
         },
       ],
     },
     {
       title: "Analyze",
       items: [
-        { text: "Self-Serve AI assistant", imgSrc: "path/to/analyze1.png" },
-        { text: "Reporting Analysis", imgSrc: "path/to/analyze2.png" },
-        { text: "Anomaly Detection", imgSrc: "path/to/analyze3.png" },
-        { text: "Supply Chain analysis", imgSrc: "path/to/analyze4.png" },
+        { text: "Self-Serve AI assistant", imgSrc: selfai },
+        { text: "Reporting Analysis", imgSrc: repanalysis },
+        { text: "Anomaly Detection", imgSrc: anomaly },
+        { text: "Supply Chain analysis", imgSrc: supply },
       ],
     },
     {
       title: "Report",
       items: [
-        { text: "BRSR Reporting", imgSrc: "path/to/report1.png" },
-        { text: "GRI Reporting", imgSrc: "path/to/report2.png" },
-        { text: "CSRD", imgSrc: "path/to/report3.png" },
-        { text: "ESRS", imgSrc: "path/to/report4.png" },
+        { text: "BRSR Reporting", imgSrc: brsr },
+        { text: "GRI Reporting", imgSrc: gri },
+        { text: "CSRD", imgSrc: csri },
+        { text: "ESRS", imgSrc: esrs },
       ],
     },
   ];

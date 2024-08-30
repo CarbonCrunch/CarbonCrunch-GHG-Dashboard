@@ -66,10 +66,20 @@ const Register = () => {
   const handleCreateFacility = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/facilities/createFacility", {
-        facilityName,
-        facilityLocation,
-      });
+     await axios.post(
+       "/api/facilities/createFacility",
+       {
+         facilityName,
+         facilityLocation,
+       },
+       {
+         headers: {
+           Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+         },
+         withCredentials: true, // Ensure cookies are sent
+       }
+     );
+
       toast.success("Facility created successfully!");
       setActiveTab("registerUser"); // Switch to next tab
     } catch (error) {
@@ -87,13 +97,23 @@ const Register = () => {
     }
 
     try {
-      await axios.post("/api/users/register", {
-        username,
-        password,
-        email: isRootUser ? email : undefined, // Include email only if registering root user
-        companyName: isRootUser ? undefined : companyName, // Include companyName only if not root user
-        role: roleH,
-      });
+     await axios.post(
+       "/api/users/register",
+       {
+         username,
+         password,
+         email: isRootUser ? email : undefined, // Include email only if registering root user
+         companyName: isRootUser ? undefined : companyName, // Include companyName only if not root user
+         role: roleH,
+       },
+       {
+         headers: {
+           Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+         },
+         withCredentials: true, // Ensure cookies are sent
+       }
+     );
+
 
       toast.success("User created successfully!");
       setActiveTab("addUserPermission"); // Switch to next tab
@@ -105,11 +125,21 @@ const Register = () => {
   const handleAssignPermissions = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/facilities/createPermission", {
-        username,
-        facilityName,
-        permissions: fullAccess ? fullAccess : permissions,
-      });
+     await axios.post(
+       "/api/facilities/createPermission",
+       {
+         username,
+         facilityName,
+         permissions: fullAccess ? fullAccess : permissions,
+       },
+       {
+         headers: {
+           Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+         },
+         withCredentials: true, // Ensure cookies are sent
+       }
+     );
+
       toast.success("Permissions assigned successfully!");
       setActiveTab("registerUser"); // Reset to the initial tab
       setFacilityName("");

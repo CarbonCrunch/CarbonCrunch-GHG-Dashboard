@@ -52,7 +52,15 @@ const DataInBoard = () => {
   const fetchReports = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/reports/get");
+      const response = await axios.post(
+        "/api/reports/get",
+        {
+          user, // Send user data in the request body
+        },
+        {
+          withCredentials: true, // Ensure cookies are sent with the request
+        }
+      );
       if (response.data.data === "zero") {
         setReport([]);
       } else {
@@ -71,7 +79,15 @@ const DataInBoard = () => {
   const fetchFacilityReports = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/reports/getCompanyReport");
+      const response = await axios.post(
+        "/api/reports/getCompanyReport",
+        {
+          user, // Send user data in the request body
+        },
+        {
+          withCredentials: true, // Ensure cookies are sent
+        }
+      );
       if (response.data.data === "zero") {
         setReport([]);
       } else {

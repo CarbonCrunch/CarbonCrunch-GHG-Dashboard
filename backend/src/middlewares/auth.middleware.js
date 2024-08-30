@@ -1,14 +1,12 @@
-import {ApiError} from "../utils/ApiError.js";
-import {asyncHandler} from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
-import {User} from "../models/user.model.js";
-
-
-
+import { User } from "../models/user.model.js";
 
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
     // Check if the user's role is allowed
+    console.log("role", req.user)
     if (!roles.includes(req.user.role)) {
       throw new ApiError(
         403,
@@ -22,36 +20,53 @@ export const restrictTo = (...roles) => {
 
 export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
-    const token =
-      req.cookies?.accessToken ||
-      req.header("Authorization")?.replace("Bearer ", "");
+    let token;
 
-    if (!token) {
-      throw new ApiError(401, "Unauthorized request");
+    console.log("verifyJWTHeaders", req.headers);
+    console.log("verifyJWTHeaders", req.user);
+
+    // Normalize header lookup and log all headers for debugging
+    const authHeader =
+      req.headers["authorization"] || req.headers["Authorization"];
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    } else {
+      console.log("Authorization header is missing or incorrectly formatted");
     }
 
+    console.log("verifyJWTtoken", token);
+
+    if (!token) {
+      throw new ApiError(401, "Unauthorized request: No token provided");
+    }
+
+    // Verify the token
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log("decodedToken", decodedToken);
 
     const user = await User.findById(decodedToken?._id).select(
       "-password -refreshToken"
     );
+    console.log("verifyJWTuser", user);
 
     if (!user) {
-      throw new ApiError(401, "Invalid Access Token");
+      throw new ApiError(401, "Invalid Access Token: User not found");
     }
 
     req.user = user;
+    console.log("verifyJWT-req.user", req.user);
     next();
   } catch (error) {
     if (
       error.name === "JsonWebTokenError" ||
       error.name === "TokenExpiredError"
     ) {
-      console.error("JWT Error:", error);
+      console.error("JWT Error:", error.message);
       throw new ApiError(401, "Invalid or expired access token");
     }
     if (error instanceof ApiError) {
-      console.error("ApiError:", error);
+      console.error("ApiError:", error.message);
       throw error;
     }
     console.error("General Error:", error);

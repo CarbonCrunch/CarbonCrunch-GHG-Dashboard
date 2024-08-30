@@ -24,32 +24,86 @@ ChartJS.register(
 
 const Scope2 = ({ reports }) => {
   const [ehctdData, setEhctdData] = useState([]);
-
-  const reportData = reports;
-  const { companyName, facilityName, reportId, ehctd } = reportData;
+  // console.log("ehctdData", ehctdData);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ehctdResponse] = await Promise.all([
-          axios.get(`/api/reports/${reportId}/CO2eEhctd`, {
-            params: {
-              companyName,
-              facilityName,
-              reportId,
-              ehctd: JSON.stringify(ehctd),
-            },
-          }),
-        ]);
+        let fetchedEhctdData = []; // Temporary variable to hold fetched ehctd data
 
-        setEhctdData(ehctdResponse.data.data);
+        if (reports.length === 1) {
+          // If reports array has only one object
+          const report = reports[0];
+          const {
+            companyName = "",
+            facilityName = "",
+            reportId = "",
+            ehctd = [],
+          } = report;
+
+          if (ehctd.length > 0) {
+            const [ehctdResponse] = await Promise.all([
+              axios.get(`/api/reports/${reportId}/CO2eEhctd`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  ehctd: JSON.stringify(ehctd),
+                },
+              }),
+            ]);
+
+            fetchedEhctdData = ehctdResponse.data.data;
+            setEhctdData(fetchedEhctdData);
+          }
+        } else {
+          // If reports array has multiple objects
+          const combinedEhctd = [];
+
+          // Make individual API calls for each report and combine results
+          await Promise.all(
+            reports.map(async (report) => {
+              const {
+                companyName = "",
+                facilityName = "",
+                reportId = "",
+                ehctd = [],
+              } = report;
+
+              // Only make the API call if ehctd is not empty
+              if (ehctd.length > 0) {
+                const [ehctdResponse] = await Promise.all([
+                  axios.get(`/api/reports/${reportId}/CO2eEhctd`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      ehctd: JSON.stringify(ehctd),
+                    },
+                  }),
+                ]);
+
+                combinedEhctd.push(...ehctdResponse.data.data);
+              }
+            })
+          );
+
+          fetchedEhctdData = combinedEhctd; // Update fetched data for ehctd
+          setEhctdData(fetchedEhctdData);
+        }
+
+        // Ensure all data is processed before proceeding
+        if (fetchedEhctdData.length > 0) {
+          // Additional processing can be done here if needed
+          // console.log("Processed EHCTD data:", fetchedEhctdData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [reports]); // Include 'reports' in the dependency array to fetch data when it changes
 
   const chartHeight = 450;
 

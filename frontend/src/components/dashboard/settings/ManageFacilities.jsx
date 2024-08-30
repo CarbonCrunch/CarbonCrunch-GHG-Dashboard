@@ -13,12 +13,17 @@ const ManageFacilities = () => {
     const fetchCompanyFacilities = async () => {
       try {
         if (user && user.companyName) {
-          const response = await axios.get(
-            "/api/facilities/getCompanyFacilities",
-            {
-              params: { companyName: user.companyName },
-            }
-          );
+         const response = await axios.get(
+           "/api/facilities/getCompanyFacilities",
+           {
+             params: { companyName: user.companyName },
+             headers: {
+               Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+             },
+             withCredentials: true, // Ensure cookies are sent
+           }
+         );
+
 
           console.log("response", response.data.data); // Log the entire response to check structure
 
@@ -41,9 +46,19 @@ const ManageFacilities = () => {
   const handleDeleteClick = async (facilityId) => {
     if (window.confirm("Are you sure you want to delete this facility?")) {
       try {
-        await axios.delete("/api/facilities/deleteCompanyFacility", {
-          data: { facilityId }, // Send the facility ID to delete
-        });
+       await axios.delete(
+         "/api/facilities/deleteCompanyFacility",
+         {
+           data: { facilityId }, // Send the facility ID to delete
+         },
+         {
+           headers: {
+             Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+           },
+           withCredentials: true, // Ensure cookies are sent
+         }
+       );
+
         // Refresh the facility list after deletion
         setFacilities((prevFacilities) =>
           prevFacilities.map((user) => ({

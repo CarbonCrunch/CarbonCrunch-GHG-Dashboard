@@ -40,45 +40,67 @@ function Tables({ setUploadedImage }) {
     fetchBills();
   }, [user]); // Only re-run if user changes
 
-  const fetchBills = async () => {
-    try {
-      const response = await axios.get("/api/bills/getCompanyBill", {
+  // console.log("user", user)
+
+const fetchBills = async () => {
+  try {
+    let response;
+
+    if (user.role === "Admin") {
+      // Make the current call to /api/bills/getCompanyBill if user role is Admin
+      response = await axios.get("/api/bills/getCompanyBill", {
         params: {
           companyName: user.companyName,
-          facilityName: user.facilityName,
+          facilityName: user.facilities[0].facilityName,
           role: user.role,
           username: user?.username,
           userId: user?._id,
         },
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`, // Include accessToken in the headers
+        },
+        withCredentials: true, // Ensure cookies are sent with the request
       });
-
-      const { message, data } = response.data;
-      // console.log("Bills data:", data);
-
-      if (message === "No bills found for the user.") {
-        setMessage(message);
-        setTableData([]); // Empty array if no bills found
-      } else {
-        const transformedData = data.map((bill) => ({
-          billId: bill.billId,
-          status: "Pending", // Default status as "Pending"
-          billName: bill.billName || `Bill ${bill.billId}`,
-          dateAdded: new Date(bill.createdAt).toLocaleDateString(),
-          addedBy: bill.username,
-          amountValue: "", // Placeholder, as amount is not in the schema
-          type_off_bill: bill.type_off_bill, // Store the bill type for filtering
-          URL: bill.URL,
-          companyName: bill.companyName,
-          facilityName: bill.facilityName,
-        }));
-        setTableData(transformedData);
-      }
-    } catch (error) {
-      console.error("Error fetching bills:", error);
-      setMessage("Something went wrong while fetching bills.");
-      setTableData([]);
+    } else {
+      // Make a call to /api/bills/getBills if user role is not Admin
+      response = await axios.get("/api/bills/getBills", {
+        params: {
+          companyName: user.companyName,
+          facilityName: user.facilities[0].facilityName,
+        },
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`, // Include accessToken in the headers
+        },
+        withCredentials: true, // Ensure cookies are sent with the request
+      });
     }
-  };
+
+    const { message, data } = response.data;
+
+    if (message === "No bills found for the user.") {
+      setMessage(message);
+      setTableData([]); // Empty array if no bills found
+    } else {
+      const transformedData = data.map((bill) => ({
+        billId: bill.billId,
+        status: "Pending", // Default status as "Pending"
+        billName: bill.billName || `Bill ${bill.billId}`,
+        dateAdded: new Date(bill.createdAt).toLocaleDateString(),
+        addedBy: bill.username,
+        amountValue: "", // Placeholder, as amount is not in the schema
+        type_off_bill: bill.type_off_bill, // Store the bill type for filtering
+        URL: bill.URL,
+        companyName: bill.companyName,
+        facilityName: bill.facilityName,
+      }));
+      setTableData(transformedData);
+    }
+  } catch (error) {
+    console.error("Error fetching bills:", error);
+    setMessage("Something went wrong while fetching bills.");
+    setTableData([]);
+  }
+};
 
   const handleStatusToggle = useCallback((billId) => {
     setTableData((prevData) =>
@@ -219,15 +241,18 @@ function Tables({ setUploadedImage }) {
       billFormData.append("username", user.username);
       billFormData.append("file", selectedFile);
 
-      const createBillResponse = await axios.post(
-        "http://localhost:8000/api/bills/createBills",
-        billFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+     const createBillResponse = await axios.post(
+       "http://localhost:8000/api/bills/createBills",
+       billFormData,
+       {
+         headers: {
+           "Content-Type": "multipart/form-data",
+           Authorization: `Bearer ${user.accessToken}`, // Include accessToken in the headers
+         },
+         withCredentials: true, // Ensure cookies are sent with the request
+       }
+     );
+
 
       if (createBillResponse.status === 201) {
         const { billId } = createBillResponse.data.data; // Extract billId from the response

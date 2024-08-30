@@ -71,30 +71,32 @@ export const createNewReport = asyncHandler(async (req, res) => {
 });
 
 export const getCompanyReport = asyncHandler(async (req, res) => {
-  const user = req.user;
-  console.log("getCompanyReport", user);
+  const { user } = req.body; // Accessing user from req.body
+
   if (!user) {
     throw new ApiError(401, "Cannot access reports");
   }
+
   try {
+    // Fetching user reports based on companyName
     const userReports = await Report.find({
       companyName: user.companyName,
     }).select(
       "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
     );
 
-    // if(userReports.username !== user)
-
-    // console.log("getUserReports", userReports);
+    // Check if reports are found and send response accordingly
     if (!userReports || userReports.length === 0) {
       return res.status(404).json({
         message: "No reports found for the user.",
-        data: "zero",
+        data: "zero", // Send 'zero' if no reports are found
       });
     }
+
+    // Send the reports data if found
     res.status(200).json({
       message: "Reports fetched successfully.",
-      data: userReports,
+      data: userReports, // Send the reports data
     });
   } catch (error) {
     console.error("Error fetching user reports:", error);
@@ -146,19 +148,61 @@ export const deleteReport = asyncHandler(async (req, res) => {
   }
 });
 
+// export const getUserReports = asyncHandler(async (req, res) => {
+//   const user = req.user;
+//   const { reportId } = req.query;
+//   console.log("getUserReports", user, reportId);
+//   if (!user) {
+//     throw new ApiError(401, "Cannot access reports");
+//   }
+//   try {
+//     const userReports = await Report.findOne({
+//       reportId: reportId,
+//       companyName: user.companyName,
+//       // facilityName: user.facilityName,
+//     }).select(
+//       "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
+//     );
+
+//     // console.log("getUserReports", userReports);
+//     if (!userReports || userReports.length === 0) {
+//       return res.status(400).json({
+//         message: "No reports found for the user.",
+//         data: "zero",
+//       });
+//     }
+//     res.status(200).json({
+//       message: "Reports fetched successfully.",
+//       data: userReports,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching user reports:", error);
+//     throw new ApiError(
+//       500,
+//       "Something went wrong while fetching user reports."
+//     );
+//   }
+// });
+
 export const getUserReports = asyncHandler(async (req, res) => {
-  const user = req.user;
   const { reportId } = req.query;
-  console.log("getUserReports", user, reportId);
+  const { user } = req.body; // Accessing user from req.body  // console.log("getUserReports1", user, "userQ", userQ);
   if (!user) {
     throw new ApiError(401, "Cannot access reports");
   }
   try {
-    const userReports = await Report.findOne({
-      reportId: reportId,
-      companyName: user.companyName,
-      // facilityName: user.facilityName,
-    }).select(
+    let query = { companyName: user.companyName }; // Start with the base query
+
+    // If reportId is defined, add it to the query
+    if (reportId) {
+      query.reportId = reportId;
+    } else {
+      // If reportId is not defined, add username to the query
+      query.username = user.username;
+    }
+    //  console.log("getUserReports2", query);
+
+    const userReports = await Report.findOne(query).select(
       "fuel food username bioenergy refrigerants ehctd wttfuel material waste btls ec water fg homeOffice ownedVehicles fa reportId companyName timePeriod reportName facilityName"
     );
 
@@ -219,7 +263,6 @@ export const getCurrentTab = asyncHandler(async (req, res) => {
 export const updateFuelData = asyncHandler(async (req, res) => {
   const { reportId, companyName, facilityName } = req.query;
   const { fuel } = req.body;
-  // console.log("updateFuelData", reportId);
   // console.log("UpdateFuelDataQ", reportId, companyName, facilityName);
   if (!reportId || !companyName || !facilityName || !fuel) {
     throw new ApiError(

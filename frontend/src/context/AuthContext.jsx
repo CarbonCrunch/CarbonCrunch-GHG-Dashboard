@@ -5,24 +5,65 @@ import Cookies from "js-cookie"; // Import js-cookie
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Initialize user as null
+  const [user, setUser] = useState(null); // Initialize user state
+  const [isLoading, setIsLoading] = useState(true); // Loading state to handle async checks
 
-  axios.defaults.baseURL = "http://127.0.0.1:8000";
-  axios.defaults.withCredentials = true;
+  axios.defaults.baseURL = "http://127.0.0.1:8000"; // Set base URL for axios
+  axios.defaults.withCredentials = true; // Allow cookies to be sent with requests
 
   // On initial load, check for stored user data in cookies
   useEffect(() => {
-    const storedUser = Cookies.get("user"); // Get user from cookies
+    const accessToken = Cookies.get("accessToken"); // Get accessToken from cookies
+    const storedUser = Cookies.get("user"); // Get user data from cookies
+    // console.log("useEffect", accessToken, storedUser, "All-Cookies", Cookies.get());
+    if (accessToken) {
+      const verifyUserAuth = async () => {
+        try {
+          const response = await axios.get("/api/users/verify-token", {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          console.log("response.data", response.data);
 
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser)); // Parse and set user from cookie if it exists
-      } catch (error) {
-        console.error("Error parsing user data from cookie:", error);
-        Cookies.remove("user"); // Remove corrupt user cookie
-      }
+          // After verifying the token and getting a valid response
+                if (response.data.isValid) {
+                  setUser((prevUser) => {
+                    // Include accessToken in the user object
+                    const updatedUser = { ...response.data.user, accessToken };
+
+                    // Log the updated user object for debugging
+                    // console.log("Updated user object:", updatedUser);
+
+                    // Return the new user state
+                    return updatedUser;
+                  });
+
+                  // Set the cookie with the new user data including accessToken
+                  Cookies.set(
+                    "user",
+                    JSON.stringify({ ...response.data.user, accessToken }),
+                    {
+                      expires: 1,
+                    }
+                  );
+                } else {
+                  // Remove cookies if the token is not valid
+                  Cookies.remove("accessToken");
+                  Cookies.remove("user");
+                }
+        } catch (error) {
+          console.error("Error verifying token:", error);
+          Cookies.remove("accessToken");
+          Cookies.remove("user");
+        }
+        setIsLoading(false); // Set loading to false after check
+      };
+
+      verifyUserAuth();
+    } else {
+      setIsLoading(false); // No accessToken or user stored, set loading to false
     }
   }, []);
+
 
   const login = (userData, token) => {
     setUser(userData); // Set user state in React
@@ -45,11 +86,14 @@ export const AuthProvider = ({ children }) => {
       setUser(null); // Clear user state
       Cookies.remove("user"); // Remove user from cookies
       Cookies.remove("accessToken"); // Remove accessToken from cookies
-      Cookies.remove("refreshToken"); // Remove refreshToken from cookies if used
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Render a loading state while checking authentication
+  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
