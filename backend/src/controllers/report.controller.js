@@ -3,9 +3,8 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-export const createNewReport = asyncHandler(async (req, res) => {
-  const { reportName, facilityName, timePeriod, companyName, username } =
-    req.body;
+export const addData = asyncHandler(async (req, res) => {
+  const { facilityName, companyName, username } = req.body;
 
   if (!companyName || !username) {
     throw new ApiError(401, "Unauthorized Request to create new report");
@@ -16,19 +15,8 @@ export const createNewReport = asyncHandler(async (req, res) => {
   //   throw new ApiError(403, "Username mismatch");
   // }
 
-  const lastReport = await Report.findOne().sort({ reportId: -1 }).exec();
-  let reportId = "000001";
-
-  if (lastReport && lastReport.reportId) {
-    const lastReportId = parseInt(lastReport.reportId, 10);
-    reportId = (lastReportId + 1).toString().padStart(6, "0");
-  }
-
   const report = await Report.create({
-    reportId,
-    reportName,
     facilityName,
-    timePeriod,
     companyName,
     username,
     fuel: {},
@@ -64,8 +52,7 @@ export const createNewReport = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     data: {
-      reportId: report.reportId,
-      reportName: report.reportName,
+      report: report
     },
   });
 });
@@ -261,10 +248,10 @@ export const getCurrentTab = asyncHandler(async (req, res) => {
 });
 
 export const updateFuelData = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const { fuel } = req.body;
   // console.log("UpdateFuelDataQ", reportId, companyName, facilityName);
-  if (!reportId || !companyName || !facilityName || !fuel) {
+  if ( !companyName || !facilityName || !fuel) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and fuel data are required."
@@ -272,7 +259,6 @@ export const updateFuelData = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });

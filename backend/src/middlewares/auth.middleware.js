@@ -23,7 +23,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     let token;
 
     console.log("verifyJWTHeaders", req.headers);
-    console.log("verifyJWTHeaders", req.user);
+    // console.log("verifyJWTuser", req.user);
 
     // Normalize header lookup and log all headers for debugging
     const authHeader =

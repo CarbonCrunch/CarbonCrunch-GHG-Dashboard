@@ -1,67 +1,101 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "./Sidebar";
 import NavbarD from "./NavbarD";
-import { FaPlus, FaEllipsisV } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
+import { FaPlus } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-toastify";
 
 const Report = () => {
   const [selectedTab, setSelectedTab] = useState("ongoing");
-  const [reports, setReports] = useState([]); // Changed to handle multiple reports
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const fetchReports = async () => {
-    try {
-      let response;
+ const fetchReports = async () => {
+   try {
+     let response;
 
-      // Determine the API endpoint based on the user's role
-      if (user.role === "Admin") {
-        response = await axios.post(
-          "/api/reports/getCompanyReport",
-          {
-            user, // Send user data in the request body
-          },
-          {
-            withCredentials: true, // Ensure cookies are sent
-          }
-        );
-      } else if (user.role === "FacAdmin") {
-        response = await axios.post(
-          "/api/reports/get",
-          {
-            user, // Send user data in the request body
-          },
-          {
-            withCredentials: true, // Ensure cookies are sent with the request
-          }
-        );
-      } else {
-        throw new Error("Invalid role");
-      }
+     if (user.role === "Admin") {
+       response = await axios.post(
+         "/api/reports/getCompanyReport",
+         {
+           user,
+         },
+         {
+           withCredentials: true,
+         }
+       );
+     } else if (user.role === "FacAdmin") {
+       response = await axios.post(
+         "/api/reports/get",
+         {
+           user,
+         },
+         {
+           withCredentials: true,
+         }
+       );
+     } else {
+       throw new Error("Invalid role");
+     }
 
-      // Handle "zero" response properly
-      if (response.data.data === "zero") {
-        setReports([]); // No reports available
-      } else {
-        setReports(response.data.data); // Set reports as an array or object based on response
-        console.log("ReportComponent", response.data.data);
-      }
-    } catch (err) {
-      setError("No reports available");
-      console.error("Error fetching reports:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+     if (response.data.data === "zero") {
+       setReports([]);
+       setLoading(false);
+       console.log("No reports found, setting reports to an empty array");
+     } else {
+       const fetchedData = response.data.data;
+
+       // Ensure fetchedData is always an array
+       const reportsArray = Array.isArray(fetchedData)
+         ? fetchedData
+         : [fetchedData];
+
+       // Using functional update to ensure correct state setting
+       setReports(() => {
+        //  console.log("New reports state to be set:", reportsArray);
+         return reportsArray;
+       });
+       setLoading(false);
+     }
+   } catch (err) {
+     console.error("Error fetching reports:", err);
+   }
+ };
 
   useEffect(() => {
     fetchReports();
   }, []);
+
+  const handleAddData = async () => {
+    try {
+      const response = await axios.post(
+        "/api/reports/addData",
+        {
+          facilityName: user.facilities[0].facilityName,
+          companyName: user.companyName,
+          username: user.username,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+          },
+          withCredentials: true, // Ensure cookies are sent
+        }
+      );
+
+      toast.success("Now add data for your facility");
+      navigate("/datainboard");
+    } catch (error) {
+      toast.error("Failed to create report. Please try again.");
+      console.error("Error creating report:", error);
+    }
+  };
 
   const formatTimePeriod = (timePeriod) => {
     if (!timePeriod || typeof timePeriod !== "object") {
@@ -140,6 +174,14 @@ const Report = () => {
     );
   };
 
+  // Determine if the facility names match
+ const doesFacilityNameMatch = reports.some(
+   (report) =>
+     report.facilityName.toLowerCase() ===
+     user.facilities[0].facilityName.toLowerCase()
+ );
+
+
   return (
     <div className="flex flex-col min-h-screen">
       <NavbarD />
@@ -165,28 +207,37 @@ const Report = () => {
                 Report History
               </button>
             </div>
-            {/* Conditionally render the "Create New Report" button */}
-            {error === "No reports available" && (
+
+            <div className="flex space-x-2">
+             
+              {!doesFacilityNameMatch && (
+                <button
+                  onClick={handleAddData}
+                  className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
+                >
+                  <FaPlus className="mr-2" /> Add Data for Your Facility
+                </button>
+              )}
               <Link
                 to="/newreport"
-                className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
+                className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
               >
-                <FaPlus className="mr-2" /> Create New Report
+                <FaPlus className="mr-2" /> Generate Report
               </Link>
-            )}
+            </div>
           </div>
+
           {loading ? (
             <p>Loading reports...</p>
           ) : error ? (
             <p className="text-red-500">{error}</p>
-          ) : reports.length === 0 ? ( // No reports available
+          ) : reports.length === 0 ? (
             <p className="mt-4">No reports made</p>
-          ) : Array.isArray(reports) ? ( // Admin case: `reports` is an array
+          ) : Array.isArray(reports) ? (
             reports.map((report, index) => (
               <div key={index}>{renderReportCard(report)}</div>
             ))
           ) : (
-            // FacAdmin case: `reports` is an object
             renderReportCard(reports)
           )}
         </div>

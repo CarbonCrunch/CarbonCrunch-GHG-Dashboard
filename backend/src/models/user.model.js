@@ -79,6 +79,10 @@ const userSchema = new Schema(
         ref: "Bill",
       },
     ],
+    hasSeenTour: {
+      type: Boolean,
+      default: false, // Add this new field with default value set to false
+    },
   },
   {
     timestamps: true,
@@ -99,7 +103,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // Pre-hook to propagate photo to other users with the same companyName
-userSchema.post("save", async function (next) {
+userSchema.post("save", async function (req, res, next) {
   if (this.photo && this.isModified("photo")) {
     try {
       await mongoose.model("User").updateMany(

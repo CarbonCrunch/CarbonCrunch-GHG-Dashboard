@@ -10,16 +10,17 @@ import {
   FaUserPlus,
   FaFileInvoiceDollar,
   FaBuilding,
-  FaUser, // Icon for Bills
+  FaUser,
 } from "react-icons/fa";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { useAuth } from "../../context/AuthContext";
+import { useTour } from "../../context/TourContext";
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  // console.log("User:", user);
+  const { runTour, setRunTour } = useTour(); 
 
   const handleLogout = async () => {
     try {
@@ -33,7 +34,6 @@ const Sidebar = () => {
   const dashboardLink =
     user.role === "SuperUser" ? "/rootDashboard" : "/dashboard";
 
-  // Extract facilityName if available
   const facilityName =
     user.facilities && user.facilities.length > 0
       ? user.facilities[0].facilityName
@@ -49,22 +49,40 @@ const Sidebar = () => {
               icon={<HiOutlineDocumentReport />}
               text="Report"
               link="/report"
+              className="tour-generate-reports"
             />
             <SidebarItem
               icon={<IoAddCircleSharp />}
               text="Data-in-board"
               link="/datainboard"
+              className="tour-add-data"
             />
-            <SidebarItem icon={<FaDatabase />} text="Integration" link="/crm" />
-            <SidebarItem icon={<FaCamera />} text="Tables" link="/ocr/tables" />
+            <SidebarItem
+              icon={<FaDatabase />}
+              text="Integration"
+              link="/crm"
+              className="tour-data-integration"
+            />
+            <SidebarItem
+              icon={<FaCamera />}
+              text="Tables"
+              link="/ocr/tables"
+              className="tour-upload-bills"
+            />
             <SidebarItem
               icon={<FaChartBar />}
               text="Insights"
               link="/insights"
+              className="tour-insights"
             />
           </>
         )}
-        <SidebarItem icon={<FaUserPlus />} text="Register" link="/register" />
+        <SidebarItem
+          icon={<FaUserPlus />}
+          text="Register"
+          link="/register"
+          className="tour-manage-users"
+        />
         {user.role === "SuperUser" && (
           <SidebarItem
             icon={<FaFileInvoiceDollar />}
@@ -78,13 +96,19 @@ const Sidebar = () => {
         {user.role !== "SuperUser" && (
           <SidebarItem
             icon={<FaBuilding />}
-            text={`${user.companyName}, ${facilityName}`} // Use extracted facilityName
+            text={`${user.companyName}, ${facilityName}`}
+            className="tour-company-info"
           />
         )}
         {user.role === "SuperUser" && (
           <SidebarItem icon={<FaUser />} text={`${user.role}`} />
         )}
-        <SidebarItem icon={<FaCog />} text="Settings" link="/settings" />
+        <SidebarItem
+          icon={<FaCog />}
+          text="Settings"
+          link="/settings"
+          className="tour-manage-company"
+        />
         <SidebarItem
           icon={<FaSignOutAlt />}
           text="Logout"
@@ -95,11 +119,11 @@ const Sidebar = () => {
   );
 };
 
-const SidebarItem = ({ icon, text, link, onClick }) => {
+const SidebarItem = ({ icon, text, link, onClick, className }) => {
   const content = (
     <div
       onClick={onClick}
-      className="flex items-center space-x-2 text-white hover:bg-[rgb(231,155,68)] p-2 rounded cursor-pointer"
+      className={`flex items-center space-x-2 text-white hover:bg-[rgb(231,155,68)] p-2 rounded cursor-pointer ${className}`}
     >
       {icon}
       <span>{text}</span>

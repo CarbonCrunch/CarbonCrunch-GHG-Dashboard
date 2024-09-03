@@ -3,11 +3,11 @@ import { Report } from "../models/report.model.js";
 import { ApiError } from "../utils/ApiError.js";
 
 export const CO2eFuel = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const fuel = JSON.parse(req.query.fuel);
   // console.log("fuel", fuel, reportId, companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !fuel) {
+  if (!companyName || !facilityName || !fuel) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and fuel data are required."
@@ -15,13 +15,12 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
-  
+
   if (!report) {
-    console.log('report', report)
+    console.log("report", report);
     throw new ApiError(404, "Report not found.");
   }
 
@@ -83,11 +82,11 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
 });
 
 export const CO2eBioenergy = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const bioenergy = JSON.parse(req.query.bioenergy);
   // console.log("Bioenergy :", bioenergy);
 
-  if (!reportId || !companyName || !facilityName || !bioenergy) {
+  if (!companyName || !facilityName || !bioenergy) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and bioenergy data are required."
@@ -95,7 +94,6 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -147,10 +145,10 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
 });
 
 export const CO2eRefrigerants = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const refrigerants = JSON.parse(req.query.refrigerants);
-  // console.log("refrigerants", refrigerants, reportId, companyName, facilityName);
-  if (!reportId || !companyName || !facilityName || !refrigerants) {
+  // console.log("refrigerants", refrigerants,  companyName, facilityName);
+  if (!companyName || !facilityName || !refrigerants) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and refrigerants data are required."
@@ -158,7 +156,6 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -278,10 +275,10 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
 });
 
 export const CO2eOv = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const ownedVehicles = JSON.parse(req.query.ownedVehicles);
 
-  if (!reportId || !companyName || !facilityName || !ownedVehicles) {
+  if (!companyName || !facilityName || !ownedVehicles) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and vehicle data are required."
@@ -289,7 +286,6 @@ export const CO2eOv = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -424,23 +420,22 @@ export const CO2eOv = asyncHandler(async (req, res) => {
 });
 
 export const CO2eEhctd = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const ehctd = JSON.parse(req.query.ehctd);
-  // console.log("ehctd", ehctd, reportId, companyName, facilityName);
+  // console.log("ehctd", ehctd,  companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !ehctd) {
+  if (!companyName || !facilityName || !ehctd) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and EHCTD data are required."
     );
   }
-  
+
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
-  
+
   if (!report) {
     throw new ApiError(404, "Report not found.");
   }
@@ -490,10 +485,10 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
 });
 
 export const CO2eEc = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const ec = JSON.parse(req.query.ec);
 
-  if (!reportId || !companyName || !facilityName || !ec) {
+  if (!companyName || !facilityName || !ec) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and employee commuting data are required."
@@ -501,7 +496,6 @@ export const CO2eEc = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -638,11 +632,11 @@ export const CO2eEc = asyncHandler(async (req, res) => {
 });
 
 export const CO2eBtls = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const btls = JSON.parse(req.query.btls);
-  // console.log("btls", btls, reportId, companyName, facilityName);
+  // console.log("btls", btls,  companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !btls) {
+  if (!companyName || !facilityName || !btls) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and BTLS data are required."
@@ -650,7 +644,6 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -762,10 +755,10 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
 });
 
 export const CO2eFg = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const fg = JSON.parse(req.query.fg);
 
-  if (!reportId || !companyName || !facilityName || !fg) {
+  if (!companyName || !facilityName || !fg) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and freighting goods data are required."
@@ -773,7 +766,6 @@ export const CO2eFg = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -862,11 +854,11 @@ export const CO2eFg = asyncHandler(async (req, res) => {
 });
 
 export const CO2eWttFuels = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const wttfuel = JSON.parse(req.query.wttfuel);
-  // console.log("wttFuel", wttfuel, reportId, companyName, facilityName);
+  // console.log("wttFuel", wttfuel,  companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !wttfuel) {
+  if (!companyName || !facilityName || !wttfuel) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and WTT fuels data are required."
@@ -874,7 +866,6 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -946,11 +937,11 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
 });
 
 export const CO2eMaterialUse = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const material = JSON.parse(req.query.material);
-  // console.log("material", material, reportId, companyName, facilityName);
+  // console.log("material", material,  companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !material) {
+  if (!companyName || !facilityName || !material) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and material use data are required."
@@ -958,7 +949,6 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -1059,11 +1049,11 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
 });
 
 export const CO2eWaste = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const waste = JSON.parse(req.query.waste);
-  // console.log("waste", waste, reportId, companyName, facilityName);
+  // console.log("waste", waste,  companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !waste) {
+  if (!companyName || !facilityName || !waste) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and waste disposal data are required."
@@ -1071,7 +1061,6 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -1174,11 +1163,11 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
 });
 
 export const CO2eFood = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const food = JSON.parse(req.query.food);
-  // console.log("food", food, reportId, companyName, facilityName);
+  // console.log("food", food,  companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !food) {
+  if (!companyName || !facilityName || !food) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and food disposal data are required."
@@ -1186,7 +1175,6 @@ export const CO2eFood = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -1246,13 +1234,12 @@ export const CO2eFood = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eWater = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const water = JSON.parse(req.query.water);
-  // console.log("water", water, reportId, companyName, facilityName);
+  // console.log("water", water,  companyName, facilityName);
 
-  if (!reportId || !companyName || !facilityName || !water) {
+  if (!companyName || !facilityName || !water) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and water data are required."
@@ -1260,7 +1247,6 @@ export const CO2eWater = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -1305,10 +1291,10 @@ export const CO2eWater = asyncHandler(async (req, res) => {
 });
 
 export const CO2eHome = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const homeOffice = JSON.parse(req.query.homeOffice);
 
-  if (!reportId || !companyName || !facilityName || !homeOffice) {
+  if (!companyName || !facilityName || !homeOffice) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and home office data are required."
@@ -1316,7 +1302,6 @@ export const CO2eHome = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -1380,11 +1365,11 @@ export const CO2eHome = asyncHandler(async (req, res) => {
 });
 
 export const CO2eFa = asyncHandler(async (req, res) => {
-  const { reportId, companyName, facilityName } = req.query;
+  const { companyName, facilityName } = req.query;
   const hotelAccommodation = JSON.parse(req.query.hotelAccommodation);
   console.log("hotelAccommodation", hotelAccommodation);
 
-  if (!reportId || !companyName || !facilityName || !hotelAccommodation) {
+  if (!companyName || !facilityName || !hotelAccommodation) {
     throw new ApiError(
       400,
       "Report ID, company name, facility name, and hotel accommodation data are required."
@@ -1392,7 +1377,6 @@ export const CO2eFa = asyncHandler(async (req, res) => {
   }
 
   const report = await Report.findOne({
-    reportId,
     companyName,
     facilityName,
   });
@@ -1413,7 +1397,7 @@ export const CO2eFa = asyncHandler(async (req, res) => {
 
   // Update the report's accommodation data and store CO2e using findOneAndUpdate
   const updatedReport = await Report.findOneAndUpdate(
-    { reportId, companyName, facilityName },
+    { companyName, facilityName },
     { $set: { "fa.hotelAccommodation": updatedHotelAccommodationData } },
     { new: true } // Returns the updated document
   );

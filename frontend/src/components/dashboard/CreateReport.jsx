@@ -10,7 +10,9 @@ const CreateReport = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [reportName, setReportName] = useState("");
-  const [facilityName, setFacilityName] = useState("");
+  const [facilityName, setFacilityName] = useState(
+    user.facilities[0]?.facilityName || ""
+  ); // Set default facilityName from user object
   const [timePeriodType, setTimePeriodType] = useState("");
   const [timeDetail, setTimeDetail] = useState("");
 
@@ -19,8 +21,8 @@ const CreateReport = () => {
   axios.defaults.withCredentials = true;
 
   useEffect(() => {
-    if (user && user.facilityName) {
-      setFacilityName(user.facilityName);
+    if (user && user.facilities && user.facilities[0].facilityName) {
+      setFacilityName(user.facilities[0].facilityName);
     }
   }, [user]);
 
@@ -60,26 +62,30 @@ const CreateReport = () => {
       toast.error("Invalid time period selected");
       return;
     }
+
     try {
-  const response = await axios.post(
-    "/api/reports/create",
-    {
-      reportName,
-      facilityName,
-      timePeriod,
-      companyName: user.companyName,
-      username: user.username,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
-      },
-      withCredentials: true, // Ensure cookies are sent
-    }
-  );
+      const response = await axios.post(
+        "/api/reports/createNewReport",  
+        {
+          reportName,
+          facilityName: facilityName || user.facilities[0]?.facilityName, // Use facilityName from input or default
+          timePeriod,
+          companyName: user.companyName,
+          username: user.username,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+          },
+          withCredentials: true, // Ensure cookies are sent
+        }
+      );
 
-
-      toast.success("Report created successfully!");
+      toast.success(
+        `Report created successfully for ${
+          facilityName || user.facilities[0]?.facilityName
+        }!`
+      );
       navigate("/datainboard");
     } catch (error) {
       toast.error("Failed to create report. Please try again.");
@@ -153,14 +159,18 @@ const CreateReport = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen">
       <NavbarD />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+      <div className="flex flex-1">
+        <div className="w-1/6 sticky top-0 h-screen">
+          <Sidebar />
+        </div>
         <div className="flex-1 p-8 overflow-auto">
           <h2 className="text-2xl font-bold mb-4">
             Create New Report
-            {user && user.companyName && ` for ${user.companyName}`}
+            {user &&
+              user.companyName &&
+              ` for ${user.companyName} and ${facilityName}`}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -175,18 +185,21 @@ const CreateReport = () => {
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Facility Name
-              </label>
-              <input
-                type="text"
-                value={facilityName}
-                onChange={(e) => setFacilityName(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                required
-              />
-            </div>
+
+            {user.role === "Admin" && ( // Conditionally render Facility Name input
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Facility Name
+                </label>
+                <input
+                  type="text"
+                  value={facilityName}
+                  onChange={(e) => setFacilityName(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Time Period Type
@@ -204,6 +217,7 @@ const CreateReport = () => {
                 <option value="custom">Custom Date Range</option>
               </select>
             </div>
+
             {timePeriodType && (
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -218,6 +232,7 @@ const CreateReport = () => {
                 {renderTimeDetailInput()}
               </div>
             )}
+
             <button
               type="submit"
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

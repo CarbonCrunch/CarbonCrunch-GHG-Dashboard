@@ -6,14 +6,14 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import bcrypt from "bcrypt";
 import { Facility } from "../models/facility.model.js";
-import cloudinary from 'cloudinary';
-
+import cloudinary from "cloudinary";
 
 // Configure Cloudinary with environment variables
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dkiowo64c",
   api_key: process.env.CLOUDINARY_CLOUD_API_KEY || "141629487434466",
-  api_secret: process.env.CLOUDINARY_CLOUD_API_SECRET || "duCohk5LZqFdbHt4lux5lE5IXSQ",
+  api_secret:
+    process.env.CLOUDINARY_CLOUD_API_SECRET || "duCohk5LZqFdbHt4lux5lE5IXSQ",
 });
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -289,7 +289,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 export const verifyToken = asyncHandler(async (req, res) => {
   // Get token from header
   const token = req.headers.authorization?.split(" ")[1]; // Try to get token from header or cookie
-  // console.log("token1", token) 
+  // console.log("token1", token)
   if (!token) {
     return res
       .status(401)
@@ -318,9 +318,8 @@ export const verifyToken = asyncHandler(async (req, res) => {
     // Return response
     return res.json({
       isValid: true,
-      user: user
+      user: user,
     });
-
   } catch (error) {
     console.error("Token verification error:", error);
 
@@ -566,8 +565,6 @@ export const updateUserPermission = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 export const deleteUserPermission = asyncHandler(async (req, res) => {
   const { username, userId, facilityName } = req.body; // Extract data from the request body
   console.log("deleteUserPermission", username, userId, facilityName);
@@ -616,7 +613,7 @@ export const deleteUserPermission = asyncHandler(async (req, res) => {
 
 export const uploadLogo = asyncHandler(async (req, res) => {
   const file = req.files.file; // Access the uploaded file from the request
- const userId = req.body.userId; // Assume that user is authenticated and user ID is available on req.user
+  const userId = req.body.userId; // Assume that user is authenticated and user ID is available on req.user
   // console.log("user", userId)
   // Check if file exists
   if (!file) {
@@ -660,4 +657,31 @@ export const uploadLogo = asyncHandler(async (req, res) => {
     console.error("Error uploading logo:", error);
     throw new ApiError(500, "An error occurred while uploading the logo");
   }
+});
+
+export const hasSeenTour = asyncHandler(async (req, res) => {
+  const { username, companyName } = req.body; // Extract username and companyName from the request body
+  console.log("hasSeenTour", username, companyName);
+  // Find the user by username and companyName
+  const user = await User.findOne({ username, companyName });
+
+  // Check if the user exists
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  // Set hasSeenTour to true
+  user.hasSeenTour = true;
+
+  // Save the updated user to the database
+  await user.save();
+
+  // Send a response back to the client
+  res.status(200).json({
+    success: true,
+    message: "User tour status updated successfully",
+  });
 });

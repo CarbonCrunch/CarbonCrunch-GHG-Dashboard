@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { verifyJWT, restrictTo } from "../middlewares/auth.middleware.js";
 import {
+  addData,
   // changeCurrentTab,
   // getCurrentTab,
-  createNewReport,
   deleteReport,
   getCompanyReport,
   getUserReports,
@@ -40,11 +40,16 @@ import {
   CO2eHome,
   CO2eFa,
 } from "../controllers/factor.controller.js";
+import { createNewReport } from "../controllers/generate-report.controller.js";
 const router = Router();
 
 router
-  .route("/create")
-  .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
+  .route("/addData")
+  .post(verifyJWT, restrictTo("FacAdmin", "Admin"), addData);
+  router
+    .route("/createNewReport")
+    .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
+  
 router.route("/get").post(getUserReports);
 router.route("/getCompanyReport").post(getCompanyReport);
 router

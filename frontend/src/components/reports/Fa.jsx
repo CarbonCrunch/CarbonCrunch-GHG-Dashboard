@@ -24,6 +24,8 @@ const Fa = ({ report }) => {
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [activeTab, setActiveTab] = useState("hotel");
+    const [isYearPicker, setIsYearPicker] = useState(false);
+    const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
 
   const reportData = report;
@@ -260,6 +262,73 @@ const Fa = ({ report }) => {
                   maxDate={end}
                   placeholderText="Select Date"
                   className="border p-1 w-full"
+                  showPopperArrow={false}
+                  renderCustomHeader={({
+                    date,
+                    changeYear,
+                    changeMonth,
+                    decreaseMonth,
+                    increaseMonth,
+                    prevMonthButtonDisabled,
+                    nextMonthButtonDisabled,
+                  }) => (
+                    <div
+                      className="react-datepicker__header"
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <button
+                        onClick={decreaseMonth}
+                        disabled={prevMonthButtonDisabled}
+                        className="react-datepicker__navigation react-datepicker__navigation--previous"
+                      >
+                        {"<"}
+                      </button>
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <div
+                          className="react-datepicker__current-month"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            setIsMonthPicker(true); // Show month picker when month is clicked
+                            setIsYearPicker(false); // Hide year picker
+                          }}
+                        >
+                          {date.toLocaleString("default", { month: "long" })}
+                        </div>
+                        <div
+                          className="react-datepicker__current-year"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            setIsYearPicker(true); // Show year picker when year is clicked
+                            setIsMonthPicker(false); // Hide month picker
+                          }}
+                        >
+                          {date.getFullYear()}
+                        </div>
+                      </div>
+                      <button
+                        onClick={increaseMonth}
+                        disabled={nextMonthButtonDisabled}
+                        className="react-datepicker__navigation react-datepicker__navigation--next"
+                      >
+                        {">"}
+                      </button>
+                    </div>
+                  )}
+                  showYearPicker={isYearPicker} // Show only year picker if isYearPicker is true
+                  showMonthYearPicker={isMonthPicker} // Show month picker if isMonthPicker is true
+                  onSelect={(date) => {
+                    setNewHotel({ ...newHotel, date });
+                    if (isYearPicker) {
+                      setIsYearPicker(false); // Switch to date picker after selecting a year
+                      setIsMonthPicker(true); // Show month picker after selecting a year
+                    } else if (isMonthPicker) {
+                      setIsMonthPicker(false); // Switch to date picker after selecting a month
+                    }
+                  }}
                 />
               </td>
               <td className="py-3 px-6">

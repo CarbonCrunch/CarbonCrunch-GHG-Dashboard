@@ -10,6 +10,7 @@ import {
   updateUserPermission,
   verifyToken,
   uploadLogo,
+  hasSeenTour,
 } from "../controllers/user.controller.js";
 import { restrictTo, verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -23,6 +24,7 @@ router.route("/login").post(loginUser);
 router.route("/verify-token").get(verifyToken);
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/uploadLogo").post(verifyJWT, uploadLogo);
+router.route("/hasSeenTour").post(hasSeenTour);
 
 router.route("/getCompanyUsers").get(verifyJWT, getCompanyUsers);
 router.route("/updateUserPermission").patch(verifyJWT, updateUserPermission);

@@ -22,7 +22,8 @@ import Ehctd from "../reports/Ehctd";
 import Food from "../reports/Food";
 import HomeOffice from "../reports/HomeOffice";
 import Water from "../reports/Water";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -39,7 +40,9 @@ const DataInBoard = () => {
 
   const [startDate, setStartDate] = useState(tenYearsAgo);
   const [endDate, setEndDate] = useState(today);
-  const [facilityName, setFacilityName] = useState(user.facilityName || "");
+  const [facilityName, setFacilityName] = useState(
+    user?.facilities[0]?.facilityName || ""
+  );
 
   useEffect(() => {
     if (user.role === "FacAdmin") {
@@ -101,6 +104,7 @@ const DataInBoard = () => {
         );
         setReport(filteredReports);
         console.log("Filtered Reports:", filteredReports);
+        // toast.success(`Fetched for "${facilityName}"`); // Show toast notification
       }
       setError(null);
     } catch (err) {
@@ -347,6 +351,11 @@ const DataInBoard = () => {
                   type="text"
                   value={facilityName}
                   onChange={(e) => setFacilityName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      fetchFacilityReports(); // Trigger fetch on Enter key press
+                    }
+                  }}
                   className="p-2 border rounded"
                   placeholder="Enter Facility Name"
                 />
@@ -434,6 +443,7 @@ const DataInBoard = () => {
           </main>
         </div>
       </div>
+      {/* <ToastContainer /> */}
     </div>
   );
 };

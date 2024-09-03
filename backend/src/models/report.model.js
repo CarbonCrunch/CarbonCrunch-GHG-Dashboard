@@ -2,21 +2,10 @@ import mongoose, { Schema } from "mongoose";
 
 const reportSchema = new Schema(
   {
-    reportId: { type: String },
-    reportName: { type: String, required: true },
     username: { type: String },
     createdAt: { type: Date, default: Date.now },
     companyName: { type: String, required: true },
     facilityName: { type: String, required: true },
-    timePeriod: {
-      type: {
-        type: String,
-        enum: ["monthly", "quarterly", "yearly", "custom"],
-        required: true,
-      },
-      start: { type: Date },
-      end: { type: Date },
-    },
     fuel: {
       type: Object,
       default: {},
