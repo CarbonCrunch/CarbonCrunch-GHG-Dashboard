@@ -16,16 +16,11 @@ const Ehctd = ({ report }) => {
     amount: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
-    const [isYearPicker, setIsYearPicker] = useState(false);
-    const [isMonthPicker, setIsMonthPicker] = useState(false);
-    const { user } = useAuth();
+  const [isYearPicker, setIsYearPicker] = useState(false);
+  const [isMonthPicker, setIsMonthPicker] = useState(false);
+  const { user } = useAuth();
 
-
-  const typeOptions = [
-    "Electricity",
-    "Heating and Steam",
-    "District Cooling",
-  ];
+  const typeOptions = ["Electricity", "Heating and Steam", "District Cooling"];
   const unitOptions = ["kWh", "Ton of refrigeration", "KG"];
 
   const reportData = report;
@@ -36,9 +31,8 @@ const Ehctd = ({ report }) => {
     timePeriod = {},
     ehctd = [],
   } = reportData || {};
+
   useEffect(() => {
-    // console.log("reportData", reportData);
-    // console.log("ehctd", ehctd);
     if (report && report.ehctd && Array.isArray(report.ehctd)) {
       setEhctdData(
         report.ehctd.map((item) => ({
@@ -47,7 +41,6 @@ const Ehctd = ({ report }) => {
         }))
       );
     } else if (report && report.ehctd) {
-      // If ehctd is not an array, but exists, wrap it in an array
       setEhctdData([
         {
           ...report.ehctd,
@@ -55,7 +48,6 @@ const Ehctd = ({ report }) => {
         },
       ]);
     } else {
-      // If there's no ehctd data, set an empty array
       setEhctdData([]);
     }
   }, [report]);
@@ -71,7 +63,23 @@ const Ehctd = ({ report }) => {
 
   const { start, end } = getDateRange();
 
+  // Check user permissions for ehctd entity
+  const ehctdPermissions =
+    user?.facilities[0]?.userRoles[0]?.permissions.find(
+      (perm) => perm.entity.toLowerCase() === "ehctd"
+    )?.actions || [];
+
+  const hasReadPermission = ehctdPermissions.includes("read");
+  const hasCreatePermission = ehctdPermissions.includes("create");
+  const hasUpdatePermission = ehctdPermissions.includes("update");
+  const hasDeletePermission = ehctdPermissions.includes("delete");
+
   const handleAddEhctd = () => {
+    if (!hasCreatePermission) {
+      toast.error("You don't have permission to create new entries");
+      return;
+    }
+
     if (
       newEhctd.date &&
       newEhctd.activity &&
@@ -93,11 +101,21 @@ const Ehctd = ({ report }) => {
   };
 
   const handleEdit = (index) => {
+    if (!hasUpdatePermission) {
+      toast.error("You don't have permission to update existing entries");
+      return;
+    }
+
     setNewEhctd(ehctdData[index]);
     setEditIndex(index);
   };
 
   const handleDelete = (index) => {
+    if (!hasDeletePermission) {
+      toast.error("You don't have permission to delete existing entries");
+      return;
+    }
+
     const updatedEhctdData = ehctdData.filter((_, i) => i !== index);
     setEhctdData(updatedEhctdData);
     toast.info("Now click on save to permanently delete", {
@@ -113,7 +131,6 @@ const Ehctd = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      // console.log("ehctdData", ehctdData);
       const response = await axios.patch(
         `/api/reports/:reportId/ehctd/put`,
         { ehctd: ehctdData },
@@ -124,9 +141,9 @@ const Ehctd = ({ report }) => {
             facilityName,
           },
           headers: {
-            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+            Authorization: `Bearer ${user.accessToken}`,
           },
-          withCredentials: true, // Ensure cookies are sent
+          withCredentials: true,
         }
       );
       if (response.data.success) {
@@ -139,6 +156,10 @@ const Ehctd = ({ report }) => {
       toast.error(error.response?.data?.message || "Failed to save EHCTD data");
     }
   };
+
+  if (!hasReadPermission) {
+    return <p>You don't have permission to view this data.</p>;
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -167,13 +188,19 @@ const Ehctd = ({ report }) => {
               <td className="py-3 px-6 text-left">
                 <button
                   onClick={() => handleEdit(index)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
+                  className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                    !hasUpdatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasUpdatePermission}
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(index)}
-                  className="text-red-500 hover:text-red-700"
+                  className={`text-red-500 hover:text-red-700 ${
+                    !hasDeletePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasDeletePermission}
                 >
                   <FaTrash />
                 </button>
@@ -262,8 +289,8 @@ const Ehctd = ({ report }) => {
                         className="react-datepicker__current-month"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsMonthPicker(true); // Show month picker when month is clicked
-                          setIsYearPicker(false); // Hide year picker
+                          setIsMonthPicker(true);
+                          setIsYearPicker(false);
                         }}
                       >
                         {date.toLocaleString("default", { month: "long" })}
@@ -272,8 +299,8 @@ const Ehctd = ({ report }) => {
                         className="react-datepicker__current-year"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsYearPicker(true); // Show year picker when year is clicked
-                          setIsMonthPicker(false); // Hide month picker
+                          setIsYearPicker(true);
+                          setIsMonthPicker(false);
                         }}
                       >
                         {date.getFullYear()}
@@ -288,15 +315,15 @@ const Ehctd = ({ report }) => {
                     </button>
                   </div>
                 )}
-                showYearPicker={isYearPicker} // Show only year picker if isYearPicker is true
-                showMonthYearPicker={isMonthPicker} // Show month picker if isMonthPicker is true
+                showYearPicker={isYearPicker}
+                showMonthYearPicker={isMonthPicker}
                 onSelect={(date) => {
-                 setNewEhctd({ ...newEhctd, date });
+                  setNewEhctd({ ...newEhctd, date });
                   if (isYearPicker) {
-                    setIsYearPicker(false); // Switch to date picker after selecting a year
-                    setIsMonthPicker(true); // Show month picker after selecting a year
+                    setIsYearPicker(false);
+                    setIsMonthPicker(true);
                   } else if (isMonthPicker) {
-                    setIsMonthPicker(false); // Switch to date picker after selecting a month
+                    setIsMonthPicker(false);
                   }
                 }}
               />
@@ -304,7 +331,10 @@ const Ehctd = ({ report }) => {
             <td className="py-3 px-6">
               <button
                 onClick={handleAddEhctd}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                  !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={!hasCreatePermission}
               >
                 {editIndex === -1 ? <FaPlus /> : <FaEdit />}
               </button>

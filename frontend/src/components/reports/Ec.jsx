@@ -18,47 +18,34 @@ const Ec = ({ report }) => {
     distance: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
-    const [isYearPicker, setIsYearPicker] = useState(false);
-    const [isMonthPicker, setIsMonthPicker] = useState(false);
-    const { user } = useAuth();
-
+  const [isYearPicker, setIsYearPicker] = useState(false);
+  const [isMonthPicker, setIsMonthPicker] = useState(false);
+  const { user } = useAuth();
 
   const VehicleOptions = ["Car", "Ferry", "Motorbike", "Taxi", "Bus", "Rail"];
- const Level2Options = [
-   // For Cars (by size)
-   "Small car",
-   "Medium car",
-   "Large car",
-   "Average car",
-
-   // For Ferry
-   "Foot passenger",
-   "Car passenger",
-   "Average (all passenger)",
-
-   // For Motorbike
-   "Small",
-   "Medium",
-   "Large",
-   "Average",
-
-   // For Taxis
-   "Regular taxi",
-   "Black cab",
-
-   // For Bus
-   "Local bus (not London)",
-   "Local London bus",
-   "Average local bus",
-   "Coach",
-
-   // For Rail
-   "National rail",
-   "International rail",
-   "Light rail and tram", 
-   "London Underground",
- ];
-
+  const Level2Options = [
+    "Small car",
+    "Medium car",
+    "Large car",
+    "Average car",
+    "Foot passenger",
+    "Car passenger",
+    "Average (all passenger)",
+    "Small",
+    "Medium",
+    "Large",
+    "Average",
+    "Regular taxi",
+    "Black cab",
+    "Local bus (not London)",
+    "Local London bus",
+    "Average local bus",
+    "Coach",
+    "National rail",
+    "International rail",
+    "Light rail and tram",
+    "London Underground",
+  ];
   const FuelOptions = [
     "Battery Electric Vehicle",
     "CNG",
@@ -78,6 +65,7 @@ const Ec = ({ report }) => {
     timePeriod = {},
     ec = [],
   } = reportData || {};
+
   useEffect(() => {
     if (ec && Array.isArray(ec)) {
       setEcData(
@@ -100,7 +88,23 @@ const Ec = ({ report }) => {
 
   const { start, end } = getDateRange();
 
+  // Check user permissions for ec entity
+  const ecPermissions =
+    user?.facilities[0]?.userRoles[0]?.permissions.find(
+      (perm) => perm.entity.toLowerCase() === "ec"
+    )?.actions || [];
+
+  const hasReadPermission = ecPermissions.includes("read");
+  const hasCreatePermission = ecPermissions.includes("create");
+  const hasUpdatePermission = ecPermissions.includes("update");
+  const hasDeletePermission = ecPermissions.includes("delete");
+
   const handleAddEc = () => {
+    if (!hasCreatePermission) {
+      toast.error("You don't have permission to create new entries");
+      return;
+    }
+
     if (
       newEc.date &&
       newEc.vehicle &&
@@ -131,11 +135,21 @@ const Ec = ({ report }) => {
   };
 
   const handleEdit = (index) => {
+    if (!hasUpdatePermission) {
+      toast.error("You don't have permission to update existing entries");
+      return;
+    }
+
     setNewEc(ecData[index]);
     setEditIndex(index);
   };
 
   const handleDelete = (index) => {
+    if (!hasDeletePermission) {
+      toast.error("You don't have permission to delete existing entries");
+      return;
+    }
+
     const updatedEcData = ecData.filter((_, i) => i !== index);
     setEcData(updatedEcData);
     toast.info("Now click on save to permanently delete", {
@@ -151,7 +165,6 @@ const Ec = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      // console.log("ecData", ecData);
       const response = await axios.patch(
         `/api/reports/:reportId/ec/put`,
         { ec: ecData },
@@ -162,9 +175,9 @@ const Ec = ({ report }) => {
             facilityName,
           },
           headers: {
-            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+            Authorization: `Bearer ${user.accessToken}`,
           },
-          withCredentials: true, // Ensure cookies are sent
+          withCredentials: true,
         }
       );
       if (response.data.success) {
@@ -177,6 +190,10 @@ const Ec = ({ report }) => {
       toast.error(error.response?.data?.message || "Failed to save EC data");
     }
   };
+
+  if (!hasReadPermission) {
+    return <p>You don't have permission to view this data.</p>;
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -209,13 +226,19 @@ const Ec = ({ report }) => {
               <td className="py-3 px-6 text-left">
                 <button
                   onClick={() => handleEdit(index)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
+                  className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                    !hasUpdatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasUpdatePermission}
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(index)}
-                  className="text-red-500 hover:text-red-700"
+                  className={`text-red-500 hover:text-red-700 ${
+                    !hasDeletePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasDeletePermission}
                 >
                   <FaTrash />
                 </button>
@@ -330,8 +353,8 @@ const Ec = ({ report }) => {
                         className="react-datepicker__current-month"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsMonthPicker(true); // Show month picker when month is clicked
-                          setIsYearPicker(false); // Hide year picker
+                          setIsMonthPicker(true);
+                          setIsYearPicker(false);
                         }}
                       >
                         {date.toLocaleString("default", { month: "long" })}
@@ -340,8 +363,8 @@ const Ec = ({ report }) => {
                         className="react-datepicker__current-year"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsYearPicker(true); // Show year picker when year is clicked
-                          setIsMonthPicker(false); // Hide month picker
+                          setIsYearPicker(true);
+                          setIsMonthPicker(false);
                         }}
                       >
                         {date.getFullYear()}
@@ -356,15 +379,15 @@ const Ec = ({ report }) => {
                     </button>
                   </div>
                 )}
-                showYearPicker={isYearPicker} // Show only year picker if isYearPicker is true
-                showMonthYearPicker={isMonthPicker} // Show month picker if isMonthPicker is true
+                showYearPicker={isYearPicker}
+                showMonthYearPicker={isMonthPicker}
                 onSelect={(date) => {
-                setNewEc({ ...newEc, date })
+                  setNewEc({ ...newEc, date });
                   if (isYearPicker) {
-                    setIsYearPicker(false); // Switch to date picker after selecting a year
-                    setIsMonthPicker(true); // Show month picker after selecting a year
+                    setIsYearPicker(false);
+                    setIsMonthPicker(true);
                   } else if (isMonthPicker) {
-                    setIsMonthPicker(false); // Switch to date picker after selecting a month
+                    setIsMonthPicker(false);
                   }
                 }}
               />
@@ -372,7 +395,10 @@ const Ec = ({ report }) => {
             <td className="py-3 px-6">
               <button
                 onClick={handleAddEc}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                  !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={!hasCreatePermission}
               >
                 {editIndex === -1 ? <FaPlus /> : <FaEdit />}
               </button>

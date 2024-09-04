@@ -18,12 +18,11 @@ const Btls = ({ report }) => {
     distance: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
-    const [isYearPicker, setIsYearPicker] = useState(false);
-    const [isMonthPicker, setIsMonthPicker] = useState(false);
-    const { user } = useAuth();
+  const [isYearPicker, setIsYearPicker] = useState(false);
+  const [isMonthPicker, setIsMonthPicker] = useState(false);
+  const { user } = useAuth();
 
-
-  const VehicleOptions = ["Cars (by size)", "Motorbike", "Taxi",];
+  const VehicleOptions = ["Cars (by size)", "Motorbike", "Taxi"];
   const TypeOptions = [
     "Small car",
     "Medium car",
@@ -55,7 +54,7 @@ const Btls = ({ report }) => {
     timePeriod = {},
     btls = [],
   } = reportData || {};
-  
+
   useEffect(() => {
     if (btls && Array.isArray(btls)) {
       setBtlsData(
@@ -78,7 +77,23 @@ const Btls = ({ report }) => {
 
   const { start, end } = getDateRange();
 
+  // Check user permissions for btls entity
+  const btlsPermissions =
+    user?.facilities[0]?.userRoles[0]?.permissions.find(
+      (perm) => perm.entity.toLowerCase() === "btls"
+    )?.actions || [];
+
+  const hasReadPermission = btlsPermissions.includes("read");
+  const hasCreatePermission = btlsPermissions.includes("create");
+  const hasUpdatePermission = btlsPermissions.includes("update");
+  const hasDeletePermission = btlsPermissions.includes("delete");
+
   const handleAddBtls = () => {
+    if (!hasCreatePermission) {
+      toast.error("You don't have permission to create new entries");
+      return;
+    }
+
     if (
       newBtls.date &&
       newBtls.vehicle &&
@@ -109,11 +124,21 @@ const Btls = ({ report }) => {
   };
 
   const handleEdit = (index) => {
+    if (!hasUpdatePermission) {
+      toast.error("You don't have permission to update existing entries");
+      return;
+    }
+
     setNewBtls(btlsData[index]);
     setEditIndex(index);
   };
 
   const handleDelete = (index) => {
+    if (!hasDeletePermission) {
+      toast.error("You don't have permission to delete existing entries");
+      return;
+    }
+
     const updatedBtlsData = btlsData.filter((_, i) => i !== index);
     setBtlsData(updatedBtlsData);
     toast.info("Now click on save to permanently delete", {
@@ -129,7 +154,6 @@ const Btls = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      // console.log("btlsData", btlsData);
       const response = await axios.patch(
         `/api/reports/:reportId/btls/put`,
         { btls: btlsData },
@@ -140,9 +164,9 @@ const Btls = ({ report }) => {
             facilityName,
           },
           headers: {
-            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+            Authorization: `Bearer ${user.accessToken}`,
           },
-          withCredentials: true, // Ensure cookies are sent
+          withCredentials: true,
         }
       );
       if (response.data.success) {
@@ -155,6 +179,10 @@ const Btls = ({ report }) => {
       toast.error(error.response?.data?.message || "Failed to save BTLS data");
     }
   };
+
+  if (!hasReadPermission) {
+    return <p>You don't have permission to view this data.</p>;
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -187,13 +215,19 @@ const Btls = ({ report }) => {
               <td className="py-3 px-6 text-left">
                 <button
                   onClick={() => handleEdit(index)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
+                  className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                    !hasUpdatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasUpdatePermission}
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(index)}
-                  className="text-red-500 hover:text-red-700"
+                  className={`text-red-500 hover:text-red-700 ${
+                    !hasDeletePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasDeletePermission}
                 >
                   <FaTrash />
                 </button>
@@ -313,8 +347,8 @@ const Btls = ({ report }) => {
                         className="react-datepicker__current-month"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsMonthPicker(true); // Show month picker when month is clicked
-                          setIsYearPicker(false); // Hide year picker
+                          setIsMonthPicker(true);
+                          setIsYearPicker(false);
                         }}
                       >
                         {date.toLocaleString("default", { month: "long" })}
@@ -323,8 +357,8 @@ const Btls = ({ report }) => {
                         className="react-datepicker__current-year"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsYearPicker(true); // Show year picker when year is clicked
-                          setIsMonthPicker(false); // Hide month picker
+                          setIsYearPicker(true);
+                          setIsMonthPicker(false);
                         }}
                       >
                         {date.getFullYear()}
@@ -339,15 +373,15 @@ const Btls = ({ report }) => {
                     </button>
                   </div>
                 )}
-                showYearPicker={isYearPicker} // Show only year picker if isYearPicker is true
-                showMonthYearPicker={isMonthPicker} // Show month picker if isMonthPicker is true
+                showYearPicker={isYearPicker}
+                showMonthYearPicker={isMonthPicker}
                 onSelect={(date) => {
                   setNewBtls({ ...newBtls, date });
                   if (isYearPicker) {
-                    setIsYearPicker(false); // Switch to date picker after selecting a year
-                    setIsMonthPicker(true); // Show month picker after selecting a year
+                    setIsYearPicker(false);
+                    setIsMonthPicker(true);
                   } else if (isMonthPicker) {
-                    setIsMonthPicker(false); // Switch to date picker after selecting a month
+                    setIsMonthPicker(false);
                   }
                 }}
               />
@@ -355,7 +389,10 @@ const Btls = ({ report }) => {
             <td className="py-3 px-6">
               <button
                 onClick={handleAddBtls}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                  !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={!hasCreatePermission}
               >
                 {editIndex === -1 ? <FaPlus /> : <FaEdit />}
               </button>

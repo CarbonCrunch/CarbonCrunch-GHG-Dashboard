@@ -70,7 +70,7 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
   // Update the report's fuel data and store CO2e
   report.fuel = updatedFuelData;
   // report.CO2eFuel = updatedFuelData.reduce((acc, curr) => acc + curr.CO2e, 0);
-  console.log("CO2eFuel", report.fuel);
+  // console.log("CO2eFuel", report.fuel);
   // console.log("CO2eFuel", report.CO2eFuel);
   await report.save();
 

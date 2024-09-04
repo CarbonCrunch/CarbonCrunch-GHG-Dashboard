@@ -21,7 +21,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
-    console.log("generateAccessAndRefreshTokens", accessToken, refreshToken);
+    // console.log("generateAccessAndRefreshTokens", accessToken, refreshToken);
     // user.refreshToken = refreshToken;
     // await user.save({ validateBeforeSave: false });
 
@@ -256,7 +256,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   );
 
   req.user = loggedInUser;
-  console.log("req.user is set to:", req.user);
+  // console.log("req.user is set to:", req.user);
 
   const options = {
     httpOnly: true,

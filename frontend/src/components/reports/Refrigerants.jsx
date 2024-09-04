@@ -16,10 +16,30 @@ const Refrigerants = ({ report }) => {
     amount: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
-    const [isYearPicker, setIsYearPicker] = useState(false);
-    const [isMonthPicker, setIsMonthPicker] = useState(false);
-    const { user } = useAuth();
+  const [isYearPicker, setIsYearPicker] = useState(false);
+  const [isMonthPicker, setIsMonthPicker] = useState(false);
+  const { user } = useAuth();
 
+  const permissions = user?.facilities?.[0]?.userRoles?.find(
+    (role) => role.username === user.username
+  )?.permissions;
+
+  const refrigerantsPermissions = permissions?.find(
+    (perm) => perm.entity.toLowerCase() === "refrigerants"
+  );
+
+  const hasReadPermission = refrigerantsPermissions?.actions?.includes("read");
+  const hasCreatePermission =
+    refrigerantsPermissions?.actions?.includes("create");
+  const hasUpdatePermission =
+    refrigerantsPermissions?.actions?.includes("update");
+  const hasDeletePermission =
+    refrigerantsPermissions?.actions?.includes("delete");
+
+  // If no read permission, display a message
+  if (!hasReadPermission) {
+    return <p>You do not have permission to view this data.</p>;
+  }
 
   const emissionOptions = [
     "Carbon dioxide",
@@ -113,7 +133,7 @@ const Refrigerants = ({ report }) => {
   const unitOptions = ["KG"];
 
   const reportData = report;
-      const {
+  const {
     companyName = "",
     facilityName = "",
     reportId = "",
@@ -242,13 +262,19 @@ const Refrigerants = ({ report }) => {
               <td className="py-3 px-6 text-left">
                 <button
                   onClick={() => handleEdit(index)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
+                  className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                    !hasUpdatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasUpdatePermission}
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(index)}
-                  className="text-red-500 hover:text-red-700"
+                  className={`text-red-500 hover:text-red-700 ${
+                    !hasDeletePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasDeletePermission}
                 >
                   <FaTrash />
                 </button>
@@ -387,7 +413,10 @@ const Refrigerants = ({ report }) => {
             <td className="py-3 px-6">
               <button
                 onClick={handleAddRefrigerant}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                  !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={!hasCreatePermission}
               >
                 {editIndex === -1 ? <FaPlus /> : <FaEdit />}
               </button>
@@ -398,7 +427,12 @@ const Refrigerants = ({ report }) => {
       <div className="mt-4 flex justify-end space-x-2">
         <button
           onClick={handleSave}
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"
+          className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center ${
+            !hasCreatePermission && !hasUpdatePermission
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+          disabled={!hasCreatePermission && !hasUpdatePermission}
         >
           <FaSave className="mr-2" /> Save
         </button>

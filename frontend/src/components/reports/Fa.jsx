@@ -24,8 +24,8 @@ const Fa = ({ report }) => {
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [activeTab, setActiveTab] = useState("hotel");
-    const [isYearPicker, setIsYearPicker] = useState(false);
-    const [isMonthPicker, setIsMonthPicker] = useState(false);
+  const [isYearPicker, setIsYearPicker] = useState(false);
+  const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
 
   const reportData = report;
@@ -36,6 +36,7 @@ const Fa = ({ report }) => {
     timePeriod = {},
     fa = [],
   } = reportData || {};
+
   useEffect(() => {
     if (fa) {
       if (fa.hotelAccommodation) {
@@ -57,7 +58,23 @@ const Fa = ({ report }) => {
 
   const { start, end } = getDateRange();
 
+  // Check user permissions for fa entity
+  const faPermissions =
+    user?.facilities[0]?.userRoles[0]?.permissions.find(
+      (perm) => perm.entity.toLowerCase() === "fa"
+    )?.actions || [];
+
+  const hasReadPermission = faPermissions.includes("read");
+  const hasCreatePermission = faPermissions.includes("create");
+  const hasUpdatePermission = faPermissions.includes("update");
+  const hasDeletePermission = faPermissions.includes("delete");
+
   const handleAddHotel = () => {
+    if (!hasCreatePermission) {
+      toast.error("You don't have permission to create new entries");
+      return;
+    }
+
     if (newHotel.occupiedRooms && newHotel.nightsPerRoom && newHotel.date) {
       if (editIndex === -1) {
         setHotelData([
@@ -74,7 +91,6 @@ const Fa = ({ report }) => {
         occupiedRooms: "",
         nightsPerRoom: "",
         date: null,
-        abc: "abc",
       });
     } else {
       toast.error("Please fill all fields");
@@ -82,6 +98,11 @@ const Fa = ({ report }) => {
   };
 
   const handleAddFlight = () => {
+    if (!hasCreatePermission) {
+      toast.error("You don't have permission to create new entries");
+      return;
+    }
+
     if (
       newFlight.origin &&
       newFlight.destination &&
@@ -104,6 +125,7 @@ const Fa = ({ report }) => {
         destination: "",
         class: "",
         tripType: "",
+        kgCO2e: "",
       });
     } else {
       toast.error("Please fill all fields");
@@ -111,6 +133,11 @@ const Fa = ({ report }) => {
   };
 
   const handleEdit = (index, type) => {
+    if (!hasUpdatePermission) {
+      toast.error("You don't have permission to update existing entries");
+      return;
+    }
+
     if (type === "hotel") {
       setNewHotel(hotelData[index]);
     } else {
@@ -121,6 +148,11 @@ const Fa = ({ report }) => {
   };
 
   const handleDelete = (index, type) => {
+    if (!hasDeletePermission) {
+      toast.error("You don't have permission to delete existing entries");
+      return;
+    }
+
     if (type === "hotel") {
       const updatedHotelData = hotelData.filter((_, i) => i !== index);
       setHotelData(updatedHotelData);
@@ -133,9 +165,6 @@ const Fa = ({ report }) => {
 
   const handleSave = async () => {
     try {
-      // console.log("hotelAccommodation", hotelData);
-      // console.log("flightAccommodation", flightData);
-
       const response = await axios.patch(
         `/api/reports/${reportId}/fa/put`,
         { hotelAccommodation: hotelData, flightAccommodation: flightData },
@@ -162,6 +191,10 @@ const Fa = ({ report }) => {
       );
     }
   };
+
+  if (!hasReadPermission) {
+    return <p>You don't have permission to view this data.</p>;
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -210,13 +243,23 @@ const Fa = ({ report }) => {
                 <td className="py-3 px-6 text-left">
                   <button
                     onClick={() => handleEdit(index, "hotel")}
-                    className="text-blue-500 hover:text-blue-700 mr-2"
+                    className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                      !hasUpdatePermission
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    disabled={!hasUpdatePermission}
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => handleDelete(index, "hotel")}
-                    className="text-red-500 hover:text-red-700"
+                    className={`text-red-500 hover:text-red-700 ${
+                      !hasDeletePermission
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    disabled={!hasDeletePermission}
                   >
                     <FaTrash />
                   </button>
@@ -318,15 +361,15 @@ const Fa = ({ report }) => {
                       </button>
                     </div>
                   )}
-                  showYearPicker={isYearPicker} // Show only year picker if isYearPicker is true
-                  showMonthYearPicker={isMonthPicker} // Show month picker if isMonthPicker is true
+                  showYearPicker={isYearPicker}
+                  showMonthYearPicker={isMonthPicker}
                   onSelect={(date) => {
                     setNewHotel({ ...newHotel, date });
                     if (isYearPicker) {
-                      setIsYearPicker(false); // Switch to date picker after selecting a year
-                      setIsMonthPicker(true); // Show month picker after selecting a year
+                      setIsYearPicker(false);
+                      setIsMonthPicker(true);
                     } else if (isMonthPicker) {
-                      setIsMonthPicker(false); // Switch to date picker after selecting a month
+                      setIsMonthPicker(false);
                     }
                   }}
                 />
@@ -334,7 +377,10 @@ const Fa = ({ report }) => {
               <td className="py-3 px-6">
                 <button
                   onClick={handleAddHotel}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                    !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasCreatePermission}
                 >
                   {editIndex === -1 ? <FaPlus /> : <FaEdit />}
                 </button>
@@ -371,13 +417,23 @@ const Fa = ({ report }) => {
                 <td className="py-3 px-6 text-left">
                   <button
                     onClick={() => handleEdit(index, "flight")}
-                    className="text-blue-500 hover:text-blue-700 mr-2"
+                    className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                      !hasUpdatePermission
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    disabled={!hasUpdatePermission}
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => handleDelete(index, "flight")}
-                    className="text-red-500 hover:text-red-700"
+                    className={`text-red-500 hover:text-red-700 ${
+                      !hasDeletePermission
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    disabled={!hasDeletePermission}
                   >
                     <FaTrash />
                   </button>
@@ -453,7 +509,10 @@ const Fa = ({ report }) => {
               <td className="py-3 px-6">
                 <button
                   onClick={handleAddFlight}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                    !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasCreatePermission}
                 >
                   {editIndex === -1 ? <FaPlus /> : <FaEdit />}
                 </button>

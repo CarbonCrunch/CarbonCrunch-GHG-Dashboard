@@ -7,7 +7,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../../context/AuthContext";
 
-const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) => {
+const Bioenergy = ({
+  report,
+}) => {
   const [bioenergyData, setBioenergyData] = useState([]);
   const [newBioenergy, setNewBioenergy] = useState({
     date: null,
@@ -17,10 +19,10 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
     amount: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
-    const [isYearPicker, setIsYearPicker] = useState(false);
-    const [isMonthPicker, setIsMonthPicker] = useState(false);
-    const { user } = useAuth();
-
+  const [isYearPicker, setIsYearPicker] = useState(false);
+  const [isMonthPicker, setIsMonthPicker] = useState(false);
+  const { user } = useAuth();
+  console.log("user", user);
 
   const typeOptions = ["Biofuel", "Biomass", "Biogas"];
   const fuelOptions = [
@@ -37,14 +39,13 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
   ];
   const unitOptions = ["Litres", "Tonnes"];
   const reportData = report;
-      const {
-        companyName = "",
-        facilityName = "",
-        reportId = "",
-        timePeriod = {},
-        bioenergy = [],
-      } = reportData || {};
-      
+  const {
+    companyName = "",
+    facilityName = "",
+    reportId = "",
+    timePeriod = {},
+    bioenergy = [],
+  } = reportData || {};
 
   useEffect(() => {
     if (bioenergy && Array.isArray(bioenergy)) {
@@ -55,7 +56,6 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
         }))
       );
     } else {
-      // Handle the case where bioenergy is not an array
       console.log("Bioenergy data is not in the expected format");
       setBioenergyData([]);
     }
@@ -72,7 +72,23 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
 
   const { start, end } = getDateRange();
 
+  // Check user permissions for bioenergy entity
+  const bioenergyPermissions =
+    user?.facilities[0]?.userRoles[0]?.permissions.find(
+      (perm) => perm.entity.toLowerCase() === "bioenergy"
+    )?.actions || [];
+
+  const hasReadPermission = bioenergyPermissions.includes("read");
+  const hasCreatePermission = bioenergyPermissions.includes("create");
+  const hasUpdatePermission = bioenergyPermissions.includes("update");
+  const hasDeletePermission = bioenergyPermissions.includes("delete");
+
   const handleAddBioenergy = () => {
+    if (!hasCreatePermission) {
+      toast.error("You don't have permission to create new entries");
+      return;
+    }
+
     if (
       newBioenergy.date &&
       newBioenergy.type &&
@@ -101,11 +117,21 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
   };
 
   const handleEdit = (index) => {
+    if (!hasUpdatePermission) {
+      toast.error("You don't have permission to update existing entries");
+      return;
+    }
+
     setNewBioenergy(bioenergyData[index]);
     setEditIndex(index);
   };
 
   const handleDelete = (index) => {
+    if (!hasDeletePermission) {
+      toast.error("You don't have permission to delete existing entries");
+      return;
+    }
+
     const updatedBioenergyData = bioenergyData.filter((_, i) => i !== index);
     setBioenergyData(updatedBioenergyData);
     toast.info("Now click on save to permanently delete", {
@@ -121,21 +147,21 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
 
   const handleSave = async () => {
     try {
-     const response = await axios.patch(
-       `/api/reports/:reportId/bioenergy/put`,
-       { bioenergy: bioenergyData },
-       {
-         params: {
-           reportId,
-           companyName,
-           facilityName,
-         },
-         headers: {
-           Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
-         },
-         withCredentials: true, // Ensure cookies are sent
-       }
-     );
+      const response = await axios.patch(
+        `/api/reports/:reportId/bioenergy/put`,
+        { bioenergy: bioenergyData },
+        {
+          params: {
+            reportId,
+            companyName,
+            facilityName,
+          },
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
       if (response.data.success) {
         toast.success(response.data.message);
       } else {
@@ -148,6 +174,10 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
       );
     }
   };
+
+  if (!hasReadPermission) {
+    return <p>You don't have permission to view this data.</p>;
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -178,13 +208,19 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
               <td className="py-3 px-6 text-left">
                 <button
                   onClick={() => handleEdit(index)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
+                  className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                    !hasUpdatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasUpdatePermission}
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(index)}
-                  className="text-red-500 hover:text-red-700"
+                  className={`text-red-500 hover:text-red-700 ${
+                    !hasDeletePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasDeletePermission}
                 >
                   <FaTrash />
                 </button>
@@ -289,8 +325,8 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
                         className="react-datepicker__current-month"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsMonthPicker(true); // Show month picker when month is clicked
-                          setIsYearPicker(false); // Hide year picker
+                          setIsMonthPicker(true);
+                          setIsYearPicker(false);
                         }}
                       >
                         {date.toLocaleString("default", { month: "long" })}
@@ -299,8 +335,8 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
                         className="react-datepicker__current-year"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setIsYearPicker(true); // Show year picker when year is clicked
-                          setIsMonthPicker(false); // Hide month picker
+                          setIsYearPicker(true);
+                          setIsMonthPicker(false);
                         }}
                       >
                         {date.getFullYear()}
@@ -315,15 +351,15 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
                     </button>
                   </div>
                 )}
-                showYearPicker={isYearPicker} // Show only year picker if isYearPicker is true
-                showMonthYearPicker={isMonthPicker} // Show month picker if isMonthPicker is true
+                showYearPicker={isYearPicker}
+                showMonthYearPicker={isMonthPicker}
                 onSelect={(date) => {
                   setNewBioenergy({ ...newBioenergy, date });
                   if (isYearPicker) {
-                    setIsYearPicker(false); // Switch to date picker after selecting a year
-                    setIsMonthPicker(true); // Show month picker after selecting a year
+                    setIsYearPicker(false);
+                    setIsMonthPicker(true);
                   } else if (isMonthPicker) {
-                    setIsMonthPicker(false); // Switch to date picker after selecting a month
+                    setIsMonthPicker(false);
                   }
                 }}
               />
@@ -331,7 +367,10 @@ const Bioenergy = ({ handleInputFocus, handleInputChange, formData, report }) =>
             <td className="py-3 px-6">
               <button
                 onClick={handleAddBioenergy}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                  !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={!hasCreatePermission}
               >
                 {editIndex === -1 ? <FaPlus /> : <FaEdit />}
               </button>

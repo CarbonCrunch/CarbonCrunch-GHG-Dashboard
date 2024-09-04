@@ -37,13 +37,12 @@ const DataInBoard = () => {
   const today = new Date();
   const tenYearsAgo = new Date(today);
   tenYearsAgo.setFullYear(today.getFullYear() - 10);
-
   const [startDate, setStartDate] = useState(tenYearsAgo);
   const [endDate, setEndDate] = useState(today);
   const [facilityName, setFacilityName] = useState(
     user?.facilities[0]?.facilityName || ""
   );
-
+  // console.log("User", user);
   useEffect(() => {
     if (user.role === "FacAdmin") {
       fetchReports();
@@ -115,6 +114,16 @@ const DataInBoard = () => {
     }
   };
 
+  const hasReadPermission = (entity) => {
+    const userPermissions =
+      user?.facilities[0]?.userRoles[0]?.permissions || [];
+    const permission = userPermissions.find(
+      (perm) => perm.entity.toLowerCase() === entity.toLowerCase()
+    );
+    return permission?.actions.includes("read");
+  };
+
+
   const categories = [
     "Bioenergy",
     "BusinessTravel",
@@ -177,6 +186,7 @@ const DataInBoard = () => {
     const key = categoryMap[selectedCategory];
     const items =
       user.role === "Admin" ? getAllCategoryItems(key) : report[key];
+      // console.log("items", items)
 
     if (!Array.isArray(items) || items.length === 0) {
       return { labels: [], datasets: [] };
@@ -219,9 +229,30 @@ const DataInBoard = () => {
           co2e = item.CO2e;
           break;
         case "Flights & Accomodations":
-          sector = item.flightAccommodation || item.hotelAccommodation;
-          co2e = item.CO2e;
-          break;
+         if (item.flightAccommodation) {
+          item.flightAccommodation.forEach((flight) => {
+            sector = "Flight Accommodation";
+            co2e = flight.CO2e;
+            if (sector in dataMap) {
+              dataMap[sector] += co2e;
+            } else {
+              dataMap[sector] = co2e;
+            }
+          });
+        }
+        // Calculate CO2e for hotel accommodations
+        if (item.hotelAccommodation) {
+          item.hotelAccommodation.forEach((hotel) => {
+            sector = "Hotel Accommodation";
+            co2e = hotel.CO2e;
+            if (sector in dataMap) {
+              dataMap[sector] += co2e;
+            } else {
+              dataMap[sector] = co2e;
+            }
+          });
+        }
+        break;
         case "EmployCommuting":
         case "Electricity_Heating":
         case "BusinessTravel":
@@ -339,7 +370,16 @@ const DataInBoard = () => {
                   className="p-2 border rounded"
                 >
                   {categories.map((category) => (
-                    <option key={category} value={category}>
+                    <option
+                      key={category}
+                      value={category}
+                      disabled={!hasReadPermission(categoryMap[category])}
+                      style={{
+                        cursor: hasReadPermission(categoryMap[category])
+                          ? "pointer"
+                          : "not-allowed",
+                      }}
+                    >
                       {category}
                     </option>
                   ))}
@@ -443,7 +483,7 @@ const DataInBoard = () => {
           </main>
         </div>
       </div>
-      {/* <ToastContainer /> */}
+      <ToastContainer />
     </div>
   );
 };
