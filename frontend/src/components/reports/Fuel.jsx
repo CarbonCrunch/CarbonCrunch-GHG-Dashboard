@@ -17,7 +17,7 @@ const Fuel = ({ report }) => {
     amount: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
-  const [isYearPicker, setIsYearPicker] = useState(false); 
+  const [isYearPicker, setIsYearPicker] = useState(false);
   const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
 

@@ -15,7 +15,7 @@ const Report = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
-
+  // console.log("User:", user);
  const fetchReports = async () => {
    try {
      let response;

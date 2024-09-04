@@ -25,31 +25,31 @@ export const AuthProvider = ({ children }) => {
           console.log("response.data", response.data);
 
           // After verifying the token and getting a valid response
-                if (response.data.isValid) {
-                  setUser((prevUser) => {
-                    // Include accessToken in the user object
-                    const updatedUser = { ...response.data.user, accessToken };
+          if (response.data.isValid) {
+            setUser((prevUser) => {
+              // Include accessToken in the user object
+              const updatedUser = { ...response.data.user, accessToken };
 
-                    // Log the updated user object for debugging
-                    // console.log("Updated user object:", updatedUser);
+              // Log the updated user object for debugging
+              // console.log("Updated user object:", updatedUser);
 
-                    // Return the new user state
-                    return updatedUser;
-                  });
+              // Return the new user state
+              return updatedUser;
+            });
 
-                  // Set the cookie with the new user data including accessToken
-                  Cookies.set(
-                    "user",
-                    JSON.stringify({ ...response.data.user, accessToken }),
-                    {
-                      expires: 1,
-                    }
-                  );
-                } else {
-                  // Remove cookies if the token is not valid
-                  Cookies.remove("accessToken");
-                  Cookies.remove("user");
-                }
+            // Set the cookie with the new user data including accessToken
+            Cookies.set(
+              "user",
+              JSON.stringify({ ...response.data.user, accessToken }),
+              {
+                expires: 1,
+              }
+            );
+          } else {
+            // Remove cookies if the token is not valid
+            Cookies.remove("accessToken");
+            Cookies.remove("user");
+          }
         } catch (error) {
           console.error("Error verifying token:", error);
           Cookies.remove("accessToken");
@@ -64,10 +64,22 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-
   const login = (userData, token) => {
-    setUser(userData); // Set user state in React
-    Cookies.set("user", JSON.stringify(userData), { expires: 1 }); // Store user in cookie (1 day expiry)
+    // Update user data to include accessToken
+    setUser((prevUser) => {
+      const updatedUser = { ...userData, accessToken: token };
+
+      // Log the updated user object for debugging
+      // console.log("Updated user object:", updatedUser);
+
+      // Return the new user state
+      return updatedUser;
+    });
+
+    // Store user in cookie with accessToken included (1 day expiry)
+    Cookies.set("user", JSON.stringify({ ...userData, accessToken: token }), {
+      expires: 1,
+    });
     Cookies.set("accessToken", token, { expires: 1 }); // Store accessToken in cookie (1 day expiry)
   };
 
