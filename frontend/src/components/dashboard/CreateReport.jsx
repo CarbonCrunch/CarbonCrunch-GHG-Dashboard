@@ -65,7 +65,7 @@ const CreateReport = () => {
 
     try {
       const response = await axios.post(
-        "/api/reports/createNewReport",  
+        "/api/gen-report/createNewReport",
         {
           reportName,
           facilityName: facilityName || user.facilities[0]?.facilityName, // Use facilityName from input or default

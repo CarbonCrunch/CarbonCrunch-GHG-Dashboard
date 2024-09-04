@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { user } = useAuth();
+  console.log("user", user);
 
   const fetchReports = async () => {
     try {
@@ -28,7 +29,7 @@ const Dashboard = () => {
         );
       } else if (user.role === "FacAdmin" || "Employee") {
         response = await axios.post(
-          "/api/reports/get",
+          "/api/reports/getUserReports",
           {
             user, // Send user data in the request body
           },

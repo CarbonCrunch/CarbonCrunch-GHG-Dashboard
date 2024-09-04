@@ -411,11 +411,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export const getCurrentUser = asyncHandler(async (req, res) => {
-  return res
-    .status(200)
-    .json(new ApiResponse(200, req.user, "User fetched successfully"));
-});
+
 
 export const getCompanyUsers = asyncHandler(async (req, res) => {
   const { companyName } = req.query; // Get company name from query parameters

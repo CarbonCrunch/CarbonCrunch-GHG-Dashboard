@@ -2,7 +2,6 @@ import { Router } from "express";
 import {
   deleteUserPermission,
   getCompanyUsers,
-  getCurrentUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -32,6 +31,5 @@ router.route("/deleteUserPermission").delete(verifyJWT, deleteUserPermission);
 
 router.route("/refresh-token").post(refreshAccessToken);
 
-router.route("/current-user").get(verifyJWT, getCurrentUser);
 
 export default router;

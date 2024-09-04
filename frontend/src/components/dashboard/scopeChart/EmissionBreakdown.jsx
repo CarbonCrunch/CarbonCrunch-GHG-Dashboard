@@ -17,7 +17,7 @@ const EmissionBreakdown = ({ report }) => {
     const fetchReports = async () => {
       try {
         const response = await axios.post(
-          "/api/reports/get",
+          "/api/reports/getUserReports",
           { user },
           { withCredentials: true }
         );

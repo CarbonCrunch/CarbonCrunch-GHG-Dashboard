@@ -87,17 +87,6 @@ export const createPermission = asyncHandler(async (req, res) => {
 
   await facility.save();
 
-  // Post-save middleware to update the User model if the facility userRoles have been updated
-  //   const user = await User.findOne({ username });
-  //   if (user) {
-  //     user.facilities = user.facilities || []; // Ensure facilities is initialized as an array
-  //     if (!user.facilities.includes(facility._id)) {
-  //       user.facilities.push(facility._id);
-  //     }
-  //     await user.save();
-  //     console.log("User updated with facility", user);
-  //   }
-
   res.status(201).json({
     success: true,
     data: facility,

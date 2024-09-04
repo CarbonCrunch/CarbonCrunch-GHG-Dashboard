@@ -38,6 +38,12 @@ const facilitySchema = new Schema({
     required: true,
     trim: true,
   },
+  reports: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Report",
+    },
+  ],
   userRoles: [
     {
       username: {

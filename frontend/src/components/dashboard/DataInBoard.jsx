@@ -22,8 +22,8 @@ import Ehctd from "../reports/Ehctd";
 import Food from "../reports/Food";
 import HomeOffice from "../reports/HomeOffice";
 import Water from "../reports/Water";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// import { toast, ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -55,7 +55,7 @@ const DataInBoard = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "/api/reports/get",
+        "/api/reports/getUserReports",
         {
           user, // Send user data in the request body
         },
@@ -483,7 +483,7 @@ const DataInBoard = () => {
           </main>
         </div>
       </div>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </div>
   );
 };

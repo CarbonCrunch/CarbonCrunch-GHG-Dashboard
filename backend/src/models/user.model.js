@@ -1,5 +1,3 @@
-
-
 // userModel.js
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
@@ -67,12 +65,7 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
-    reports: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Report",
-      },
-    ],
+
     bills: [
       {
         type: Schema.Types.ObjectId,

@@ -8,6 +8,7 @@ import userRouter from "./routes/user.routes.js";
 import reportRouter from "./routes/report.routes.js";
 import billRouter from "./routes/bill.routes.js";
 import facilityRouter from "./routes/facility.routes.js";
+import genReportRouter from "./routes/gen-report.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,6 +39,7 @@ app.use("/api/facilities", facilityRouter);
 app.use("/api/users", userRouter);
 app.use("/api/reports", reportRouter);
 app.use("/api/bills", billRouter);
+app.use("/api/gen-report", genReportRouter);
 
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../../frontend/dist", "index.html"));

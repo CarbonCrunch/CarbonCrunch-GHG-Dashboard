@@ -15,58 +15,61 @@ const Report = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
-  // console.log("User:", user);
- const fetchReports = async () => {
-   try {
-     let response;
 
-     if (user.role === "Admin") {
-       response = await axios.post(
-         "/api/reports/getCompanyReport",
-         {
-           user,
-         },
-         {
-           withCredentials: true,
-         }
-       );
-     } else if (user.role === "FacAdmin") {
-       response = await axios.post(
-         "/api/reports/get",
-         {
-           user,
-         },
-         {
-           withCredentials: true,
-         }
-       );
-     } else {
-       throw new Error("Invalid role");
-     }
+  const fetchReports = async () => {
+    try {
+      let response;
 
-     if (response.data.data === "zero") {
-       setReports([]);
-       setLoading(false);
-       console.log("No reports found, setting reports to an empty array");
-     } else {
-       const fetchedData = response.data.data;
+      if (user.role === "Admin") {
+        response = await axios.post(
+          "/api/reports/getCompanyGenReports",
+          {
+            companyName: user.companyName,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+      } else if (user.role === "FacAdmin") {
+        response = await axios.post(
+          "/api/reports/getUserGenReports",
+          {
+            username: user.username,
+            companyName: user.companyName,
+            facilityName: user.facilities[0].facilityName,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+      } else {
+        throw new Error("Invalid role");
+      }
 
-       // Ensure fetchedData is always an array
-       const reportsArray = Array.isArray(fetchedData)
-         ? fetchedData
-         : [fetchedData];
+      if (response.data.data === "zero") {
+        setReports([]);
+        setLoading(false);
+        console.log("No reports found, setting reports to an empty array");
+      } else {
+        const fetchedData = response.data.data;
 
-       // Using functional update to ensure correct state setting
-       setReports(() => {
-        //  console.log("New reports state to be set:", reportsArray);
-         return reportsArray;
-       });
-       setLoading(false);
-     }
-   } catch (err) {
-     console.error("Error fetching reports:", err);
-   }
- };
+        // Ensure fetchedData is always an array
+        const reportsArray = Array.isArray(fetchedData)
+          ? fetchedData
+          : [fetchedData];
+
+        // Using functional update to ensure correct state setting
+        setReports(() => {
+          console.log("New reports state to be set:", reportsArray);
+          return reportsArray;
+        });
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Error fetching reports:", err);
+      setError("Failed to fetch reports");
+    }
+  };
 
   useEffect(() => {
     fetchReports();
@@ -139,13 +142,16 @@ const Report = () => {
   };
 
   const renderReportCard = (report) => {
-    if (!report) {
+    if (!report || !report.report) {
       return <p>No report available</p>;
     }
 
-    return (
-      <div className="bg-white shadow-md rounded-lg p-6 mb-4 relative">
-        <h2 className="text-xl font-bold mb-2">{report.reportName}</h2>
+    return report.report.map((reportItem, index) => (
+      <div
+        key={index}
+        className="bg-white shadow-md rounded-lg p-6 mb-4 relative"
+      >
+        <h2 className="text-xl font-bold mb-2">{reportItem.reportName}</h2>
         <p>
           <strong>Company Name:</strong> {report.companyName}
         </p>
@@ -153,7 +159,7 @@ const Report = () => {
           <strong>Facility Name:</strong> {report.facilityName}
         </p>
         <p>
-          <strong>Report ID:</strong> {report.reportId}
+          <strong>Report ID:</strong> {reportItem.reportId}
         </p>
         <p>
           <strong>Username:</strong> {report.username}
@@ -161,26 +167,27 @@ const Report = () => {
         <p>
           <strong>Time Period:</strong> {formatTimePeriod(report.timePeriod)}
         </p>
-        {/* Continue Button */}
         <Link
-          to={{
-            pathname: `/report/${report.reportId}/view`,
+          to={`/report/${reportItem.reportId}/view`}
+          state={{
+            username: user.username,
+            companyName: user.companyName,
+            facilityName: report.facilityName,
+            reportId: reportItem.reportId,
           }}
           className="absolute top-6 right-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
         >
           Continue
         </Link>
       </div>
-    );
+    ));
   };
 
-  // Determine if the facility names match
- const doesFacilityNameMatch = reports.some(
-   (report) =>
-     report.facilityName.toLowerCase() ===
-     user.facilities[0].facilityName.toLowerCase()
- );
+  // Check if any facility in user has a report (ObjectId)
+  const doesFacilityHaveReport = user?.facilities?.some(
 
+    (facility) => facility?.reports 
+  );
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -209,8 +216,7 @@ const Report = () => {
             </div>
 
             <div className="flex space-x-2">
-             
-              {!doesFacilityNameMatch && (
+              {!doesFacilityHaveReport && (
                 <button
                   onClick={handleAddData}
                   className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
@@ -229,8 +235,6 @@ const Report = () => {
 
           {loading ? (
             <p>Loading reports...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
           ) : reports.length === 0 ? (
             <p className="mt-4">No reports made</p>
           ) : Array.isArray(reports) ? (

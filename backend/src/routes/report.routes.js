@@ -5,7 +5,10 @@ import {
   // changeCurrentTab,
   // getCurrentTab,
   deleteReport,
+  getCompanyGenReports,
   getCompanyReport,
+  getReportForTimeRange,
+  getUserGenReports,
   getUserReports,
   updateBioenergyData,
   updateBTLSData,
@@ -40,18 +43,19 @@ import {
   CO2eHome,
   CO2eFa,
 } from "../controllers/factor.controller.js";
-import { createNewReport } from "../controllers/generate-report.controller.js";
 const router = Router();
 
 router
   .route("/addData")
   .post(verifyJWT, restrictTo("FacAdmin", "Admin"), addData);
-  router
-    .route("/createNewReport")
-    .post(verifyJWT, restrictTo("FacAdmin", "Admin"), createNewReport);
-  
-router.route("/get").post(getUserReports);
+
+
+router.route("/getUserReports").post(getUserReports);
 router.route("/getCompanyReport").post(getCompanyReport);
+router.route("/getUserGenReports").post(getUserGenReports);
+router.route("/getCompanyGenReports").post(getCompanyGenReports);
+router.route("/getReportForTimeRange").post(getReportForTimeRange);
+
 router
   .route("/:reportId/delete")
   .delete(verifyJWT, restrictTo("FacAdmin", "Admin"), deleteReport);

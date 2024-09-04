@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import NavbarD from "./NavbarD";
 import Sidebar from "./Sidebar";
 import jsPDF from "jspdf";
@@ -8,32 +8,43 @@ import "jspdf-autotable";
 import { useAuth } from "../../context/AuthContext";
 
 const ViewReport = () => {
-  const { reportId } = useParams();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const location = useLocation();
+  const { username, companyName, facilityName, reportId } =
+    location.state || {};
   const { user } = useAuth();
+  // console.log("ViewReport", username, companyName, facilityName, reportId);
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
         const response = await axios.post(
-          `/api/reports/get`,
+          `/api/reports/getReportForTimeRange`,
           {
-            user, // Send user data in the request body
+            username,
+            companyName,
+            facilityName,
+            reportId,
           },
           {
-            params: { reportId },
             headers: {
               Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
             },
             withCredentials: true, // Ensure cookies are sent
           }
         );
+
+        // console.log("API Response Data: ", response.data.data);
+
         if (response.data.data === "zero") {
-          setReport(null);
+          setReport(() => null); // Set the report state to null using a callback
         } else {
-          setReport(response.data.data);
+          setReport((prevReport) => {
+            console.log("Setting report state: ", response.data.data.report[0].report); // Debugging state setting
+            return response.data.data;
+          });
         }
       } catch (err) {
         setError("Failed to fetch report");
@@ -44,7 +55,8 @@ const ViewReport = () => {
     };
 
     fetchReports();
-  }, [reportId]);
+  }, []);
+
 
   if (loading) return <p>Loading report...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -158,119 +170,44 @@ const ViewReport = () => {
       )),
     ]);
   };
-  const aggregateData = (categories, isScope2 = false) => {
-    if (isScope2) {
-      const aggregatedScope2 = {
-        Electricity: 0,
-        "Heat and steam": 0,
-        "District cooling": 0,
-      };
-      if (report && report.ehctd) {
-        report.ehctd.forEach((item) => {
-          if (item.activity === "Electricity") {
-            aggregatedScope2["Electricity"] += item.CO2e || 0;
-          } else if (item.activity === "Heating and Steam") {
-            aggregatedScope2["Heat and steam"] += item.CO2e || 0;
-          } else if (item.activity === "District Cooling") {
-            aggregatedScope2["District cooling"] += item.CO2e || 0;
-          }
-        });
-      }
-      return aggregatedScope2;
-    }
 
-    const aggregatedData = {};
-    categories.forEach((category) => {
-      if (category.subcategories.length === 0) {
-        switch (category.name.toLowerCase()) {
-          case "employees commuting":
-            aggregatedData[category.name.toLowerCase()] = (
-              report.ec || []
+const aggregateData = (categories, isScope2 = false) => {
+  const aggregatedData = {};
+  categories.forEach((category) => {
+    if (category.subcategories.length === 0) {
+      aggregatedData[category.name.toLowerCase()] = (
+        report[category.name.toLowerCase()] || []
+      ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
+    } else {
+      category.subcategories.forEach((subcat) => {
+        switch (subcat.toLowerCase()) {
+          case "all other fuel and energy related activities":
+            aggregatedData[subcat.toLowerCase()] = (
+              report.wttfuel || []
             ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
             break;
-          case "food":
-            aggregatedData[category.name.toLowerCase()] = (
-              report.food || []
-            ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
+          case "transmission and distribution losses":
+            aggregatedData[subcat.toLowerCase()] = (report.ehctd || []).reduce(
+              (sum, item) => sum + (item.CO2eTD || 0),
+              0
+            );
             break;
-          case "home office":
-            aggregatedData[category.name.toLowerCase()] = (
-              report.homeOffice || []
-            ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
+          case "waste water":
+            aggregatedData[subcat.toLowerCase()] = (report.water || [])
+              .filter((item) => item.emission === "Water Treatment")
+              .reduce((sum, item) => sum + (item.CO2e || 0), 0);
             break;
+          // Add additional cases as necessary
           default:
-            aggregatedData[category.name.toLowerCase()] = (
-              report[category.name.toLowerCase()] || []
+            aggregatedData[subcat.toLowerCase()] = (
+              report[subcat.toLowerCase()] || []
             ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
         }
-      } else {
-        category.subcategories.forEach((subcat) => {
-          switch (subcat.toLowerCase()) {
-            case "all other fuel and energy related activities":
-              aggregatedData[subcat.toLowerCase()] = (
-                report.wttfuel || []
-              ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
-              break;
-            case "transmission and distribution losses":
-              aggregatedData[subcat.toLowerCase()] = (
-                report.ehctd || []
-              ).reduce((sum, item) => sum + (item.CO2eTD || 0), 0);
-              break;
-            case "waste water":
-              aggregatedData[subcat.toLowerCase()] = (report.water || [])
-                .filter((item) => item.emission === "Water Treatment")
-                .reduce((sum, item) => sum + (item.CO2e || 0), 0);
-              break;
-            case "waste":
-              aggregatedData[subcat.toLowerCase()] = (
-                report.waste || []
-              ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
-              break;
-            case "water supplied":
-              aggregatedData[subcat.toLowerCase()] = (report.water || [])
-                .filter((item) => item.emission === "Water Supply")
-                .reduce((sum, item) => sum + (item.CO2e || 0), 0);
-              break;
-            case "material use":
-              aggregatedData[subcat.toLowerCase()] = (
-                report.material || []
-              ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
-              break;
-            case "emissions arising from hotel accommodation associated with business travel":
-              aggregatedData[subcat.toLowerCase()] = (
-                report.fa?.hotelAccomodation || []
-              ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
-              break;
-            case "all transportation by land, public transport, rented/leased vehicle and taxi":
-              aggregatedData[subcat.toLowerCase()] = (report.btls || []).reduce(
-                (sum, item) => sum + (item.CO2e || 0),
-                0
-              );
-              break;
-            case "freighting goods":
-              aggregatedData[subcat.toLowerCase()] = (report.fg || []).reduce(
-                (sum, item) => sum + (item.CO2e || 0),
-                0
-              );
-              break;
-            case "passenger vehicles":
-            case "delivery vehicles":
-              aggregatedData[subcat.toLowerCase()] = (
-                report.ownedVehicles || []
-              )
-                .filter((vehicle) => vehicle.level1 === subcat)
-                .reduce((sum, vehicle) => sum + (vehicle.CO2e || 0), 0);
-              break;
-            default:
-              aggregatedData[subcat.toLowerCase()] = (
-                report[subcat.toLowerCase()] || []
-              ).reduce((sum, item) => sum + (item.CO2e || 0), 0);
-          }
-        });
-      }
-    });
-    return aggregatedData;
-  };
+      });
+    }
+  });
+  return aggregatedData;
+};
 
   const aggregatedScope1Data = aggregateData(scope1Categories);
   const aggregatedScope2Data = aggregateData(scope2Categories, true);
@@ -495,7 +432,8 @@ const ViewReport = () => {
           <h1 className="text-2xl font-bold mb-4">Report</h1>
           <h3 className="text-lg font-semibold mb-4">
             Company: {report.companyName}, Facility: {report.facilityName},
-            Report: {report.reportName}, Report ID: {report.reportId}
+            Report: {report.report[0].reportName}, Report ID:{" "}
+            {report.report[0].reportId}
           </h3>
           {/* Progress bar */}
           <div className="bg-gray-100 p-6 rounded-lg shadow-md flex justify-between items-center mb-5, mt-5">
