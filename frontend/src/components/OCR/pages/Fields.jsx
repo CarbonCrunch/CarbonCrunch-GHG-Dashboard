@@ -2,103 +2,42 @@ import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Fuel from "../../reports/Fuel";
-import Bioenergy from "../../reports/Bioenergy";
-import Refrigerants from "../../reports/Refrigerants";
-import Ov from "../../reports/Ov";
-import Wttfuels from "../../reports/Wttfuels";
-import Materials from "../../reports/Materials";
-import Waste from "../../reports/Waste";
-import Fa from "../../reports/Fa";
-import Ehctd from "../../reports/Ehctd";
-import Btls from "../../reports/Btls";
-import Ec from "../../reports/Ec";
-import Fg from "../../reports/Fg";
-import Food from "../../reports/Food";
-import HomeOffice from "../../reports/HomeOffice";
-import Water from "../../reports/Water";
-import { useAuth } from "../../../context/AuthContext";
+const Fields = ({ formData, handleSubmit, handleInputChange, handleInputFocus }) => {
 
-const componentMap = {
-  Fuels: Fuel,
-  Bioenergy: Bioenergy,
-  Refrigerants: Refrigerants,
-  OwnedVehicles: Ov,
-  WTTFuel: Wttfuels,
-  MaterialsUsed: Materials,
-  WasteDisposal: Waste,
-  "Flights & Accommodations": Fa,
-  Electricity_Heating: Ehctd,
-  BusinessTravel: Btls,
-  FreightingGoods: Fg,
-  EmployCommuting: Ec,
-  Food: Food,
-  Home: HomeOffice,
-  Water: Water,
-};
-
-const Fields = ({
-  formData,
-  handleInputChange,
-  handleInputFocus,
-  selectedBillType,
-  billId, 
-}) => {
-  const { user } = useAuth();
-
-  const SelectedComponent = componentMap[selectedBillType];
 
   return (
-    <div className="w-full pl-4 mt-4 md:mt-0">
-      <div className="space-y-4 ">
-        
-        <div>
-          <p>
-            <strong>Bill ID:</strong> {billId}  
-          </p>
-          <p>
-            <strong>Company Name:</strong> {user.companyName}{" "}
-           </p>
-          <p>
-            <strong>Facility Name:</strong> {user.facilityName}{" "}
-           </p>
-          <p>
-            <strong>Username:</strong> {user.username}{" "}
-          </p>
+    <>
+      <div className="flex flex-1 p-6 space-x-6 bg-white shadow-lg rounded-lg m-4">
+        {/* Right Side: Bill Details */}
+        <div className="w-full flex flex-col justify-center space-y-6">
+          {/* Type Input Field */}
+          <div className="space-y-2">
+            <label className="block text-lg font-semibold text-gray-700">
+              Info:
+            </label>
+            <input
+              type="text"
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              onFocus={() => handleInputFocus("type")}
+              className="w-full p-2 border rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Update Button */}
+          <div className="mt-6">
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300"
+            >
+              Update
+            </button>
+          </div>
         </div>
-
-        <div>
-          <label htmlFor="type_of_bill" className="block mb-1">
-            Type of Bill: {selectedBillType}
-          </label>
-
-          {/* <div>
-            {loading ? (
-              <p>Loading report...</p>
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : report ? (
-              <div className="overflow-x-auto ">
-                <div className="whitespace-nowrap">
-                  {SelectedComponent && (
-                    <SelectedComponent
-                      handleInputFocus={handleInputFocus}
-                      handleInputChange={handleInputChange}
-                      formData={formData}
-                      report={report}
-                    />
-                  )}
-                </div>
-              </div>
-            ) : (
-              <p>No report data available.</p>
-            )}
-          </div> */}
-        </div>
-
-        <ToastContainer />
       </div>
-    </div>
+    </>
   );
 };
 

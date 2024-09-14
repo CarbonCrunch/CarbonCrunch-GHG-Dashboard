@@ -170,40 +170,64 @@ export const loginUser = asyncHandler(async (req, res) => {
     }
 
     // Find user by username and facility name for these roles
-    const users = await User.aggregate([
-      {
-        $match: {
-          username: username,
-          role: role,
-        },
+  const users = await User.aggregate([
+    {
+      $match: {
+        username: username,
+        role: role,
       },
-      {
-        $lookup: {
-          from: "facilities",
-          localField: "facilities",
-          foreignField: "_id",
-          as: "facilities",
-        },
+    },
+    {
+      $lookup: {
+        from: "facilities",
+        localField: "facilities",
+        foreignField: "_id",
+        as: "facilityDetails",
       },
-      {
-        $addFields: {
-          facilities: {
-            $filter: {
-              input: "$facilities",
-              as: "facility",
-              cond: { $eq: ["$$facility.facilityName", facilityName] },
-            },
+    },
+    {
+      $addFields: {
+        facilities: {
+          $filter: {
+            input: "$facilityDetails",
+            as: "facility",
+            cond: { $eq: ["$$facility.facilityName", facilityName] },
           },
         },
-      },
-      {
-        $match: {
-          "facilities.0": { $exists: true }, // Ensures at least one facility matches
+        facilityIndex: {
+          $indexOfArray: [
+            {
+              $map: {
+                input: "$facilityDetails",
+                as: "facility",
+                in: "$$facility.facilityName",
+              },
+            },
+            facilityName,
+          ],
         },
       },
-    ]);
+    },
+    {
+      $project: {
+        username: 1,
+        role: 1,
+        password: 1,
+        companyName: 1,
+        hasSeenTour: 1,
+        facilities: 1,
+        facilityIndex: 1,
+      },
+    },
+    {
+      $match: {
+        facilities: { $exists: true, $ne: null },
+      },
+    },
+  ]);
 
-    // console.log("users", users);
+
+    console.log("users", users);
 
     if (users.length === 0) {
       throw new ApiError(
@@ -236,7 +260,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid role provided");
   }
 
-  // console.log("user2", user);
+  console.log("user2", user);
 
   // Validate password
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -251,11 +275,11 @@ export const loginUser = asyncHandler(async (req, res) => {
   );
 
   // Fetch user without sensitive information
-  const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken"
-  );
+  // const loggedInUser = await User.findById(user._id).select(
+  //   "-password -refreshToken"
+  // );
 
-  req.user = loggedInUser;
+  req.user = user;
   // console.log("req.user is set to:", req.user);
 
   const options = {
@@ -277,7 +301,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     new ApiResponse(
       200,
       {
-        user: loggedInUser,
+        user: user,
         accessToken,
         refreshToken,
       },
@@ -410,8 +434,6 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     throw new ApiError(401, error?.message || "Invalid refresh token");
   }
 });
-
-
 
 export const getCompanyUsers = asyncHandler(async (req, res) => {
   const { companyName } = req.query; // Get company name from query parameters
@@ -562,9 +584,9 @@ export const updateUserPermission = asyncHandler(async (req, res) => {
 });
 
 export const deleteUserPermission = asyncHandler(async (req, res) => {
-  const { username, userId, facilityName } = req.body; // Extract data from the request body
+  const { username, userId, facilityName } = req.body;
   console.log("deleteUserPermission", username, userId, facilityName);
-  // Validate the required fields
+
   if (!username || !userId || !facilityName) {
     throw new ApiError(400, "Username, userId, and facilityName are required");
   }
@@ -572,7 +594,7 @@ export const deleteUserPermission = asyncHandler(async (req, res) => {
   try {
     // Find the facility by facilityName
     const facility = await Facility.findOne({ facilityName });
-
+    console.log("facility", facility);
     if (!facility) {
       throw new ApiError(404, "Facility not found");
     }
@@ -592,16 +614,45 @@ export const deleteUserPermission = asyncHandler(async (req, res) => {
     // Save the updated facility document
     await facility.save();
 
+    // Find the user and remove the facility from their facilities array
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    // Remove the facility ID from the user's facilities array
+    const facilityIndex = user.facilities.findIndex(
+      (f) => f._id.toString() === facility._id.toString()
+    );
+    // console.log("facilityIndex", facilityIndex);
+
+    if (facilityIndex > -1) {
+      // Remove the facility from the array
+      user.facilities.splice(facilityIndex, 1);
+
+      // Save the updated user document
+      await user.save();
+      console.log("updatedUser", user);
+    } else {
+      console.log("Facility not found in user's facilities array");
+    }
+
     // Respond with success
     return res
       .status(200)
-      .json(new ApiResponse(200, facility, "User role deleted successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          { facility, user },
+          "User role and facility association deleted successfully"
+        )
+      );
   } catch (error) {
-    // Handle any unexpected errors
-    console.error("Error deleting user role from facility:", error);
+    console.error("Error deleting user role and updating user:", error);
     throw new ApiError(
       500,
-      "An error occurred while deleting user role",
+      "An error occurred while deleting user role and updating user",
       error
     );
   }

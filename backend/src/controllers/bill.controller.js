@@ -14,7 +14,7 @@ cloudinary.config({
 
 export const getBills = asyncHandler(async (req, res) => {
   const { companyName, facilityName } = req.query;
-  console.log("getBills", companyName, facilityName);
+  // console.log("getBills", companyName, facilityName);
 
   // Validate required fields
   if (!companyName || !facilityName) {
@@ -56,7 +56,7 @@ export const getBills = asyncHandler(async (req, res) => {
 
 export const getCompanyBill = asyncHandler(async (req, res) => {
   const { companyName, username } = req.query;
-  console.log("getCompanyBills", companyName, username);
+  // console.log("getCompanyBills", companyName, username);
 
   // Validate required fields
   if (!companyName) {

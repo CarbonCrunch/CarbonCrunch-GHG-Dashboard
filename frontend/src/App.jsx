@@ -145,7 +145,7 @@ function App() {
           path="/ocr/output"
           element={
             <ProtectedRoute>
-              <ImageViewer uploadedImage={uploadedImage} />
+              <ImageViewer />
             </ProtectedRoute>
           }
         />
@@ -186,7 +186,7 @@ function App() {
           path="/viewbills/:billId"
           element={
             <ProtectedRoute>
-              <EditBill />
+              <EditBill uploadedImage={uploadedImage} />
             </ProtectedRoute>
           }
         />

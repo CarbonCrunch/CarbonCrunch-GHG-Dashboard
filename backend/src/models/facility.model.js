@@ -44,6 +44,12 @@ const facilitySchema = new Schema({
       ref: "Report",
     },
   ],
+  bills: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Bill",
+    },
+  ],
   userRoles: [
     {
       username: {

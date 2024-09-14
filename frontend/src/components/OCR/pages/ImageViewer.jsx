@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Fields from "./Fields";
 import Canvas from "../Canvas";
 import NavbarD from "../../dashboard/NavbarD";
 import Sidebar from "../../dashboard/Sidebar";
+import { useAuth } from "../../../context/AuthContext";
 
 function ImageViewer({ uploadedImage }) {
-  const location = useLocation();
-  const selectedBillType = location.state?.billType || "";
-  const billId = location.state?.billId || "";  
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState({});
   const [activeField, setActiveField] = useState(null);
   const [containerRef, setContainerRef] = useState(null);
+  const { user } = useAuth();
 
   const handleInputFocus = (field) => {
     setActiveField(field);
@@ -24,6 +23,11 @@ function ImageViewer({ uploadedImage }) {
       [name]: value,
     }));
   };
+
+    const handleSubmit = async () => {
+      
+    };
+
 
   useEffect(() => {
     if (containerRef) {
@@ -72,14 +76,12 @@ function ImageViewer({ uploadedImage }) {
                   </div>
                 </div>
               </div>
-              <div className="hidden md:block  bg-gray-200 mx-4"></div>
               <div ref={setContainerRef} className="flex-1 overflow-auto">
                 <Fields
                   formData={formData}
                   handleInputFocus={handleInputFocus}
                   handleInputChange={handleInputChange}
-                  selectedBillType={selectedBillType}
-                  billId={billId}
+                  handleSubmit={handleSubmit}
                 />
               </div>
             </div>
@@ -91,3 +93,4 @@ function ImageViewer({ uploadedImage }) {
 }
 
 export default ImageViewer;
+

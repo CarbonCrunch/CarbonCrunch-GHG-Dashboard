@@ -216,27 +216,27 @@ const fetchBills = async () => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("image", selectedFile);
+      // const formData = new FormData();
+      // formData.append("image", selectedFile);
 
-      const ocrResponse = await axios.post(
-        "http://localhost:5000/ocr/uploadimage",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      // const ocrResponse = await axios.post(
+      //   "http://localhost:5000/ocr/uploadimage",
+      //   formData,
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   }
+      // );
 
-      if (ocrResponse.status !== 200) {
-        throw new Error("Image upload to OCR service failed");
-      }
+      // if (ocrResponse.status !== 200) {
+      //   throw new Error("Image upload to OCR service failed");
+      // }
 
       const billFormData = new FormData();
       billFormData.append("user", JSON.stringify(user));
       billFormData.append("billType", selectedBillType);
-      billFormData.append("facilityName", user.facilityName);
+      billFormData.append("facilityName", user.facilities[0].facilityName);
       billFormData.append("companyName", user.companyName);
       billFormData.append("username", user.username);
       billFormData.append("file", selectedFile);
@@ -260,9 +260,7 @@ const fetchBills = async () => {
         setUploadedImage(URL.createObjectURL(selectedFile));
         setShowModal(false);
         alert("Bill created successfully!");
-        navigate("/ocr/output", {
-          state: { billType: selectedBillType, billId: billId },
-        });
+        // navigate("/viewbills/:billId");
       } else {
         throw new Error("Bill creation failed");
       }

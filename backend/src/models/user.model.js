@@ -65,13 +65,6 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
-
-    bills: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Bill",
-      },
-    ],
     hasSeenTour: {
       type: Boolean,
       default: false, // Add this new field with default value set to false

@@ -22,7 +22,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     let token;
 
-    console.log("verifyJWTHeaders", req.headers);
+    // console.log("verifyJWTHeaders", req.headers);
     // console.log("verifyJWTuser", req.user);
 
     // Normalize header lookup and log all headers for debugging
@@ -35,7 +35,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
       console.log("Authorization header is missing or incorrectly formatted");
     }
 
-    console.log("verifyJWTtoken", token);
+    // console.log("verifyJWTtoken", token);
 
     if (!token) {
       throw new ApiError(401, "Unauthorized request: No token provided");
@@ -43,19 +43,19 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
     // Verify the token
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log("decodedToken", decodedToken);
+    // console.log("decodedToken", decodedToken);
 
     const user = await User.findById(decodedToken?._id).select(
       "-password -refreshToken"
     );
-    console.log("verifyJWTuser", user);
+    // console.log("verifyJWTuser", user);
 
     if (!user) {
       throw new ApiError(401, "Invalid Access Token: User not found");
     }
 
     req.user = user;
-    console.log("verifyJWT-req.user", req.user);
+    // console.log("verifyJWT-req.user", req.user);
     next();
   } catch (error) {
     if (
