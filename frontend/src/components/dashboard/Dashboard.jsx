@@ -10,7 +10,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { user } = useAuth();
-  console.log("user", user);
+  // console.log("user", user);
 
   const fetchReports = async () => {
     try {
@@ -47,7 +47,7 @@ const Dashboard = () => {
       } else {
         setReport(response.data.data); // Set report as an array
         console.log("ReportComponent", response.data.data);
-        // console.log("report", report)
+        // console.log("report", report);
       }
     } catch (err) {
       setError("Failed to fetch reports");

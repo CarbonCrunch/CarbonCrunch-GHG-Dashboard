@@ -3,21 +3,14 @@ import { Report } from "../models/report.model.js";
 import { ApiError } from "../utils/ApiError.js";
 
 export const CO2eFuel = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const fuel = JSON.parse(req.query.fuel);
-  // console.log("fuel", fuel, reportId, companyName, facilityName);
+  const { _id, companyName, fuel } = req.body;
 
-  if (!companyName || !facilityName || !fuel) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and fuel data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
+  // console.log("reportF", report);
 
   if (!report) {
     console.log("report", report);
@@ -60,8 +53,13 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
     "Coal (electricity generation - home produced)": 2248.82,
   };
 
+  if (!Array.isArray(report.fuel)) {
+    console.log("fuel", report);
+    throw new ApiError(400, "Fuel data must be an array.");
+  }
+
   // Update the fuel data with calculated CO2e amounts
-  const updatedFuelData = fuel.map((fuelEntry) => {
+  const updatedFuelData = report.fuel.map((fuelEntry) => {
     const conversionRate = conversionRates[fuelEntry.fuelType];
     const CO2e = fuelEntry.amount * conversionRate;
     return { ...fuelEntry, CO2e };
@@ -82,29 +80,17 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
 });
 
 export const CO2eBioenergy = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const bioenergy = JSON.parse(req.query.bioenergy);
-  // console.log("Bioenergy :", bioenergy);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !bioenergy) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and bioenergy data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and Id data are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
   }
-
-  // if (report.username !== req.user.username) {
-  //   throw new ApiError(401, "Unauthorized access to update bioenergy data.");
-  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -121,7 +107,7 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
   };
 
   // Update the bioenergy data with calculated CO2e amounts
-  const updatedBioenergyData = bioenergy.map((bioenergyEntry) => {
+  const updatedBioenergyData = report.bioenergy.map((bioenergyEntry) => {
     const conversionRate = conversionRates[bioenergyEntry.fuelType];
     const CO2e = bioenergyEntry.amount * conversionRate;
     return { ...bioenergyEntry, CO2e };
@@ -135,7 +121,6 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
   );
 
   await report.save();
-  console.log("Bionergy :", bioenergy);
 
   res.status(200).json({
     success: true,
@@ -144,29 +129,19 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
   });
 });
 
+
 export const CO2eRefrigerants = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const refrigerants = JSON.parse(req.query.refrigerants);
-  // console.log("refrigerants", refrigerants,  companyName, facilityName);
-  if (!companyName || !facilityName || !refrigerants) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and refrigerants data are required."
-    );
+  const { _id, companyName } = req.body;
+
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id data are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
   }
-
-  // if (report.username !== req.user.username) {
-  //   throw new ApiError(401, "Unauthorized access to update refrigerants data.");
-  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -252,11 +227,13 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   };
 
   // Update the refrigerants data with calculated CO2e amounts
-  const updatedRefrigerantsData = refrigerants.map((refrigerantEntry) => {
-    const conversionRate = conversionRates[refrigerantEntry.emission];
-    const CO2e = refrigerantEntry.amount * conversionRate;
-    return { ...refrigerantEntry, CO2e };
-  });
+  const updatedRefrigerantsData = report.refrigerants.map(
+    (refrigerantEntry) => {
+      const conversionRate = conversionRates[refrigerantEntry.emission];
+      const CO2e = refrigerantEntry.amount * conversionRate;
+      return { ...refrigerantEntry, CO2e };
+    }
+  );
 
   // Update the report's refrigerants data and store CO2e
   report.refrigerants = updatedRefrigerantsData;
@@ -274,25 +251,20 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   });
 });
 
+
 export const CO2eOv = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const ownedVehicles = JSON.parse(req.query.ownedVehicles);
+ const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !ownedVehicles) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and vehicle data are required."
-    );
-  }
+ if (!companyName || !_id) {
+   throw new ApiError(400, "Company name and _id are required.");
+ }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+ const report = await Report.findById(_id);
 
-  if (!report) {
-    throw new ApiError(404, "Report not found.");
-  }
+ if (!report) {
+   throw new ApiError(404, "Report not found.");
+ }
+
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(401, "Unauthorized access to update vehicle data.");
@@ -378,7 +350,7 @@ export const CO2eOv = asyncHandler(async (req, res) => {
   };
 
   // Update the vehicle data with calculated CO2e amounts
-  const updatedVehicleData = ownedVehicles.map((vehicleEntry) => {
+  const updatedVehicleData = report.ownedVehicles.map((vehicleEntry) => {
     const { level1, level2, level3, fuel, distance } = vehicleEntry; // Ensure distance is used instead of amount
     let conversionRate = 0;
 
@@ -420,29 +392,17 @@ export const CO2eOv = asyncHandler(async (req, res) => {
 });
 
 export const CO2eEhctd = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const ehctd = JSON.parse(req.query.ehctd);
-  // console.log("ehctd", ehctd,  companyName, facilityName);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !ehctd) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and EHCTD data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
   }
-
-  // if (report.username !== req.user.username) {
-  //   throw new ApiError(401, "Unauthorized access to update EHCTD data.");
-  // }
 
   // Define conversion rates
   const conversionRates = {
@@ -454,7 +414,7 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
   };
 
   // Update the EHCTD data with calculated CO2e and CO2eTD amounts
-  const updatedEhctdData = ehctd.map((entry) => {
+  const updatedEhctdData = report.ehctd.map((entry) => {
     const conversionRate = conversionRates[entry.activity];
     const CO2e = parseFloat(entry.amount) * conversionRate;
 
@@ -473,8 +433,7 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
   // Update the report's EHCTD data and store CO2e
   report.ehctd = updatedEhctdData;
   report.CO2eEhctd = updatedEhctdData.reduce((acc, curr) => acc + curr.CO2e, 0);
-  // console.log("ehctd", report.ehctd);
-  // console.log("CO2eEhctd", report.CO2eEhctd);
+
   await report.save();
 
   res.status(200).json({
@@ -484,25 +443,19 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
   });
 });
 
+
 export const CO2eEc = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const ec = JSON.parse(req.query.ec);
+ const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !ec) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and employee commuting data are required."
-    );
-  }
+ if (!companyName || !_id) {
+   throw new ApiError(400, "Company name and _id are required.");
+ }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+ const report = await Report.findById(_id);
 
-  if (!report) {
-    throw new ApiError(404, "Report not found.");
-  }
+ if (!report) {
+   throw new ApiError(404, "Report not found.");
+ }
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(
@@ -589,7 +542,7 @@ export const CO2eEc = asyncHandler(async (req, res) => {
     },
   };
 
-  const updatedEcData = ec.map((entry) => {
+  const updatedEcData = report.ec.map((entry) => {
     let conversionRate = 0;
 
     if (entry.vehicle === "Car") {
@@ -632,21 +585,13 @@ export const CO2eEc = asyncHandler(async (req, res) => {
 });
 
 export const CO2eBtls = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const btls = JSON.parse(req.query.btls);
-  // console.log("btls", btls,  companyName, facilityName);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !btls) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and BTLS data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
@@ -718,7 +663,7 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
   };
 
   // Update the BTLS data with calculated CO2e amounts
-  const updatedBtlsData = btls.map((btlsEntry) => {
+  const updatedBtlsData = report.btls.map((btlsEntry) => {
     const { vehicle, type, fuel, distance, unit } = btlsEntry;
     let conversionRate = 0;
 
@@ -755,24 +700,17 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
 });
 
 export const CO2eFg = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const fg = JSON.parse(req.query.fg);
+ const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !fg) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and freighting goods data are required."
-    );
-  }
+ if (!companyName || !_id) {
+   throw new ApiError(400, "Company name and _id are required.");
+ }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+ const report = await Report.findById(_id);
 
-  if (!report) {
-    throw new ApiError(404, "Report not found.");
-  }
+ if (!report) {
+   throw new ApiError(404, "Report not found.");
+ }
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(
@@ -826,7 +764,7 @@ export const CO2eFg = asyncHandler(async (req, res) => {
   };
 
   // Update the freighting goods data with calculated CO2e amounts
-  const updatedFgData = fg.map((fgEntry) => {
+  const updatedFgData = report.fg.map((fgEntry) => {
     const { category, type, distance } = fgEntry;
     let conversionRate = 0;
 
@@ -854,26 +792,17 @@ export const CO2eFg = asyncHandler(async (req, res) => {
 });
 
 export const CO2eWttFuels = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const wttfuel = JSON.parse(req.query.wttfuel);
-  // console.log("wttFuel", wttfuel,  companyName, facilityName);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !wttfuel) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and WTT fuels data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
   }
-
   // if (report.username !== req.user.username) {
   //   throw new ApiError(401, "Unauthorized access to update WTT fuels data.");
   // }
@@ -908,7 +837,7 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
   };
 
   // Update the WTT fuels data with calculated CO2e amounts
-  const updatedWttFuelsData = wttfuel.map((fuelEntry) => {
+  const updatedWttFuelsData = report.wttfuel.map((fuelEntry) => {
     const { type, fuel, amount } = fuelEntry;
     let conversionRate = 0;
 
@@ -937,21 +866,13 @@ export const CO2eWttFuels = asyncHandler(async (req, res) => {
 });
 
 export const CO2eMaterialUse = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const material = JSON.parse(req.query.material);
-  // console.log("material", material,  companyName, facilityName);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !material) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and material use data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
@@ -1020,7 +941,7 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
   };
 
   // Update the material use data with calculated CO2e amounts
-  const updatedMaterialUseData = material.map((materialEntry) => {
+  const updatedMaterialUseData = report.material.map((materialEntry) => {
     const { type, fuel, amount } = materialEntry;
     let conversionRate = 0;
 
@@ -1049,21 +970,13 @@ export const CO2eMaterialUse = asyncHandler(async (req, res) => {
 });
 
 export const CO2eWaste = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const waste = JSON.parse(req.query.waste);
-  // console.log("waste", waste,  companyName, facilityName);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !waste) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and waste disposal data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
@@ -1134,7 +1047,7 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
   };
 
   // Update the waste disposal data with calculated CO2e amounts
-  const updatedWasteDisposalData = waste.map((wasteEntry) => {
+  const updatedWasteDisposalData = report.waste.map((wasteEntry) => {
     const { type, fuel, amount } = wasteEntry;
     let conversionRate = 0;
 
@@ -1163,25 +1076,17 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
 });
 
 export const CO2eFood = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const food = JSON.parse(req.query.food);
-  // console.log("food", food,  companyName, facilityName);
+const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !food) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and food disposal data are required."
-    );
-  }
+if (!companyName || !_id) {
+  throw new ApiError(400, "Company name and _id are required.");
+}
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+const report = await Report.findById(_id);
 
-  if (!report) {
-    throw new ApiError(404, "Report not found.");
-  }
+if (!report) {
+  throw new ApiError(404, "Report not found.");
+}
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(
@@ -1206,7 +1111,7 @@ export const CO2eFood = asyncHandler(async (req, res) => {
   };
 
   // Update the food disposal data with calculated CO2e amounts
-  const updatedFoodDisposalData = food.map((foodEntry) => {
+  const updatedFoodDisposalData = report.food.map((foodEntry) => {
     const { fuel, amount } = foodEntry; // Using 'fuel' based on provided example
     let conversionRate = 0;
 
@@ -1235,21 +1140,13 @@ export const CO2eFood = asyncHandler(async (req, res) => {
 });
 
 export const CO2eWater = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const water = JSON.parse(req.query.water);
-  // console.log("water", water,  companyName, facilityName);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !water) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and water data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
@@ -1265,7 +1162,7 @@ export const CO2eWater = asyncHandler(async (req, res) => {
   };
 
   // Update the water data with calculated CO2e amounts
-  const updatedWaterData = water.map((waterEntry) => {
+  const updatedWaterData = report.water.map((waterEntry) => {
     const { emission, amount } = waterEntry;
     let conversionRate = 0;
 
@@ -1291,24 +1188,17 @@ export const CO2eWater = asyncHandler(async (req, res) => {
 });
 
 export const CO2eHome = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const homeOffice = JSON.parse(req.query.homeOffice);
+ const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !homeOffice) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and home office data are required."
-    );
-  }
+ if (!companyName || !_id) {
+   throw new ApiError(400, "Company name and _id are required.");
+ }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+ const report = await Report.findById(_id);
 
-  if (!report) {
-    throw new ApiError(404, "Report not found.");
-  }
+ if (!report) {
+   throw new ApiError(404, "Report not found.");
+ }
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(401, "Unauthorized access to update home office data.");
@@ -1329,7 +1219,7 @@ export const CO2eHome = asyncHandler(async (req, res) => {
   };
 
   // Update the home office data with calculated CO2e amounts
-  const updatedHomeOfficeData = homeOffice.map((homeEntry) => {
+  const updatedHomeOfficeData = report.homeOffice.map((homeEntry) => {
     const {
       numberOfEmployees,
       numberOfMonths,
@@ -1365,21 +1255,14 @@ export const CO2eHome = asyncHandler(async (req, res) => {
 });
 
 export const CO2eFa = asyncHandler(async (req, res) => {
-  const { companyName, facilityName } = req.query;
-  const hotelAccommodation = JSON.parse(req.query.hotelAccommodation);
-  console.log("hotelAccommodation", hotelAccommodation);
+  const { _id, companyName } = req.body;
 
-  if (!companyName || !facilityName || !hotelAccommodation) {
-    throw new ApiError(
-      400,
-      "Report ID, company name, facility name, and hotel accommodation data are required."
-    );
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
   }
 
-  const report = await Report.findOne({
-    companyName,
-    facilityName,
-  });
+  const report = await Report.findById(_id);
+  // console.log("reportFA",report);
 
   if (!report) {
     throw new ApiError(404, "Report not found.");
@@ -1389,15 +1272,15 @@ export const CO2eFa = asyncHandler(async (req, res) => {
   const hotelFactor = 93.2;
 
   // Update the hotel accommodation data with calculated CO2e amounts
-  const updatedHotelAccommodationData = hotelAccommodation.map((hotelEntry) => {
+  const updatedHotelAccommodationData = report.fa.hotelAccommodation.map((hotelEntry) => {
     const { occupiedRooms, nightsPerRoom } = hotelEntry;
     const CO2e = occupiedRooms * nightsPerRoom * hotelFactor;
     return { ...hotelEntry, CO2e };
   });
 
   // Update the report's accommodation data and store CO2e using findOneAndUpdate
-  const updatedReport = await Report.findOneAndUpdate(
-    { companyName, facilityName },
+  const updatedReport = await Report.findByIdAndUpdate(
+    { _id },
     { $set: { "fa.hotelAccommodation": updatedHotelAccommodationData } },
     { new: true } // Returns the updated document
   );

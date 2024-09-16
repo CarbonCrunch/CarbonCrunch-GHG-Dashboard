@@ -6,15 +6,18 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Canvas from "../OCR/Canvas";
+import { useAuth } from "../../context/AuthContext";
 
 const EditBill = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { bill } = location.state || {};
+  const { user } = useAuth();
   const [formData, setFormData] = useState({});
   const [activeField, setActiveField] = useState(null);
   const [containerRef, setContainerRef] = useState(null);
 
+  console.log("Bill data", bill);
   if (!bill) {
     return <div>No bill data available</div>;
   }
@@ -28,7 +31,7 @@ const EditBill = () => {
           responseType: "blob",
           withCredentials: false,
         }); // Download the image as a blob
-        console.log("Image response", response, bill);
+        // console.log("Image response", response, bill);
 
         // Step 2: Create form data and append the image blob
         const formData = new FormData();
@@ -57,44 +60,43 @@ const EditBill = () => {
 
     // Trigger the image upload when the component mounts
     uploadImageToOCR();
-  }, []); 
+  }, []);
 
-    useEffect(() => {
-      if (containerRef) {
-        const containerWidth = containerRef.offsetWidth;
-        const screenWidth = window.innerWidth;
-        if (containerWidth > screenWidth) {
-          containerRef.style.overflow = "hidden";
-        }
+  useEffect(() => {
+    if (containerRef) {
+      const containerWidth = containerRef.offsetWidth;
+      const screenWidth = window.innerWidth;
+      if (containerWidth > screenWidth) {
+        containerRef.style.overflow = "hidden";
       }
-    }, [containerRef]);
+    }
+  }, [containerRef]);
 
-    const handleInputFocus = (field) => {
-      setActiveField(field);
-    };
+  const handleInputFocus = (field) => {
+    setActiveField(field);
+  };
 
-    const handleInputChange = (event) => {
-      const { name, value } = event.target;
-      setFormData((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    };
-
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
   const handleUpdate = async () => {
     try {
       const response = await axios.patch(
         `/api/bills/${bill.billId}/put`,
         {
-          formData, // Data sent in the request body
+          formData,
+          _id: bill._id,
         },
         {
-          params: {
-            billId: bill.billId,
-            companyName: bill.companyName,
-            facilityName: bill.facilityName,
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
           },
+          withCredentials: true, // Ensure cookies are sent
         }
       );
       if (response.status === 200) {
@@ -206,11 +208,11 @@ const EditBill = () => {
               </label>
               <input
                 type="text"
-                id="type"
-                name="type"
-                value={formData.type}
+                id="Info"
+                name="Info"
+                value={formData.Info}
                 onChange={handleInputChange}
-                onFocus={() => handleInputFocus("type")}
+                onFocus={() => handleInputFocus("Info")}
                 className="w-full p-2 border rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>

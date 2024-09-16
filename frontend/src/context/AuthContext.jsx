@@ -5,53 +5,37 @@ import Cookies from "js-cookie"; // Import js-cookie
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Initialize user state
-  const [isLoading, setIsLoading] = useState(true); // Loading state to handle async checks
+  const [user, setUser] = useState(null);  
+  const [isLoading, setIsLoading] = useState(true); 
 
   axios.defaults.baseURL = "http://127.0.0.1:8000"; // Set base URL for axios
   axios.defaults.withCredentials = true; // Allow cookies to be sent with requests
 
-  // On initial load, check for stored user data in cookies
   useEffect(() => {
-    const accessToken = Cookies.get("accessToken"); // Get accessToken from cookies
-    const storedUser = Cookies.get("user"); // Get user data from cookies
-    // console.log("useEffect", accessToken, storedUser, "All-Cookies", Cookies.get());
-    if (accessToken) {
+    const accessToken = Cookies.get("accessToken");
+    const storedUser = Cookies.get("user");
+
+    if (storedUser && accessToken) {
+      // Set the user from the cookie if available
+      setUser(JSON.parse(storedUser));
+
       const verifyUserAuth = async () => {
         try {
           const response = await axios.get("/api/users/verify-token", {
             headers: { Authorization: `Bearer ${accessToken}` },
           });
-          console.log("response.data", response.data);
 
-          // After verifying the token and getting a valid response
           if (response.data.isValid) {
-            setUser((prevUser) => {
-              // Include accessToken in the user object
-              const updatedUser = { ...response.data.user, accessToken };
-
-              // Log the updated user object for debugging
-              // console.log("Updated user object:", updatedUser);
-
-              // Return the new user state
-              return updatedUser;
-            });
-
-            // Set the cookie with the new user data including accessToken
-            Cookies.set(
-              "user",
-              JSON.stringify({ ...response.data.user, accessToken }),
-              {
-                expires: 1,
-              }
-            );
+            console.log("User is valid, keeping the current user state.");
+            setUser(JSON.parse(storedUser)); // Keep the user as is, based on cookie
           } else {
-            // Remove cookies if the token is not valid
+            setUser(null);
             Cookies.remove("accessToken");
             Cookies.remove("user");
           }
         } catch (error) {
           console.error("Error verifying token:", error);
+          setUser(null);
           Cookies.remove("accessToken");
           Cookies.remove("user");
         }
@@ -63,6 +47,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false); // No accessToken or user stored, set loading to false
     }
   }, []);
+
 
   const login = (userData, token) => {
     // Update user data to include accessToken

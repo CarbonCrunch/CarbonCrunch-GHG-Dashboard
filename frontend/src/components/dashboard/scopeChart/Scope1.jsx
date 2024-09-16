@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaLightbulb } from 'react-icons/fa';
-import { FaQuestionCircle } from 'react-icons/fa';
+import { FaLightbulb } from "react-icons/fa";
+import { FaQuestionCircle } from "react-icons/fa";
 import { Bar, Pie, Radar } from "react-chartjs-2";
-import one from '../../landingPage/assets/1.png'
-import two from '../../landingPage/assets/2.png'
-import three from '../../landingPage/assets/3.png'
+import one from "../../landingPage/assets/1.png";
+import two from "../../landingPage/assets/2.png";
+import three from "../../landingPage/assets/3.png";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,7 +46,7 @@ const Scope1 = ({ reports }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // console.log("reports", reports);
+  console.log("reports", reports);
   // console.log("fuelData", fuelData);
   // console.log("bioenergyData", bioenergyData);
   // console.log("refrigerantsData", refrigerantsData);
@@ -63,10 +63,10 @@ const Scope1 = ({ reports }) => {
         if (reports.length === 1) {
           // If reports array has only one object
           const report = reports[0];
+          // console.log("scope1", reports);
           const {
             companyName = "",
-            facilityName = "",
-            reportId = "",
+            _id = "",
             fuel = [],
             ownedVehicles = [],
             bioenergy = [],
@@ -75,57 +75,46 @@ const Scope1 = ({ reports }) => {
 
           const requests = [];
 
-          if (fuel.length > 0) {
-            requests.push(
-              axios.get(`/api/reports/${reportId}/CO2eFuel`, {
-                params: {
-                  companyName,
-                  facilityName,
-                  reportId,
-                  fuel: JSON.stringify(fuel),
-                },
-              })
-            );
-          }
+         if (report.fuel && report.fuel.length > 0) {
+           requests.push(
+             axios.post(`/api/reports/CO2eFuel`, {
+               _id,
+               companyName,
+              //  fuel,
+             })
+           );
+         }
 
-          if (bioenergy.length > 0) {
-            requests.push(
-              axios.get(`/api/reports/${reportId}/CO2eBioenergy`, {
-                params: {
-                  companyName,
-                  facilityName,
-                  reportId,
-                  bioenergy: JSON.stringify(bioenergy),
-                },
-              })
-            );
-          }
+         if (report.bioenergy && report.bioenergy.length > 0) {
+           requests.push(
+             axios.post(`/api/reports/CO2eBioenergy`, {
+               _id,
+               companyName,
+               //  bioenergy,
+             })
+           );
+         }
 
-          if (refrigerants.length > 0) {
-            requests.push(
-              axios.get(`/api/reports/${reportId}/CO2eRefrigerants`, {
-                params: {
-                  companyName,
-                  facilityName,
-                  reportId,
-                  refrigerants: JSON.stringify(refrigerants),
-                },
-              })
-            );
-          }
+         if (report.refrigerants && report.refrigerants.length > 0) {
+           requests.push(
+             axios.post(`/api/reports/CO2eRefrigerants`, {
+               _id,
+               companyName,
+               //  refrigerants,
+             })
+           );
+         }
 
-          if (ownedVehicles.length > 0) {
-            requests.push(
-              axios.get(`/api/reports/${reportId}/CO2eOv`, {
-                params: {
-                  companyName,
-                  facilityName,
-                  reportId,
-                  ownedVehicles: JSON.stringify(ownedVehicles),
-                },
-              })
-            );
-          }
+         if (report.ownedVehicles && report.ownedVehicles.length > 0) {
+           requests.push(
+             axios.post(`/api/reports/CO2eOv`, {
+               _id,
+               companyName,
+               //  ownedVehicles,
+             })
+           );
+         }
+
 
           const responses = await Promise.all(requests);
 
@@ -153,61 +142,49 @@ const Scope1 = ({ reports }) => {
 
           await Promise.all(
             reports.map(async (report) => {
-              const { companyName, facilityName, reportId } = report;
 
               const requests = [];
 
-              if (report.fuel && report.fuel.length > 0) {
-                requests.push(
-                  axios.get(`/api/reports/${reportId}/CO2eFuel`, {
-                    params: {
-                      companyName,
-                      facilityName,
-                      reportId,
-                      fuel: JSON.stringify(report.fuel),
-                    },
-                  })
-                );
-              }
+            if (report.fuel && report.fuel.length > 0) {
+              requests.push(
+                axios.post(`/api/reports/CO2eFuel`, {
+                  _id: report._id,
+                  companyName: report.companyName,
+                  // fuel: report.fuel,
+                })
+              );
+            }
 
-              if (report.bioenergy && report.bioenergy.length > 0) {
-                requests.push(
-                  axios.get(`/api/reports/${reportId}/CO2eBioenergy`, {
-                    params: {
-                      companyName,
-                      facilityName,
-                      reportId,
-                      bioenergy: JSON.stringify(report.bioenergy),
-                    },
-                  })
-                );
-              }
+            if (report.bioenergy && report.bioenergy.length > 0) {
+              requests.push(
+                axios.post(`/api/reports/CO2eBioenergy`, {
+                  _id: report._id,
+                  companyName: report.companyName,
+                  // bioenergy: report.bioenergy,
+                })
+              );
+            }
 
-              if (report.refrigerants && report.refrigerants.length > 0) {
-                requests.push(
-                  axios.get(`/api/reports/${reportId}/CO2eRefrigerants`, {
-                    params: {
-                      companyName,
-                      facilityName,
-                      reportId,
-                      refrigerants: JSON.stringify(report.refrigerants),
-                    },
-                  })
-                );
-              }
+            if (report.refrigerants && report.refrigerants.length > 0) {
+              requests.push(
+                axios.post(`/api/reports/CO2eRefrigerants`, {
+                  _id: report._id,
+                  companyName: report.companyName,
+                  // refrigerants: report.refrigerants,
+                })
+              );
+            }
 
-              if (report.ownedVehicles && report.ownedVehicles.length > 0) {
-                requests.push(
-                  axios.get(`/api/reports/${reportId}/CO2eOv`, {
-                    params: {
-                      companyName,
-                      facilityName,
-                      reportId,
-                      ownedVehicles: JSON.stringify(report.ownedVehicles),
-                    },
-                  })
-                );
-              }
+            if (report.ownedVehicles && report.ownedVehicles.length > 0) {
+              requests.push(
+                axios.post(`/api/reports/CO2eOv`, {
+                  _id: report._id,
+                  companyName: report.companyName,
+                  // ownedVehicles: report.ownedVehicles,
+                })
+              );
+            }
+
 
               const responses = await Promise.all(requests);
 

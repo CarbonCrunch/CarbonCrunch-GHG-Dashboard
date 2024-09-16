@@ -22,7 +22,7 @@ const Bioenergy = ({
   const [isYearPicker, setIsYearPicker] = useState(false);
   const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
-  console.log("user", user);
+  // console.log("user", user);
 
   const typeOptions = ["Biofuel", "Biomass", "Biogas"];
   const fuelOptions = [

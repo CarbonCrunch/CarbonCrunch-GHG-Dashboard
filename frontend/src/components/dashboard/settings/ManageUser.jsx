@@ -17,6 +17,7 @@ const ManageUser = () => {
   const [editPermissions, setEditPermissions] = useState([]); // To manage permissions while editing
   const [deleteUserCompletely, setDeleteUserCompletely] = useState(false); // To manage if user should be deleted completely
   const [newPermission, setNewPermission] = useState({}); // State for new permission entity
+  const [selectedFacility, setSelectedFacility] = useState(null);
 
   // List of all possible entities
   const allEntities = [
@@ -64,8 +65,9 @@ const ManageUser = () => {
   }, [user]);
 
   // Function to handle opening the view/edit permissions modal
-  const handleAccessClick = (user) => {
+  const handleAccessClick = (user, facility) => {
     setSelectedUser(user);
+    setSelectedFacility(facility);
     setIsModalOpen(true);
   };
 
@@ -160,18 +162,17 @@ const ManageUser = () => {
         )
       ) {
         try {
-        await axios.delete("/api/users/deleteUserPermission", {
-          data: {
-            username: selectedUser.username,
-            userId: selectedUser._id,
-            facilityName: selectedUser.facilities[0].facilityName,
-          }, // Send required data to delete
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
-          },
-          withCredentials: true, // Ensure cookies are sent
-        });
-
+          await axios.delete("/api/users/deleteUserPermission", {
+            data: {
+              username: selectedUser.username,
+              userId: selectedUser._id,
+              facilityName: selectedUser.facilities[0].facilityName,
+            }, // Send required data to delete
+            headers: {
+              Authorization: `Bearer ${user.accessToken}`, // Include accessToken in headers
+            },
+            withCredentials: true, // Ensure cookies are sent
+          });
 
           setCompanyUsers((prevUsers) =>
             prevUsers.filter((user) => user._id !== selectedUser._id)
@@ -295,14 +296,12 @@ const ManageUser = () => {
                   <h3 className="text-xl font-semibold">
                     Facility: {facility.facilityName}
                   </h3>
-
-                  {/* Display each user with username */}
                   <div className="mt-2 flex items-center">
                     {" "}
                     User Name:
                     <p
                       className="inline-block mr-2 cursor-pointer text-blue-500 hover:underline"
-                      onClick={() => handleAccessClick(user)}
+                      onClick={() => handleAccessClick(user, facility)} // Pass facility here
                     >
                       {user.username}
                     </p>
@@ -316,27 +315,17 @@ const ManageUser = () => {
         </div>
       </div>
       {/* Modal for showing and editing user permissions */}
-      {isModalOpen && selectedUser && (
+      {isModalOpen && selectedUser && selectedFacility && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-hidden">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-scroll scrollbar-hide">
             <h3 className="text-xl font-bold mb-4">
-              Permissions for {selectedUser.username}
+              Permissions for {selectedUser.username} in{" "}
+              {selectedFacility.facilityName}
             </h3>
             <div className="space-y-2">
-              <div className="flex items-center mb-4">
-                <input
-                  type="checkbox"
-                  id="deleteUserCompletely"
-                  checked={deleteUserCompletely}
-                  onChange={(e) => setDeleteUserCompletely(e.target.checked)}
-                  className="mr-2"
-                />
-                <label htmlFor="deleteUserCompletely" className="text-sm">
-                  Delete user completely from facility
-                </label>
-              </div>
-              {selectedUser.facilities.map((facility) =>
-                facility.userRoles[0].permissions.map((perm, index) => (
+              {/* Map over the userRoles for the selected facility */}
+              {selectedFacility.userRoles.map((role) =>
+                role.permissions.map((perm, index) => (
                   <div
                     key={index}
                     className="border-b pb-2 mb-2 flex items-center"
@@ -360,16 +349,17 @@ const ManageUser = () => {
                     />
                     <FiTrash2
                       className="ml-2 cursor-pointer text-red-600 hover:text-red-800"
-                      onClick={() => handleDeleteIconClick(perm.entity)} // Call handleDeleteIconClick
+                      onClick={() => handleDeleteIconClick(perm.entity)}
                     />
                   </div>
                 ))
               )}
+
               {/* Display missing entities with a '+' icon */}
               {allEntities
                 .filter(
                   (entity) =>
-                    !selectedUser.facilities[0].userRoles[0].permissions.some(
+                    !selectedFacility.userRoles[0].permissions.some(
                       (perm) => perm.entity === entity
                     )
                 )
@@ -386,14 +376,6 @@ const ManageUser = () => {
                   </div>
                 ))}
             </div>
-            {deleteUserCompletely && (
-              <button
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                onClick={handleDeleteUserPermission}
-              >
-                Delete User
-              </button>
-            )}
             <button
               className="ml-2 mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               onClick={handleSavePermissions}
@@ -508,93 +490,105 @@ const ManageUser = () => {
             <div className="space-y-2">
               {/* Show existing actions with the trash icon to remove them */}
               {["read", "create", "update", "delete", "manage"].map(
-                (action) => (
-                  <div
-                    key={action}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-sm">{action}</span>
-                    {editingPermission.actions.includes(action) ? (
-                      <FiTrash2
-                        className="ml-2 cursor-pointer text-red-600 hover:text-red-800"
-                        onClick={() => {
-                          // Remove the action from the UI
-                          setEditingPermission((prev) => ({
-                            ...prev,
-                            actions: prev.actions.filter((a) => a !== action),
-                          }));
+                (action) => {
+                  if (
+                    action === "manage" &&
+                    !["Facility", "Role"].includes(editingPermission.entity)
+                  ) {
+                    return null; // Skip rendering the "manage" action for entities other than "Facility" and "Role"
+                  }
 
-                          // Add the action with a flag 'update' to the editPermissions state
-                          setEditPermissions((prevPermissions) => [
-                            ...prevPermissions.filter(
-                              (perm) => perm.entity !== editingPermission.entity
-                            ),
-                            {
-                              entity: editingPermission.entity,
-                              actions: [{ name: action, status: "off" }],
-                              flag: "update",
-                            },
-                          ]);
+                  return (
+                    <div
+                      key={action}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="text-sm">{action}</span>
+                      {editingPermission.actions.includes(action) ? (
+                        <FiTrash2
+                          className="ml-2 cursor-pointer text-red-600 hover:text-red-800"
+                          onClick={() => {
+                            // Remove the action from the UI
+                            setEditingPermission((prev) => ({
+                              ...prev,
+                              actions: prev.actions.filter((a) => a !== action),
+                            }));
 
-                          toast.info("Click 'Save' to apply changes.", {
-                            position: "top-right",
-                          });
-                        }}
-                      />
-                    ) : (
-                      <FiPlus
-                        className="ml-2 cursor-pointer text-green-600 hover:text-green-800"
-                        onClick={() => {
-                          // Add action to newPermission
-                          setEditingPermission((prev) => ({
-                            ...prev,
-                            actions: [...prev.actions, action],
-                          }));
-
-                          // Update editPermissions state
-                          setEditPermissions((prevPermissions) => {
-                            const existingPermissionIndex =
-                              prevPermissions.findIndex(
+                            // Add the action with a flag 'update' to the editPermissions state
+                            setEditPermissions((prevPermissions) => [
+                              ...prevPermissions.filter(
                                 (perm) =>
-                                  perm.entity === editingPermission.entity
-                              );
+                                  perm.entity !== editingPermission.entity
+                              ),
+                              {
+                                entity: editingPermission.entity,
+                                actions: [{ name: action, status: "off" }],
+                                flag: "update",
+                              },
+                            ]);
 
-                            if (existingPermissionIndex !== -1) {
-                              const updatedPermissions = [...prevPermissions];
-                              const existingActions =
-                                updatedPermissions[existingPermissionIndex]
-                                  .actions;
+                            toast.info("Click 'Save' to apply changes.", {
+                              position: "top-right",
+                            });
+                          }}
+                        />
+                      ) : (
+                        <FiPlus
+                          className="ml-2 cursor-pointer text-green-600 hover:text-green-800"
+                          onClick={() => {
+                            // Add action to newPermission
+                            setEditingPermission((prev) => ({
+                              ...prev,
+                              actions: [...prev.actions, action],
+                            }));
 
-                              // Check if action already exists
-                              if (
-                                !existingActions.some((a) => a.name === action)
-                              ) {
-                                existingActions.push({
-                                  name: action,
-                                  status: "on",
-                                });
+                            // Update editPermissions state
+                            setEditPermissions((prevPermissions) => {
+                              const existingPermissionIndex =
+                                prevPermissions.findIndex(
+                                  (perm) =>
+                                    perm.entity === editingPermission.entity
+                                );
+
+                              if (existingPermissionIndex !== -1) {
+                                const updatedPermissions = [...prevPermissions];
+                                const existingActions =
+                                  updatedPermissions[existingPermissionIndex]
+                                    .actions;
+
+                                // Check if action already exists
+                                if (
+                                  !existingActions.some(
+                                    (a) => a.name === action
+                                  )
+                                ) {
+                                  existingActions.push({
+                                    name: action,
+                                    status: "on",
+                                  });
+                                }
+                                return updatedPermissions;
+                              } else {
+                                return [
+                                  ...prevPermissions,
+                                  {
+                                    entity: editingPermission.entity,
+                                    actions: [{ name: action, status: "on" }],
+                                    flag: "add",
+                                  },
+                                ];
                               }
-                              return updatedPermissions;
-                            } else {
-                              return [
-                                ...prevPermissions,
-                                {
-                                  entity: editingPermission.entity,
-                                  actions: [{ name: action, status: "on" }],
-                                  flag: "add",
-                                },
-                              ];
-                            }
-                          });
+                            });
 
-                          toast.info("Click 'Save' to apply changes.", {
-                            position: "top-right",
-                          });
-                        }}
-                      />
-                    )}
-                  </div>
-                )
+                            toast.info("Click 'Save' to apply changes.", {
+                              position: "top-right",
+                            });
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+                }
               )}
             </div>
             <div className="mt-4 flex justify-between">

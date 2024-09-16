@@ -98,10 +98,11 @@ const Materials = ({ report }) => {
   const UnitOptions = ["tonne"];
 
   const reportData = report;
+  // console.log("reportDataM", report);
     const {
       companyName = "",
       facilityName = "",
-      reportId = "",
+      _id = "",
       timePeriod = {},
       material = [],
     } = reportData || {};
@@ -177,7 +178,7 @@ const Materials = ({ report }) => {
         { material: materialsData },
         {
           params: {
-            reportId,
+            reportId : _id,
             companyName,
             facilityName,
           },

@@ -12,6 +12,7 @@ const EmissionBreakdown = ({ report }) => {
   const [error, setError] = useState(null);
   const { user } = useAuth();
   const { runTour, setRunTour } = useTour(); 
+  // console.log("EB", reports);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -30,6 +31,7 @@ const EmissionBreakdown = ({ report }) => {
               ? response.data.data
               : [response.data.data]
           );
+          // console.log("EB", response.data.data);
         }
       } catch (err) {
         setError("Failed to fetch reports");

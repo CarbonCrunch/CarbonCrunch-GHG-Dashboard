@@ -76,6 +76,7 @@ const fetchBills = async () => {
     }
 
     const { message, data } = response.data;
+    console.log("data", data);
 
     if (message === "No bills found for the user.") {
       setMessage(message);
@@ -92,6 +93,7 @@ const fetchBills = async () => {
         URL: bill.URL,
         companyName: bill.companyName,
         facilityName: bill.facilityName,
+        _id: bill._id,
       }));
       setTableData(transformedData);
     }
@@ -116,6 +118,7 @@ const fetchBills = async () => {
   }, []);
 
   const handleRowClick = (bill) => {
+    // console.log("bill", bill);
     navigate(`/viewbills/${bill.billId}`, { state: { bill } });
   };
 
@@ -216,22 +219,7 @@ const fetchBills = async () => {
     }
 
     try {
-      // const formData = new FormData();
-      // formData.append("image", selectedFile);
-
-      // const ocrResponse = await axios.post(
-      //   "http://localhost:5000/ocr/uploadimage",
-      //   formData,
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   }
-      // );
-
-      // if (ocrResponse.status !== 200) {
-      //   throw new Error("Image upload to OCR service failed");
-      // }
+  
 
       const billFormData = new FormData();
       billFormData.append("user", JSON.stringify(user));

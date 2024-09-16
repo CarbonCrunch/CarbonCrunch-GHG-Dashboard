@@ -169,25 +169,24 @@ export const createBills = asyncHandler(async (req, res) => {
 });
 
 export const updateBill = asyncHandler(async (req, res) => {
-  const { billId, companyName, facilityName } = req.query;
-  const { data } = req.body; // Assuming the data you want to update is sent in the body
+  const { formData, _id } = req.body; // Assuming the data you want to update is sent in the body
+  // console.log("billId", _id, formData);
 
-  // if (!billId || !data || !companyName || !facilityName) {
-  //   throw new ApiError(
-  //     400,
-  //     "Bill ID, data, companyName, and facilityName are required."
-  //   );
-  // }
-  // console.log("billId",billId)
+  if (!_id || !formData) {
+    throw new ApiError(
+      400,
+      "Bill ID, data, companyName, and facilityName are required."
+    );
+  }
 
-  const bill = await Bill.findOne({ billId, companyName, facilityName });
+  const bill = await Bill.findById(_id);
   if (!bill) {
     throw new ApiError(404, "Bill not found.");
   }
 
   // Update the bill data
-  bill.data = { ...bill.data, ...data }; // Merging new data with existing data
-
+  bill.data = { ...bill.data, ...formData }; // Merging new data with existing data
+  // console.log("bill", bill.data);
   await bill.save();
 
   res.status(200).json({

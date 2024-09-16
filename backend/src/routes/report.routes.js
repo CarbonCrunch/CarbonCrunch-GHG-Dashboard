@@ -113,33 +113,33 @@ router
 // router
 //   .route("/:reportId/tab/get")
 //   .get(verifyJWT, restrictTo("FacAdmin", "Admin"), getCurrentTab);
-router.route("/:reportId/CO2eFuel").get(CO2eFuel);
+router.route("/CO2eFuel").post(CO2eFuel);
 
-router.route("/:reportId/CO2eBioenergy").get(CO2eBioenergy);
-router.route("/:reportId/CO2eRefrigerants").get(CO2eRefrigerants);
-router.route("/:reportId/CO2eEhctd").get(CO2eEhctd);
-router.route("/:reportId/CO2eOv").get(CO2eOv);
+router.route("/CO2eBioenergy").post(CO2eBioenergy);
+router.route("/CO2eRefrigerants").post(CO2eRefrigerants);
+router.route("/CO2eEhctd").post(CO2eEhctd);
+router.route("/CO2eOv").post(CO2eOv);
 
-router.route("/:reportId/CO2eFa").get(CO2eFa);
+router.route("/CO2eFa").post(CO2eFa);
 
-router.route("/:reportId/CO2eBtls").get(CO2eBtls);
+router.route("/CO2eBtls").post(CO2eBtls);
 
-router.route("/:reportId/CO2eFg").get(CO2eFg);
+router.route("/CO2eFg").post(CO2eFg);
 
-router.route("/:reportId/CO2eEc").get(CO2eEc);
+router.route("/CO2eEc").post(CO2eEc);
 
-router.route("/:reportId/CO2eWTTFuel").get(CO2eWttFuels);
-router.route("/:reportId/CO2eFood").get(CO2eFood);
+router.route("/CO2eWTTFuel").post(CO2eWttFuels);
+router.route("/CO2eFood").post(CO2eFood);
 
-router.route("/:reportId/CO2eMaterialsUsed").get(CO2eMaterialUse);
+router.route("/CO2eMaterialsUsed").post(CO2eMaterialUse);
 
-router.route("/:reportId/CO2eWasteDisposal").get(CO2eWaste);
+router.route("/CO2eWasteDisposal").post(CO2eWaste);
 
-router.route("/:reportId/CO2eHome").get(CO2eHome);
+router.route("/CO2eHome").post(CO2eHome);
 
-router.route("/:reportId/CO2eWater").get(CO2eWater);
+router.route("/CO2eWater").post(CO2eWater);
 
-// router.route("/:reportId/getFuel/:specificDate").get(getFuelReport);
+// router.route("/:reportId/postFuel/:specificDate").post(getFuelReport);
 // router.route("/:reportId/getBiogas/:specificDate").get(getBiogasReport);
 // router
 //   .route("/:reportId/getRefrigerants/:specificDate")

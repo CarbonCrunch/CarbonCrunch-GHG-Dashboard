@@ -15,9 +15,13 @@ const Report = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+  // console.log("user", user);
 
   const fetchReports = async () => {
     try {
+      setLoading(true); // Ensure loading state is set to true at the start of the fetch
+      setError(null); // Reset any previous errors before making a new request
+
       let response;
 
       if (user.role === "Admin") {
@@ -48,7 +52,6 @@ const Report = () => {
 
       if (response.data.data === "zero") {
         setReports([]);
-        setLoading(false);
         console.log("No reports found, setting reports to an empty array");
       } else {
         const fetchedData = response.data.data;
@@ -63,11 +66,13 @@ const Report = () => {
           console.log("New reports state to be set:", reportsArray);
           return reportsArray;
         });
-        setLoading(false);
       }
     } catch (err) {
+      console.log("No reports found, setting reports to an empty array");
       console.error("Error fetching reports:", err);
-      setError("Failed to fetch reports");
+      setError("No reports found");
+    } finally {
+      setLoading(false); // Ensure loading is set to false after both success and failure cases
     }
   };
 
@@ -127,20 +132,6 @@ const Report = () => {
     }
   };
 
-  const toggleDropdown = (reportId) => {
-    setOpenDropdown(openDropdown === reportId ? null : reportId);
-  };
-
-  const handleMarkAsComplete = (reportId) => {
-    console.log(`Marked report ${reportId} as complete`);
-    setOpenDropdown(null);
-  };
-
-  const handleInProgress = (reportId) => {
-    console.log(`Marked report ${reportId} as in-progress`);
-    setOpenDropdown(null);
-  };
-
   const renderReportCard = (report) => {
     if (!report || !report.report) {
       return <p>No report available</p>;
@@ -185,8 +176,7 @@ const Report = () => {
 
   // Check if any facility in user has a report (ObjectId)
   const doesFacilityHaveReport = user?.facilities?.some(
-
-    (facility) => facility?.reports 
+    (facility) => facility?.reports
   );
 
   return (
@@ -235,6 +225,8 @@ const Report = () => {
 
           {loading ? (
             <p>Loading reports...</p>
+          ) : error ? (
+            <p className="text-red-500 mt-4">Error: {error}</p>
           ) : reports.length === 0 ? (
             <p className="mt-4">No reports made</p>
           ) : Array.isArray(reports) ? (

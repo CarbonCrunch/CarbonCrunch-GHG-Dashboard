@@ -212,6 +212,7 @@ export const loginUser = asyncHandler(async (req, res) => {
       $project: {
         username: 1,
         role: 1,
+        photo: 1,
         password: 1,
         companyName: 1,
         hasSeenTour: 1,
@@ -260,7 +261,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid role provided");
   }
 
-  console.log("user2", user);
+  // console.log("user2", user);
 
   // Validate password
   const isPasswordValid = await bcrypt.compare(password, user.password);

@@ -5,7 +5,7 @@ const reportSchema = new Schema(
     username: { type: String },
     createdAt: { type: Date, default: Date.now },
     companyName: { type: String, required: true },
-    facilityName: { type: String, required: true },
+    facilityName: { type: String },
     fuel: {
       type: Object,
       default: {},

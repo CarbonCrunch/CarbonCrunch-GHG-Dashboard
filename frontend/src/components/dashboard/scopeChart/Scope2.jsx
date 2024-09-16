@@ -36,20 +36,16 @@ const Scope2 = ({ reports }) => {
           const report = reports[0];
           const {
             companyName = "",
-            facilityName = "",
-            reportId = "",
+            _id = "",
             ehctd = [],
           } = report;
 
           if (ehctd.length > 0) {
             const [ehctdResponse] = await Promise.all([
-              axios.get(`/api/reports/${reportId}/CO2eEhctd`, {
-                params: {
-                  companyName,
-                  facilityName,
-                  reportId,
-                  ehctd: JSON.stringify(ehctd),
-                },
+              axios.post(`/api/reports/CO2eEhctd`, {
+                _id,
+                companyName,
+                
               }),
             ]);
 
@@ -58,6 +54,7 @@ const Scope2 = ({ reports }) => {
           }
         } else {
           // If reports array has multiple objects
+          // If reports array has multiple objects
           const combinedEhctd = [];
 
           // Make individual API calls for each report and combine results
@@ -65,21 +62,17 @@ const Scope2 = ({ reports }) => {
             reports.map(async (report) => {
               const {
                 companyName = "",
-                facilityName = "",
-                reportId = "",
+                _id = "",
                 ehctd = [],
               } = report;
 
               // Only make the API call if ehctd is not empty
               if (ehctd.length > 0) {
                 const [ehctdResponse] = await Promise.all([
-                  axios.get(`/api/reports/${reportId}/CO2eEhctd`, {
-                    params: {
-                      companyName,
-                      facilityName,
-                      reportId,
-                      ehctd: JSON.stringify(ehctd),
-                    },
+                  axios.post(`/api/reports/CO2eEhctd`, {
+                    _id,
+                    companyName,
+                   
                   }),
                 ]);
 
