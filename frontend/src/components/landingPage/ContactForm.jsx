@@ -4,7 +4,10 @@ const ContactForm = () => {
   return (
     <main
       className="flex-grow"
-      style={{ backgroundColor: "#002952", paddingBottom: 18 }}
+      style={{
+        background: "linear-gradient(0deg, #002952, #1F568C, #3476B8)",
+        paddingBottom: 18,
+      }}
     >
       <div className="container mx-auto px-4 py-8">
         <div
