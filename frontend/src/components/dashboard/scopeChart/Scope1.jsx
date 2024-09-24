@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaLightbulb } from "react-icons/fa";
-import { FaQuestionCircle } from "react-icons/fa";
+import { FaLightbulb } from 'react-icons/fa';
+import { FaQuestionCircle } from 'react-icons/fa';
 import { Bar, Pie, Radar } from "react-chartjs-2";
-import one from "../../landingPage/assets/1.png";
-import two from "../../landingPage/assets/2.png";
-import three from "../../landingPage/assets/3.png";
+import one from '../../landingPage/assets/1.png'
+import two from '../../landingPage/assets/2.png'
+import three from '../../landingPage/assets/3.png'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,7 +46,7 @@ const Scope1 = ({ reports }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log("reports", reports);
+  // console.log("reports", reports);
   // console.log("fuelData", fuelData);
   // console.log("bioenergyData", bioenergyData);
   // console.log("refrigerantsData", refrigerantsData);
@@ -63,10 +63,10 @@ const Scope1 = ({ reports }) => {
         if (reports.length === 1) {
           // If reports array has only one object
           const report = reports[0];
-          // console.log("scope1", reports);
           const {
             companyName = "",
-            _id = "",
+            facilityName = "",
+            reportId = "",
             fuel = [],
             ownedVehicles = [],
             bioenergy = [],
@@ -75,46 +75,57 @@ const Scope1 = ({ reports }) => {
 
           const requests = [];
 
-         if (report.fuel && report.fuel.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eFuel`, {
-               _id,
-               companyName,
-              //  fuel,
-             })
-           );
-         }
+          if (fuel.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eFuel`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  fuel: JSON.stringify(fuel),
+                },
+              })
+            );
+          }
 
-         if (report.bioenergy && report.bioenergy.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eBioenergy`, {
-               _id,
-               companyName,
-               //  bioenergy,
-             })
-           );
-         }
+          if (bioenergy.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eBioenergy`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  bioenergy: JSON.stringify(bioenergy),
+                },
+              })
+            );
+          }
 
-         if (report.refrigerants && report.refrigerants.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eRefrigerants`, {
-               _id,
-               companyName,
-               //  refrigerants,
-             })
-           );
-         }
+          if (refrigerants.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eRefrigerants`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  refrigerants: JSON.stringify(refrigerants),
+                },
+              })
+            );
+          }
 
-         if (report.ownedVehicles && report.ownedVehicles.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eOv`, {
-               _id,
-               companyName,
-               //  ownedVehicles,
-             })
-           );
-         }
-
+          if (ownedVehicles.length > 0) {
+            requests.push(
+              axios.get(`/api/reports/${reportId}/CO2eOv`, {
+                params: {
+                  companyName,
+                  facilityName,
+                  reportId,
+                  ownedVehicles: JSON.stringify(ownedVehicles),
+                },
+              })
+            );
+          }
 
           const responses = await Promise.all(requests);
 
@@ -142,49 +153,61 @@ const Scope1 = ({ reports }) => {
 
           await Promise.all(
             reports.map(async (report) => {
+              const { companyName, facilityName, reportId } = report;
 
               const requests = [];
 
-            if (report.fuel && report.fuel.length > 0) {
-              requests.push(
-                axios.post(`/api/reports/CO2eFuel`, {
-                  _id: report._id,
-                  companyName: report.companyName,
-                  // fuel: report.fuel,
-                })
-              );
-            }
+              if (report.fuel && report.fuel.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eFuel`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      fuel: JSON.stringify(report.fuel),
+                    },
+                  })
+                );
+              }
 
-            if (report.bioenergy && report.bioenergy.length > 0) {
-              requests.push(
-                axios.post(`/api/reports/CO2eBioenergy`, {
-                  _id: report._id,
-                  companyName: report.companyName,
-                  // bioenergy: report.bioenergy,
-                })
-              );
-            }
+              if (report.bioenergy && report.bioenergy.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eBioenergy`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      bioenergy: JSON.stringify(report.bioenergy),
+                    },
+                  })
+                );
+              }
 
-            if (report.refrigerants && report.refrigerants.length > 0) {
-              requests.push(
-                axios.post(`/api/reports/CO2eRefrigerants`, {
-                  _id: report._id,
-                  companyName: report.companyName,
-                  // refrigerants: report.refrigerants,
-                })
-              );
-            }
+              if (report.refrigerants && report.refrigerants.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eRefrigerants`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      refrigerants: JSON.stringify(report.refrigerants),
+                    },
+                  })
+                );
+              }
 
-            if (report.ownedVehicles && report.ownedVehicles.length > 0) {
-              requests.push(
-                axios.post(`/api/reports/CO2eOv`, {
-                  _id: report._id,
-                  companyName: report.companyName,
-                  // ownedVehicles: report.ownedVehicles,
-                })
-              );
-            }
-
+              if (report.ownedVehicles && report.ownedVehicles.length > 0) {
+                requests.push(
+                  axios.get(`/api/reports/${reportId}/CO2eOv`, {
+                    params: {
+                      companyName,
+                      facilityName,
+                      reportId,
+                      ownedVehicles: JSON.stringify(report.ownedVehicles),
+                    },
+                  })
+                );
+              }
 
               const responses = await Promise.all(requests);
 
@@ -672,6 +695,10 @@ const Scope1 = ({ reports }) => {
               <h3 className="text-gray-600 font-bold pb-4 text-sm text-center">
                 What does the point on the radar chart mean?
               </h3>
+              <h4>
+              In a radar chart, each point represents a variable's value, showing strengths and weaknesses across multiple variables visually.
+              </h4>
+
             </div>
           </div>
 
@@ -712,31 +739,17 @@ const Scope1 = ({ reports }) => {
               className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
               style={{ backgroundColor: "#F5F5F5" }}
             >
-              <h3 className="text-gray-700 font-semibold pb-16 text-sm">
+              <h3 className="text-gray-700 font-semibold pb-4 text-sm">
                 Learn more about Scope 1 Emissions
               </h3>
-              <div
-                className="relative"
-                style={{
-                  width: "%",
-                  height: "0",
-                  paddingBottom: "177.78%",
-                  overflow: "hidden",
-                }}
-              >
-                <iframe
-                  src="https://www.youtube.com/embed/aXYqeRaRFS8?si=gkJIrfq8cWWYRtXu"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              <div className="relative" style={{ width: "%", height: "0", paddingBottom: "177.78%", overflow: "hidden" }}>
+                <iframe 
+                  src="https://www.youtube.com/embed/aXYqeRaRFS8?si=gkJIrfq8cWWYRtXu" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen
                   title="Learn more about Scope 1 Emissions"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "70%",
-                  }}
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "70%" }}
                 ></iframe>
               </div>
             </div>
