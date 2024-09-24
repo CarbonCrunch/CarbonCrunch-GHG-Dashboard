@@ -1,107 +1,77 @@
-import React, { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import countryStatusColor from "./country_status_color.json";
+import React, { useEffect, useRef } from "react";
+import * as am4core from "@amcharts/amcharts4/core";
+import * as am4maps from "@amcharts/amcharts4/maps";
+import am4geodata_worldLow from "@amcharts/amcharts4-geodata/worldLow"; // Low-detail world map
+import countryStatusColor from "./country_status_color.json"; // Custom country colors
 
 const WorldMap = () => {
   const mapRef = useRef(null);
-  const [geojsonData, setGeojsonData] = useState(null);
-  const [infoContent, setInfoContent] = useState("Hover over a country");
 
   useEffect(() => {
-    // Fetch GeoJSON data on component mount
-    fetch(
-      "https://raw.githubusercontent.com/CarbonCrunch/CarbonCrunch-GHG-Dashboard/main/GeoJSON/combined.geo.json"
-    )
-      .then((response) => response.json())
-      .then((data) => setGeojsonData(data))
-      .catch((error) => console.error("Error fetching GeoJSON data:", error));
+    // Create map instance
+    let chart = am4core.create(mapRef.current, am4maps.MapChart);
+
+    // Set map projection
+    chart.projection = new am4maps.projections.Miller();
+
+    // Add the world polygon series
+    let polygonSeries = chart.series.push(new am4maps.MapPolygonSeries());
+
+    // Load GeoJSON data
+    polygonSeries.useGeodata = true;
+    polygonSeries.geodata = am4geodata_worldLow;
+
+    // Exclude Antarctica from the map
+    polygonSeries.exclude = ["AQ"];
+
+    // Configure the polygons (countries)
+    let polygonTemplate = polygonSeries.mapPolygons.template;
+    polygonTemplate.tooltipText = "{name}"; // Display country name
+    polygonTemplate.fill = am4core.color("#74B266"); // Default color
+
+    // Set up hover state
+    let hoverState = polygonTemplate.states.create("hover");
+    hoverState.properties.fill = am4core.color("#367B25");
+
+    // Apply custom colors for countries using countryStatusColor.json
+    polygonSeries.events.on("inited", () => {
+      polygonSeries.mapPolygons.each((polygon) => {
+        const countryName = polygon.dataItem.dataContext.name;
+        if (countryStatusColor[countryName]) {
+          polygon.fill = am4core.color(countryStatusColor[countryName].color);
+          polygon.tooltipText = `[bold]${countryName}[/]\nStatus: ${countryStatusColor[countryName].status}`;
+        }
+      });
+    });
+
+    // Adjust zoom to make the map smaller and fully visible
+    chart.homeZoomLevel = 0.75; // Further lower zoom level to make countries smaller and fully visible
+    chart.homeGeoPoint = { latitude: 20, longitude: 0 }; // Center position
+
+    // Disable panning and interactions
+    chart.seriesContainer.draggable = false;
+    chart.seriesContainer.resizable = false;
+    chart.chartContainer.wheelable = false; // Disable zooming with mouse wheel
+    chart.zoomControl = new am4maps.ZoomControl();
+    chart.zoomControl.slider.height = 0; // Hide the zoom slider
+
+    return () => {
+      // Clean up chart when component unmounts
+      if (chart) {
+        chart.dispose();
+      }
+    };
   }, []);
 
-  const onEachFeature = (feature, layer) => {
-    const countryInfo = countryStatusColor[feature.properties.name];
-    if (countryInfo) {
-      feature.properties.status = countryInfo.status;
-      feature.properties.hover = countryInfo.hover;
-    }
-
-    const highlightFeature = (e) => {
-      const layer = e.target;
-      layer.setStyle({
-        weight: 5,
-        color: "#666",
-        dashArray: "",
-        fillOpacity: 0.7,
-      });
-      layer.bringToFront();
-      setInfoContent(`
-        <p class="text-sm">
-          <span class="font-bold">${feature.properties.name}</span><br />
-          Status: ${feature.properties.status || "Unknown"}<br />
-          ${feature.properties.hover || "No additional information"}
-        </p>
-      `);
-    };
-
-    const resetHighlight = (e) => {
-      e.target.setStyle(style(e.target.feature));
-      setInfoContent("Hover over a country");
-    };
-
-    layer.on({
-      mouseover: highlightFeature,
-      mouseout: resetHighlight,
-    });
-  };
-
-  const style = (feature) => {
-    const countryInfo = countryStatusColor[feature.properties.name];
-    return {
-      fillColor: countryInfo ? countryInfo.color : "#FFEDA0",
-      weight: 2,
-      opacity: 1,
-      color: "white",
-      dashArray: "3",
-      fillOpacity: 0.7,
-    };
-  };
-
-  const InfoBox = () => {
-    return (
-      <div className="leaflet-control leaflet-top leaflet-left bg-white bg-opacity-80 p-4 rounded-lg shadow-lg" style={{ zIndex: 400 }}>
-        <h4 className="text-lg font-semibold mb-2 text-gray-700">Country Information</h4>
-        <div dangerouslySetInnerHTML={{ __html: infoContent }} />
-      </div>
-    );
-  };
-
   return (
-    <div className="relative w-full h-full overflow-hidden" ref={mapRef} style={{ height: "83vh", zIndex: 1 }}>
-      {/* The map container */}
-      <MapContainer
-        center={[20, 0]}
-        zoom={2}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom={false}
-        zoomControl={false}
-        dragging={true}
-        doubleClickZoom={false}
-        touchZoom={false}
-        boxZoom={false}
-        whenCreated={(map) => {
-          map.fitBounds([
-            [-60, -180],
-            [85, 180],
-          ]);
-        }}
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" noWrap={true} />
-        {geojsonData && (
-          <GeoJSON data={geojsonData} style={style} onEachFeature={onEachFeature} />
-        )}
-        <InfoBox />
-      </MapContainer>
-    </div>
+    <div
+      ref={mapRef}
+      style={{
+        width: "100%",
+        height: "100vh", // Full height
+        backgroundColor: "#FFFFFF",
+      }}
+    />
   );
 };
 
