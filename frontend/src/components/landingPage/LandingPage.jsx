@@ -1,20 +1,24 @@
 import React from "react";
 import Navbar from "./NavBar.jsx";
-import Hero from "./Hero.jsx";
 import WhyUs from "./Whyus.jsx";
 import ContactForm from "./ContactForm.jsx";
-import Tagline from "./Tagline.jsx";
 import Footer from "./Footer.jsx";
 import WorldMap from "./WorldMap.jsx";
+import Info from "./Info.jsx";
+import CarbonRiskCalculator from "./CarbonRiskCalculator.jsx";
+import OurServices from "./OurServices.jsx";
+import HeroSection from "./HeroSection.jsx";
 
 const LandingPage = () => {
   return (
     <div>
       <Navbar />
-      <Hero />
+      <HeroSection/>
+      <Info />
       <WorldMap />
+      <OurServices/>      
       <WhyUs />
-      <Tagline />
+      <CarbonRiskCalculator/>
       <ContactForm />
       <Footer />
     </div>
