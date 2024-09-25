@@ -100,14 +100,20 @@ const ManageUser = () => {
         }))
         .filter(({ actions, flag }) => flag === "delete" || actions.length > 0); // Ensure actions are included if they have content or flag is 'delete'
 
-      console.log("permissions2", permissionsToSend);
+      console.log(
+        "permissions2",
+        // permissionsToSend,
+        // selectedUser._id,
+        // selectedUser.username, // Add username to the request body
+        // selectedFacility.facilityName // Add facilityName to the request body
+      );
 
       await axios.patch(
         "/api/users/updateUserPermission",
         {
           userId: selectedUser._id,
           username: selectedUser.username, // Add username to the request body
-          facilityName: selectedUser.facilities[0].facilityName, // Add facilityName to the request body
+          facilityName: selectedFacility.facilityName, // Add facilityName to the request body
           permissions: permissionsToSend,
         },
         {
