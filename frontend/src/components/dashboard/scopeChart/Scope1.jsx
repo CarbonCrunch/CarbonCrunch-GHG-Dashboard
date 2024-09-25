@@ -399,29 +399,48 @@ const deliveryChartData = {
   return (
     <div>
       <h3 className="text-lg font-bold mb-2">
-        Scope 1: Direct emissions arising from owned or controlled stationary sources that use fossil fuels and/or emit fugitive emissions
+        Scope 1: Direct emissions arising from owned or controlled stationary
+        sources that use fossil fuels and/or emit fugitive emissions
       </h3>
       <div className="flex flex-col gap-4">
         <div className="flex gap-4 h-[300px]">
-          <div className="relative w-1/3 p-1 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
-            <FaLightbulb className="absolute top-2 right-2 text-yellow-500" size={32} />
+          <div
+            className="relative w-1/3 p-1 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
+          >
+            <FaLightbulb
+              className="absolute top-2 right-2 text-yellow-500"
+              size={32}
+            />
             <Pie
               data={bioenergyChartData}
               options={{
                 ...bioenergyOptions,
-                plugins: { ...bioenergyOptions.plugins, legend: { display: true, position: "bottom" } },
+                plugins: {
+                  ...bioenergyOptions.plugins,
+                  legend: { display: true, position: "bottom" },
+                },
                 maintainAspectRatio: false,
               }}
               height="100%"
             />
           </div>
-          <div className="relative w-2/3 p-1 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
-            <FaQuestionCircle className="absolute top-2 right-2 text-pink-500" size={32} />
+          <div
+            className="relative w-2/3 p-1 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
+          >
+            <FaQuestionCircle
+              className="absolute top-2 right-2 text-pink-500"
+              size={32}
+            />
             <Bar
               data={refrigerantsChartData}
               options={{
                 ...refrigerantsOptions,
-                plugins: { ...refrigerantsOptions.plugins, legend: { display: true } },
+                plugins: {
+                  ...refrigerantsOptions.plugins,
+                  legend: { display: true },
+                },
                 maintainAspectRatio: false,
               }}
               height="100%"
@@ -430,56 +449,93 @@ const deliveryChartData = {
         </div>
 
         <div className="flex gap-4 h-[400px]">
-          <div className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
+          <div
+            className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
+          >
             <Radar
               data={passengerChartData}
               options={{
                 ...radarOptions,
-                plugins: { ...radarOptions.plugins, legend: { display: true, position: "bottom" } },
+                plugins: {
+                  ...radarOptions.plugins,
+                  legend: { display: true, position: "bottom" },
+                },
                 maintainAspectRatio: false,
               }}
               height="100%"
             />
           </div>
           <div className="w-1/3 flex flex-col gap-4">
-            <div className="h-1/2 p-4 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
-              <h3 className="text-gray-600 font-bold pb-4 text-lg text-center">Top Emissions by Vehicle Type</h3>
+            <div
+              className="h-1/2 p-4 rounded-lg border border-gray-900 shadow-lg"
+              style={{ backgroundColor: "#F5F5F5" }}
+            >
+              <h3 className="text-gray-600 font-bold pb-4 text-lg text-center">
+                Top Emissions by Vehicle Type
+              </h3>
               <ul className="divide-y divide-gray-200">
                 {topEmissionsData.map((item, index) => (
                   <li key={index} className="px-4 py-1 sm:px-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <span className="text-2xl mr-3">
-                          {item.vehicleSize.toLowerCase().includes("car") && "🚗"}
-                          {item.vehicleSize.toLowerCase().includes("motorbike") && "🏍️"}
-                          {item.vehicleSize.toLowerCase().includes("van") && "🚐"}
+                          {item.vehicleSize.toLowerCase().includes("car") &&
+                            "🚗"}
+                          {item.vehicleSize
+                            .toLowerCase()
+                            .includes("motorbike") && "🏍️"}
+                          {item.vehicleSize.toLowerCase().includes("van") &&
+                            "🚐"}
                         </span>
                         <div className="flex flex-col sm:flex-row items-center">
-                          <p className="text-sm font-medium text-gray-900 mr-2">{item.vehicleSize}</p>
+                          <p className="text-sm font-medium text-gray-900 mr-2">
+                            {item.vehicleSize}
+                          </p>
                           <p className="text-sm text-gray-500">({item.fuel})</p>
                         </div>
                       </div>
                       <div className="text-sm font-medium text-gray-900">
                         {item.totalEmissions.toFixed(2)} kg
-                        <span className={`ml-1 ${index === 0 ? "text-green-500" : "text-red-500"}`}>{index === 0 ? "▲" : "▼"}</span>
+                        <span
+                          className={`ml-1 ${
+                            index === 0 ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          {index === 0 ? "▲" : "▼"}
+                        </span>
                       </div>
                     </div>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="h-1/2 p-4 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
-              <h3 className="text-gray-600 font-bold pb-4 text-sm text-center">What does the point on the radar chart mean?</h3>
-              <h4>In a radar chart, each point represents a variable's value, showing strengths and weaknesses across multiple variables visually.</h4>
+            <div
+              className="h-3/4 p-4 rounded-lg border border-gray-900 shadow-lg"
+              style={{ backgroundColor: "#F5F5F5" }}
+            >
+              <h3 className="text-gray-600 font-bold pb-4 text-sm text-center">
+                What does the point on the radar chart mean?
+              </h3>
+              <h4 className="text-gray-600 text-sm line-clamp-3">
+                Each point represents a variable's value, showing strengths and
+                weaknesses across multiple variables visually.
+              </h4>
             </div>
           </div>
 
-          <div className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
+          <div
+            className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
+          >
             <Radar
               data={deliveryChartData}
               options={{
                 ...radarOptions,
-                plugins: { ...radarOptions.plugins, legend: { display: true, position: "bottom" } },
+                plugins: {
+                  ...radarOptions.plugins,
+                  legend: { display: true, position: "bottom" },
+                },
                 maintainAspectRatio: false,
               }}
               height="100%"
@@ -488,47 +544,90 @@ const deliveryChartData = {
         </div>
 
         <div className="flex gap-4 h-[300px]">
-          <div className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
+          <div
+            className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
+          >
             <Bar data={fuelChartData} options={fuelOptions} />
           </div>
-          <div className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
+          <div
+            className="w-1/3 p-2 rounded-lg border border-gray-900 shadow-lg"
+            style={{ backgroundColor: "#F5F5F5" }}
+          >
             <Bar data={liquidFuelChartData} options={liquidFuelOptions} />
           </div>
           <div className="w-1/3 flex flex-row gap-4">
-            <div className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
-              <h3 className="text-gray-700 font-semibold pb-4 text-sm">Learn more about Scope 1 Emissions</h3>
-              <div className="relative" style={{ width: "%", height: "0", paddingBottom: "177.78%", overflow: "hidden" }}>
+            <div
+              className="w-1/2 p-2 rounded-lg border border-gray-900 shadow-lg"
+              style={{ backgroundColor: "#F5F5F5" }}
+            >
+              <h3 className="text-gray-700 font-semibold pb-4 text-sm">
+                Learn more about Scope 1 Emissions
+              </h3>
+              <div
+                className="relative"
+                style={{
+                  width: "%",
+                  height: "0",
+                  paddingBottom: "177.78%",
+                  overflow: "hidden",
+                }}
+              >
                 <iframe
                   src="https://www.youtube.com/embed/aXYqeRaRFS8?si=gkJIrfq8cWWYRtXu"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   title="Learn more about Scope 1 Emissions"
-                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "70%" }}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "70%",
+                  }}
                 ></iframe>
               </div>
             </div>
-            <div className="w-1/2 p-2 flex flex-col rounded-lg border border-gray-900 shadow-lg" style={{ backgroundColor: "#F5F5F5" }}>
-              <h3 className="text-gray-700 font-semibold pb-6 text-sm">Notifications</h3>
-              <div className="flex flex-row cursor-pointer" onClick={() => (window.location.href = "/datainboard")}>
+            <div
+              className="w-1/2 p-2 flex flex-col rounded-lg border border-gray-900 shadow-lg"
+              style={{ backgroundColor: "#F5F5F5" }}
+            >
+              <h3 className="text-gray-700 font-semibold pb-6 text-xs">
+                Notifications
+              </h3>
+              <div
+                className="flex flex-row cursor-pointer"
+                onClick={() => (window.location.href = "/datainboard")}
+              >
                 <img src={one} alt="add" style={{ height: 30, width: 30 }} />
                 <div className="flex flex-col pl-1">
-                  <div className="font-medium text-sm">Data-in-Board</div>
-                  <div className="text-sm">Add 32 missing parameters</div>
+                  <div className="font-medium text-xs">Data-in-Board</div>
+                  <div className="text-xs">Add 32 missing parameters</div>
                 </div>
               </div>
-              <div className="flex flex-row pt-3 cursor-pointer" onClick={() => (window.location.href = "/ocr")}>
+              <div
+                className="flex flex-row pt-3 cursor-pointer"
+                onClick={() => (window.location.href = "/ocr")}
+              >
                 <img src={two} alt="ocr" style={{ height: 30, width: 30 }} />
                 <div className="flex flex-col pl-1">
-                  <div className="font-medium text-sm">Automated Filling</div>
-                  <div className="text-sm">Upload your missing bills</div>
+                  <div className="font-medium text-xs">Automated Filling</div>
+                  <div className="text-xs">Upload your missing bills</div>
                 </div>
               </div>
-              <div className="flex flex-row pt-3 cursor-pointer" onClick={() => (window.location.href = "/report")}>
-                <img src={three} alt="report" style={{ height: 30, width: 30 }} />
+              <div
+                className="flex flex-row pt-3 cursor-pointer"
+                onClick={() => (window.location.href = "/report")}
+              >
+                <img
+                  src={three}
+                  alt="report"
+                  style={{ height: 30, width: 30 }}
+                />
                 <div className="flex flex-col pl-1">
-                  <div className="font-medium text-sm">Report</div>
-                  <div className="text-sm">View your Monthly Report</div>
+                  <div className="font-medium text-xs">Report</div>
+                  <div className="text-xs">View your Monthly Report</div>
                 </div>
               </div>
             </div>
