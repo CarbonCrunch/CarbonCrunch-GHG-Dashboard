@@ -327,11 +327,11 @@ export const verifyToken = asyncHandler(async (req, res) => {
       token,
       process.env.ACCESS_TOKEN_SECRET
     );
-    // console.log("decoded", decoded);
+    console.log("decoded", decoded);
 
     // Find user by id
     const user = await User.findById(decoded._id).select("-password");
-    // console.log('user1',user);
+    console.log('user1',user);
     req.user = user;
     if (!user) {
       return res

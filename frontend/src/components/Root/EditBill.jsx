@@ -16,7 +16,7 @@ const EditBill = () => {
   const [formData, setFormData] = useState({});
   const [activeField, setActiveField] = useState(null);
   const [containerRef, setContainerRef] = useState(null);
-
+  console.log("user", user)
   console.log("Bill data", bill);
   if (!bill) {
     return <div>No bill data available</div>;
