@@ -61,62 +61,63 @@ const Dashboard = () => {
     fetchReports();
   }, []);
 
-  const calculateCO2eTotals = (report) => {
-    if (!report) return { total: 0, scope1: 0, scope2: 0, scope3: 0 };
+const calculateCO2eTotals = (report) => {
+  if (!report) return { total: 0, scope1: 0, scope2: 0, scope3: 0 };
 
-    // Ensure report is treated as an array
-    const reportArray = Array.isArray(report) ? report : [report];
+  // Ensure report is treated as an array
+  const reportArray = Array.isArray(report) ? report : [report];
 
-    // Initialize totals
-    let totalEmissions = 0;
-    let scope1Emissions = 0;
-    let scope2Emissions = 0;
-    let scope3Emissions = 0;
+  // Initialize totals
+  let scope1Emissions = 0;
+  let scope2Emissions = 0;
+  let scope3Emissions = 0;
 
-    // Helper function to safely sum up CO2e values from an array
-    const sumCO2e = (dataArray) => {
-      return Array.isArray(dataArray)
-        ? dataArray.reduce((sum, item) => sum + parseFloat(item.CO2e || 0), 0)
-        : 0;
-    };
-
-    // Iterate through each report object in the array
-    reportArray.forEach((report) => {
-      // Calculate Scope 1 Emissions (ownedVehicles, bioenergy, refrigerants, fuel)
-      scope1Emissions +=
-        sumCO2e(report.ownedVehicles) +
-        sumCO2e(report.bioenergy) +
-        sumCO2e(report.refrigerants) +
-        sumCO2e(report.fuel);
-
-      // Calculate Scope 2 Emissions (ehctd)
-      scope2Emissions += sumCO2e(report.ehctd);
-
-      // Calculate Scope 3 Emissions (ec, btls, fg, wttfuel, food, material, waste, water, homeOffice)
-      scope3Emissions +=
-        sumCO2e(report.ec) +
-        sumCO2e(report.btls) +
-        sumCO2e(report.fg) +
-        sumCO2e(report.wttfuel) +
-        sumCO2e(report.food) +
-        sumCO2e(report.material) +
-        sumCO2e(report.waste) +
-        sumCO2e(report.water) +
-        sumCO2e(report.homeOffice);
-
-      // Calculate Total Emissions by summing all categories
-      totalEmissions += scope1Emissions + scope2Emissions + scope3Emissions;
-    });
-
-    return {
-      total: totalEmissions,
-      scope1: scope1Emissions,
-      scope2: scope2Emissions,
-      scope3: scope3Emissions,
-    };
+  // Helper function to safely sum up CO2e values from an array
+  const sumCO2e = (dataArray) => {
+    return Array.isArray(dataArray)
+      ? dataArray.reduce((sum, item) => sum + parseFloat(item.CO2e || 0), 0)
+      : 0;
   };
 
+  // Iterate through each report object in the array
+  reportArray.forEach((report) => {
+    // Calculate Scope 1 Emissions (ownedVehicles, bioenergy, refrigerants, fuel)
+    scope1Emissions +=
+      sumCO2e(report.ownedVehicles) +
+      sumCO2e(report.bioenergy) +
+      sumCO2e(report.refrigerants) +
+      sumCO2e(report.fuel);
+
+    // Calculate Scope 2 Emissions (ehctd)
+    scope2Emissions += sumCO2e(report.ehctd);
+
+    // Calculate Scope 3 Emissions (ec, btls, fg, wttfuel, food, material, waste, water, homeOffice)
+    scope3Emissions +=
+      sumCO2e(report.ec) +
+      sumCO2e(report.btls) +
+      sumCO2e(report.fg) +
+      sumCO2e(report.wttfuel) +
+      sumCO2e(report.food) +
+      sumCO2e(report.material) +
+      sumCO2e(report.waste) +
+      sumCO2e(report.water) +
+      sumCO2e(report.homeOffice);
+  });
+
+  // Calculate Total Emissions by summing all scopes *after* the loop
+  const totalEmissions = scope1Emissions + scope2Emissions + scope3Emissions;
+
+  return {
+    total: totalEmissions,
+    scope1: scope1Emissions,
+    scope2: scope2Emissions,
+    scope3: scope3Emissions,
+  };
+};
+
+
   const { total, scope1, scope2, scope3 } = calculateCO2eTotals(report);
+  console.log("total", total, "scope1", scope1, "scope2", scope2, "scope3", scope3);
 
   return (
     <div className="flex flex-col min-h-screen">
