@@ -12,7 +12,7 @@ import gri from "./assets/gri.png";
 import repanalysis from "./assets/repanalysis.png";
 import selfai from "./assets/selfai.png";
 import supply from "./assets/supply.png";
-
+import Modal from "./ComingSoon"; // Import the Modal component
 
 const ServiceItem = ({ text, imgSrc }) => (
   <div className="flex items-center mb-4">
@@ -28,7 +28,7 @@ const ServiceGrid = () => {
       items: [
         {
           text: "GHG Accounting - Scope 1, Scope 2, Scope 3",
-          imgSrc: ghg, // Corrected the curly braces here
+          imgSrc: ghg, 
         },
       ],
     },
@@ -70,8 +70,9 @@ const ServiceGrid = () => {
   );
 };
 
-const Navbar = () => {
+const Navbar = ({ scrolltoContact, scrolltowhy }) => {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -82,7 +83,7 @@ const Navbar = () => {
   };
 
   const handleRequestDemoClick = () => {
-    navigate("/request-demo");
+    scrolltoContact();
   };
 
   const handleAvatarClick = () => {
@@ -97,6 +98,18 @@ const Navbar = () => {
     } catch (error) {
       console.error("Logout failed:", error);
     }
+  };
+
+  const handleWhyUs = () => {
+    scrolltowhy();
+  };
+
+  const handleInsightsClick = () => {
+    setIsModalOpen(true); // Open modal when Insights is clicked
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false); // Close modal when called
   };
 
   return (
@@ -114,7 +127,7 @@ const Navbar = () => {
           </Link>
           <div className="hidden md:flex space-x-6">
             <div className="relative group">
-              <button className="px-3 py-2">Why Us</button>
+              <button className="px-3 py-2" onClick={handleWhyUs}>Why Us</button>
             </div>
             <div className="relative group">
               <button
@@ -130,7 +143,9 @@ const Navbar = () => {
               )}
             </div>
             <div className="relative group">
-              <button className="px-3 py-2">Insights</button>
+              <button className="px-3 py-2" onClick={handleInsightsClick}>
+                Insights
+              </button>
             </div>
           </div>
         </div>
@@ -179,7 +194,9 @@ const Navbar = () => {
           >
             Services ▼
           </button>
-          <button className="px-3 py-2">Insights</button>
+          <button className="px-3 py-2" onClick={handleInsightsClick}>
+            Insights
+          </button>
         </div>
       </div>
       {isServicesOpen && (
@@ -187,6 +204,11 @@ const Navbar = () => {
           <ServiceGrid />
         </div>
       )}
+      {/* Modal for Insights */}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <h2 className="text-xl font-semibold mb-4">Coming Soon</h2>
+        <p>The Insights feature is coming soon. Stay tuned!</p>
+      </Modal>
     </nav>
   );
 };
