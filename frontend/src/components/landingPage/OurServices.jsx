@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import image from './assets/image.png';
-import dashboard from './assets/SupplierDashboard.jpeg'
+import dashboard from './assets/SupplierDashboard.jpg'
 
 const services = [
   {
