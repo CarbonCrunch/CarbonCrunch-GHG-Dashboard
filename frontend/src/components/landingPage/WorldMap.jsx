@@ -92,7 +92,7 @@ const WorldMap = () => {
 
   // New Color Legend Component
   const EmissionsCoverageLegend = () => (
-    <div className="absolute bottom-7 left-4 w-100 h-auto bg-white p-4 rounded-lg shadow-md">
+    <div className="absolute bottom-7 left-4 w-auto h-auto bg-white p-4 rounded-lg shadow-md text-sm md:text-base">
       <div className="font-bold mb-2">EMISSIONS COVERAGE</div>
       <div className="flex items-center mb-1">
         <div className="w-4 h-4 mr-2" style={{ backgroundColor: "#228B22" }}></div>
@@ -118,14 +118,14 @@ const WorldMap = () => {
   );
 
   return (
-    <div className="relative">
+    <div className="relative w-full h-screen">
       {/* Tab Menu */}
-      <div className="text-center font-semibold text-[#022952] text-3xl mt-16 mb-4">
+      <div className="text-center font-semibold text-[#022952] text-xl md:text-3xl mt-10 mb-4">
         Global Sustainability Landscape
       </div>
-      <div className="flex justify-center mb-16 space-x-4">
+      <div className="flex justify-center mb-8 md:mb-16 space-x-2 md:space-x-4">
         <button
-          className={`px-4 py-2 rounded-lg font-medium transition duration-300 ${
+          className={`px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium transition duration-300 ${
             activeTab === "instrument"
               ? "bg-[#034385] text-white"
               : "bg-gray-100 text-[#034385] hover:bg-gray-200"
@@ -135,7 +135,7 @@ const WorldMap = () => {
           Carbon Credit Markets
         </button>
         <button
-          className={`px-4 py-2 rounded-lg font-medium transition duration-300 ${
+          className={`px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium transition duration-300 ${
             activeTab === "issuance"
               ? "bg-[#034385] text-white"
               : "bg-gray-100 text-[#034385] hover:bg-gray-200"
@@ -145,7 +145,7 @@ const WorldMap = () => {
           GHG Emission Coverage
         </button>
         <button
-          className={`px-4 py-2 rounded-lg font-medium transition duration-300 ${
+          className={`px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium transition duration-300 ${
             activeTab === "cooperative"
               ? "bg-[#034385] text-white"
               : "bg-gray-100 text-[#034385] hover:bg-gray-200"
@@ -159,9 +159,8 @@ const WorldMap = () => {
       {/* Map */}
       <div
         ref={mapRef}
+        className="w-full h-[50vh] md:h-[70vh]" // Responsive height for the map
         style={{
-          width: "100%",
-          height: "100vh", // Full height
           backgroundColor: "#FFFFFF",
         }}
       />

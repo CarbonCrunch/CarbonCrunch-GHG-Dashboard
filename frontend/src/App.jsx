@@ -28,6 +28,8 @@ import ViewBills from "./components/Root/ViewBills";
 import EditBill from "./components/Root/EditBill";
 import ManageFacilities from "./components/dashboard/settings/ManageFacilities";
 import ManageUser from "./components/dashboard/settings/ManageUser";
+import Services from "./components/landingPage/Pages/Services"
+import RequestDemo from "./components/landingPage/Pages/RequestDemo";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -68,6 +70,8 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/services" element={<Services/>}/>
+        <Route path="/request-demo" element={<RequestDemo/>}/>
         <Route
           path="/register"
           element={

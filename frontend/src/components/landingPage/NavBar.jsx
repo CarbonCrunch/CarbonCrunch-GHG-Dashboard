@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import logoCC from "./assets/logoCC.png";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaUser, FaCaretDown } from "react-icons/fa";
 import anomaly from "./assets/anomaly.png";
@@ -51,6 +51,13 @@ const ServiceGrid = () => {
       ],
     },
   ];
+  const navigate = useNavigate();
+
+  const handleExploreClick = () => {
+    navigate("/services");
+    // Here you can add the navigation logic, such as navigate to a new route
+    // navigate(`/services/${title}`);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -66,7 +73,12 @@ const ServiceGrid = () => {
           </div>
         ))}
       </div>
+      {/* Add Explore Button */}
+      <button onClick={handleExploreClick} className="mt-4 px-4 py-2 text-white bg-[#002952] hover:bg-blue-600 rounded">
+              Explore More
+            </button>
     </div>
+    
   );
 };
 
@@ -83,7 +95,7 @@ const Navbar = ({ scrolltoContact, scrolltowhy }) => {
   };
 
   const handleRequestDemoClick = () => {
-    scrolltoContact();
+    navigate('/request-demo')
   };
 
   const handleAvatarClick = () => {
