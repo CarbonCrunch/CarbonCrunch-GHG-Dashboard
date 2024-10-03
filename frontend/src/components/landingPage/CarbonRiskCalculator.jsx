@@ -13,14 +13,14 @@ const CarbonRiskCalculator = () => {
       alert('Please fill in all required fields.');
       return;
     }
-
+  
     const data = {
       industry,
       employees: Number(employees),
       operationalDays: Number(operationalDays),
       location,
     };
-
+  
     try {
       const industryAverages = {
         manufacturing: 20000,
@@ -28,40 +28,42 @@ const CarbonRiskCalculator = () => {
         retail: 4500,
         hospitality: 8000,
       };
-
+  
       const emissionFactors = {
         usa: 0.453,
         europe: 0.276,
         china: 0.681,
+        india: 0.708, // India's emission factor (tonnes of CO₂e per MWh)
       };
-
+  
       const carbonTaxRates = {
         usa: 50,
         europe: 60,
         china: 30,
+        india: 10, // Estimated carbon tax rate for India (USD per tonne CO₂e)
       };
-
+  
       const averageEnergyPerEmployee = industryAverages[data.industry];
       if (!averageEnergyPerEmployee) {
         alert('Invalid industry selected.');
         return;
       }
-
+  
       const emissionFactor = emissionFactors[data.location];
       if (!emissionFactor) {
         alert('Invalid location selected.');
         return;
       }
-
+  
       const carbonTaxRate = carbonTaxRates[data.location];
       const standardOperationalDays = 250;
       let annualEnergyConsumption = data.employees * averageEnergyPerEmployee;
       annualEnergyConsumption *= data.operationalDays / standardOperationalDays;
-
+  
       const ghgEmissions = (annualEnergyConsumption * emissionFactor) / 1000;
       const carbonTaxLiability = ghgEmissions * carbonTaxRate;
       const totalFinancialRisk = carbonTaxLiability;
-
+  
       setResults({
         energyConsumption: Math.round(annualEnergyConsumption),
         ghgEmissions: ghgEmissions.toFixed(2),
@@ -142,6 +144,7 @@ const CarbonRiskCalculator = () => {
                   <option value="usa">USA</option>
                   <option value="europe">Europe</option>
                   <option value="china">China</option>
+                  <option value="india">India</option>
                 </select>
               </div>
 

@@ -35,7 +35,7 @@ const WhyUs = () => {
       {/* First Row with 1/3 and 2/3 split */}
       <div className="flex flex-col md:flex-row gap-8 mb-8">
         {/* First div - 1/3 of width */}
-        <div className="w-full md:w-1/3" style={cardStyle}>
+        <div className="w-full md:w-1/3" style={cardStyle} data-aos="fade-up">
           <div>
             <h3 className="text-lg md:text-xl font-bold mb-4" style={textStyle}>
               Automated Data Collection
@@ -50,7 +50,7 @@ const WhyUs = () => {
         </div>
 
         {/* Second div - 2/3 of width */}
-        <div className="w-full md:w-2/3" style={cardStyle}>
+        <div className="w-full md:w-2/3" style={cardStyle} data-aos="fade-up" data-aos-delay="200">
           <div>
             <h3 className="text-lg md:text-xl font-bold mb-4" style={textStyle}>
               Monitoring & Reporting
@@ -68,7 +68,7 @@ const WhyUs = () => {
       {/* Second Row with 2/3 and 1/3 split */}
       <div className="flex flex-col md:flex-row gap-8">
         {/* First div - 1/2 of width */}
-        <div className="w-full md:w-1/2" style={cardStyle}>
+        <div className="w-full md:w-1/2" style={cardStyle} data-aos="fade-up" data-aos-delay="400">
           <div>
             <h3 className="text-lg md:text-xl font-bold mb-4" style={textStyle}>
               AI-Driven Insights
@@ -83,7 +83,7 @@ const WhyUs = () => {
         </div>
 
         {/* Second div - 1/2 of width */}
-        <div className="w-full md:w-1/2" style={cardStyle}>
+        <div className="w-full md:w-1/2" style={cardStyle} data-aos="fade-up" data-aos-delay="600">
           <div>
             <h3 className="text-lg md:text-xl font-bold mb-4" style={textStyle}>
               Simplified Certification Process

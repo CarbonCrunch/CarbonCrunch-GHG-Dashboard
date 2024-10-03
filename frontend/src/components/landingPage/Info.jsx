@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CountUp from "react-countup";
-import { useInView } from "react-intersection-observer";
 
 const Info = () => {
   const stats = [
@@ -29,28 +28,43 @@ const Info = () => {
     },
   ];
 
-  // Intersection observer hook to detect when the section is in view
-  const { ref, inView } = useInView({
-    triggerOnce: true, // Animation will only trigger once
-    threshold: 0.5, // Animation starts when 50% of the section is visible
-  });
-
   const [startCount, setStartCount] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
-    if (inView) {
-      setStartCount(true);
-    }
-  }, [inView]);
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+
+      const sectionTop = sectionRef.current.getBoundingClientRect().top;
+      const windowHeight = window.innerHeight;
+
+      // Check if the section is in view
+      if (sectionTop < windowHeight * 0.75 && sectionTop > 0) {
+        setIsVisible(true);
+        setStartCount(true); // Start counting when visible
+      } else {
+        setIsVisible(false); // Hide when it's out of view
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div
-      ref={ref}
+      ref={sectionRef}
       className="bg-gradient-to-b from-[#002952] via-[#1F568C] to-[#3476B8] text-white p-10"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         {stats.map((stat, index) => (
-          <div key={index} className="text-left">
+          <div
+            key={index}
+            className={`text-left transition-opacity duration-1000 ease-in-out transform ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            }`} // Apply fade-in and slide-up effect based on visibility
+          >
             <h2 className="text-4xl md:text-5xl font-bold">
               {startCount && (
                 <CountUp
