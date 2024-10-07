@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import NavBar from "../NavBar";
+import carbonele from '../assets/carbonele.png';
 
 const RequestDemo = () => {
   const [formData, setFormData] = useState({
@@ -24,24 +26,20 @@ const RequestDemo = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-[#00154f] to-[#080d2d] flex justify-center items-center py-10">
-      <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-8">
+    
+    <section className="min-h-screen bg-gradient-to-b from-[#10240b] to-[#000000] flex justify-center items-center py-10">
+      <NavBar/>
+      <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-8 mt-12">
         {/* Left Section */}
-        <div className="text-white max-w-lg">
+        <div className="text-white max-w-lg text-center">
           <h1 className="text-4xl font-bold mb-4">
             Learn how Carbon Crunch helps sustainability teams
           </h1>
-          <p className="text-lg mb-6">
+          <p className="text-lg mb-2">
             The only tool sustainability teams need to measure, track, and
             improve ESG metrics, ensuring global compliance within budget.
           </p>
-          {/* Logos/Compliance Badges */}
-          <div className="flex gap-6 mb-8">
-            <img src="/path/to/gdpr.png" alt="GDPR Compliance" className="w-12" />
-            <img src="/path/to/iso27001.png" alt="ISO 27001 Compliance" className="w-12" />
-            <img src="/path/to/iso14001.png" alt="ISO 14001 Compliance" className="w-12" />
-            <img src="/path/to/iso9001.png" alt="ISO 9001 Compliance" className="w-12" />
-          </div>
+          <img src={carbonele} alt="Carbonele" className="w-96 ml-16" />
         </div>
 
         {/* Right Section (Form) */}

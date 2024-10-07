@@ -30,6 +30,12 @@ import ManageFacilities from "./components/dashboard/settings/ManageFacilities";
 import ManageUser from "./components/dashboard/settings/ManageUser";
 import Services from "./components/landingPage/Pages/Services"
 import RequestDemo from "./components/landingPage/Pages/RequestDemo";
+import GHG from "./components/landingPage/Pages/Services/GHG";
+import BRSRCore from "./components/landingPage/Pages/Services/BRSRCore";
+import Inventory from "./components/landingPage/Pages/Services/Inventory";
+import Reporting from "./components/landingPage/Pages/Services/Reporting";
+import ScopeAnalysis from "./components/landingPage/Pages/Services/ScopeAnalysis";
+import SupplierManagement from "./components/landingPage/Pages/Services/SupplierManagement";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -72,6 +78,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/services" element={<Services/>}/>
         <Route path="/request-demo" element={<RequestDemo/>}/>
+        <Route path='/ghg' element={<GHG/>}/>
+        <Route path='/brsrcore' element={<BRSRCore/>}/>
+        <Route path='/inventory' element={<Inventory/>}/>
+        <Route path='/reporting' element={<Reporting/>}/>
+        <Route path='/scopeanalysis' element={<ScopeAnalysis/>}/>
+        <Route path='/suppliermanagement' element={<SupplierManagement/>}/>
         <Route
           path="/register"
           element={

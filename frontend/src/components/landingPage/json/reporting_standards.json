@@ -1,0 +1,27 @@
+{
+    "European Union": {
+        "status": "80-100% Compliance",
+        "color": "#006400",
+        "hover": "\"The European Union has comprehensive adherence to reporting standards, with over 80% compliance.\""
+    },
+    "Canada": {
+        "status": "60-80% Compliance",
+        "color": "#228B22",
+        "hover": "\"Canada has substantial compliance with reporting standards, between 60% and 80%.\""
+    },
+    "Australia": {
+        "status": "40-60% Compliance",
+        "color": "#32CD32",
+        "hover": "\"Australia has partial compliance, with room for improvement in its reporting standards, covering between 40% and 60%.\""
+    },
+    "Japan": {
+        "status": "20-40% Compliance",
+        "color": "#98FB98",
+        "hover": "\"Japan has minimal compliance with reporting standards, covering between 20% and 40%.\""
+    },
+    "India": {
+        "status": "<20% Compliance",
+        "color": "#C0FFC0",
+        "hover": "\"India has very limited compliance with reporting standards, covering less than 20%.\""
+    }
+}

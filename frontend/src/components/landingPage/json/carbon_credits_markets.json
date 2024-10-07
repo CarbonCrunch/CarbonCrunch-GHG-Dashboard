@@ -1,0 +1,27 @@
+{
+    "USA": {
+        "status": "80-100% Coverage",
+        "color": "#006400",
+        "hover": "\"USA has a strong participation in carbon credits trading, covering over 80% of the market.\""
+    },
+    "China": {
+        "status": "60-80% Coverage",
+        "color": "#228B22",
+        "hover": "\"China has moderate participation in carbon credits trading, covering between 60% and 80% of the market.\""
+    },
+    "India": {
+        "status": "40-60% Coverage",
+        "color": "#32CD32",
+        "hover": "\"India's carbon credits market is developing, with coverage between 40% and 60%.\""
+    },
+    "Brazil": {
+        "status": "20-40% Coverage",
+        "color": "#98FB98",
+        "hover": "\"Brazil has limited participation in carbon credits trading, covering between 20% and 40% of the market.\""
+    },
+    "South Africa": {
+        "status": "<20% Coverage",
+        "color": "#C0FFC0",
+        "hover": "\"South Africa has minimal participation in the carbon credits market, covering less than 20%.\""
+    }
+}

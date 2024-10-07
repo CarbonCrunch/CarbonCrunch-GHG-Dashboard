@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import image from './assets/image.png';
 import dashboard from './assets/SupplierDashboard.jpg';
+import { useNavigate } from 'react-router-dom';
 
 const services = [
   {
     name: "GHG Accounting",
     description: `GHG accounting is the process of measuring and reporting an organization's greenhouse
-    gas emissions across three categories: Scope 1, Scope 2, and Scope 3. It involves collecting activity data,
-    calculating emissions using standardized factors, and reporting the results to guide sustainability 
-    strategies and comply with frameworks like the GHG Protocol. This process helps organizations track their
-    carbon footprint and set reduction targets.`,
-    shortDescription: `GHG accounting measures and reports emissions across Scope 1, 2, and 3 to help organizations track and reduce their carbon footprint.`,
-    image: image
+     gas emissions across three categories: Scope 1, Scope 2, and Scope 3. It involves collecting activity data,
+      calculating emissions using standardized factors, and reporting the results to guide sustainability 
+      strategies and comply with frameworks like the GHG Protocol. This process helps organizations track their
+       carbon footprint and set reduction targets.`,
+    image: image,
+    path: '/ghg'
   },
   {
     name: "Scope 1 and Scope 2 Analysis",
     description: `Scope 1 and Scope 2 emissions analysis is crucial for organizations aiming to manage their carbon
-    footprint. Scope 1 refers to direct emissions from sources that are owned or controlled by the company, such as
-    emissions from on-site fuel combustion in boilers, furnaces, and vehicles. Scope 2 covers indirect emissions 
-    from the generation of purchased electricity, steam, heating, or cooling consumed by the organization.`,
-    shortDescription: `Scope 1 includes direct emissions from owned sources, while Scope 2 covers emissions from purchased energy.`,
-    image: image
+     footprint. Scope 1 refers to direct emissions from sources that are owned or controlled by the company, such as
+      emissions from on-site fuel combustion in boilers, furnaces, and vehicles. Scope 2 covers indirect emissions 
+      from the generation of purchased electricity, steam, heating, or cooling consumed by the organization.`,
+    image: image,
+    path: '/scopeanalysis'
   },
   {
     name: "GHG Inventory Management",
@@ -29,16 +30,16 @@ const services = [
     reduce the organization’s carbon footprint by identifying the sources and quantities of GHG emissions.
     Additionally, many organizations use their GHG inventory to set emissions reduction targets and track 
     progress over time.`,
-    shortDescription: `GHG Inventory Management helps quantify, track, and reduce emissions by identifying sources and setting reduction targets.`,
-    image: image
+    image: image,
+    path: '/inventory'
   },
   {
     name: "Supplier ESG Management",
     description: `Supplier ESG management involves evaluating and managing the sustainability practices of a 
     company's suppliers to ensure that they align with the organization's own ESG goals. This process focuses 
     on assessing suppliers' impact on the environment, social responsibility, and governance standards.`,
-    shortDescription: `Supplier ESG management ensures suppliers meet environmental, social, and governance standards in line with company goals.`,
-    image: dashboard
+    image: dashboard,
+    path: '/suppliermanagement'
   },
   {
     name: "BRSR Core Value Chain Disclosure",
@@ -46,8 +47,8 @@ const services = [
     of their entire value chain, including suppliers and distributors. It covers key aspects such as identifying 
     major partners, assessing environmental, social, and governance practices across the chain, managing related risks,
     and collaborating with partners to improve ESG performance.`,
-    shortDescription: `BRSR Core Value Chain Disclosure ensures sustainability reporting across the entire value chain, including suppliers and distributors.`,
-    image: image
+    image: image,
+    path: '/brsrcore'
   },
   {
     name: "BRSR Reporting",
@@ -55,13 +56,15 @@ const services = [
     companies to disclose information about their sustainability and business responsibility practices. BRSR aims 
     to enhance transparency and promote sustainable development by requiring companies to provide detailed reports 
     on their Environmental, Social, and Governance (ESG) activities.`,
-    shortDescription: `BRSR is a framework by SEBI that requires companies to disclose their sustainability and business responsibility practices.`,
-    image: image
+    image: image,
+    path: '/reporting'
   }
 ];
 
+
 const OurServices = () => {
   const [selectedServiceIndex, setSelectedServiceIndex] = useState(0);
+  const navigate = useNavigate();
 
   // Automatically switch tabs every 3 seconds
   useEffect(() => {
@@ -81,13 +84,13 @@ const OurServices = () => {
         <h2 className="text-4xl font-semibold font-josefin-sans">Our Services</h2>
       </div>
 
-      {/* Services Navigation with Horizontal Scroll */}
-      <div className="flex justify-center space-x-2 mb-14 px-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
+      {/* Services Navigation */}
+      <div className="hidden md:flex justify-center space-x-2 mb-14 px-4 overflow-hidden">
         {services.map((service, index) => (
           <button
             key={index}
             onClick={() => setSelectedServiceIndex(index)}
-            className={`px-3 py-2 mx-1 whitespace-nowrap rounded-full font-semibold transition-colors duration-300 w-auto text-sm md:text-base ${
+            className={`px-4 py-2 whitespace-nowrap rounded-full font-semibold transition-colors duration-300 w-auto ${
               selectedServiceIndex === index
                 ? 'bg-green-400 text-white'
                 : 'bg-transparent border-2 border-green-400 text-white hover:bg-green-400 hover:text-white'
@@ -99,16 +102,18 @@ const OurServices = () => {
       </div>
 
       {/* Service Details with Image */}
-      <div className="flex flex-col h-auto mb-10 md:flex-row justify-center items-center max-w-6xl mx-auto bg-[#F3F9EE] rounded-lg shadow-lg transition-all duration-500 ease-in-out transform px-4 md:px-8">
-        <div className="md:w-1/2 w-full mb-8 md:mb-0 mt-8">
-          <h3 className="text-2xl font-bold text-[#002952] mb-6">
+      <div className="flex flex-col h-auto mb-6 md:flex-row justify-center items-center max-w-6xl mx-auto bg-[#F3F9EE] rounded-lg shadow-lg transition-all duration-500 ease-in-out px-4 md:px-8 sm:px-4">
+        <div className="md:w-1/2 w-full mb-8 md:mb-0 mt-6 sm:mt-4">
+          <h3 className="text-xl md:text-2xl font-bold text-[#002952] mb-4">
             {selectedService.name}
           </h3>
-          <p className="text-gray-700 mb-6">
-            <span className="hidden md:inline">{selectedService.description}</span>
-            <span className="md:hidden">{selectedService.shortDescription}</span>
+          <p className="text-sm md:text-base text-gray-700 mb-4">
+            {selectedService.description}
           </p>
-          <button className="text-[#002952] text-xl mt-10 font-semibold hover:text-green-700">
+          <button 
+            className="text-[#002952] text-lg sm:text-base mt-6 font-semibold hover:text-green-700"
+            onClick={() => navigate(selectedService.path)} // Use navigate for path navigation
+          >
             Explore the service → 
           </button>
         </div>

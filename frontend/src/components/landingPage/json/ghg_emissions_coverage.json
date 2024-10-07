@@ -1,0 +1,57 @@
+{
+    "USA": {
+        "status": "80-100% | >1,000 MtCO2-e",
+        "color": "#006400",
+        "hover": "\"USA's emissions coverage is above 80%, with total emissions exceeding 1,000 MtCO2-e.\""
+    },
+    "China": {
+        "status": "80-100% | >1,000 MtCO2-e",
+        "color": "#006400",
+        "hover": "\"China's emissions coverage is above 80%, with total emissions exceeding 1,000 MtCO2-e.\""
+    },
+    "India": {
+        "status": "60-80% | 500-1,000 MtCO2-e",
+        "color": "#228B22",
+        "hover": "\"India's emissions coverage is between 60% and 80%, with total emissions between 500 and 1,000 MtCO2-e.\""
+    },
+    "Germany": {
+        "status": "40-60% | 100-500 MtCO2-e",
+        "color": "#32CD32",
+        "hover": "\"Germany's emissions coverage is between 40% and 60%, with total emissions between 100 and 500 MtCO2-e.\""
+    },
+    "Brazil": {
+        "status": "20-40% | 10-100 MtCO2-e",
+        "color": "#98FB98",
+        "hover": "\"Brazil's emissions coverage is between 20% and 40%, with total emissions between 10 and 100 MtCO2-e.\""
+    },
+    "New Zealand": {
+        "status": "<20% | <10 MtCO2-e",
+        "color": "#C0FFC0",
+        "hover": "\"New Zealand's emissions coverage is below 20%, with total emissions less than 10 MtCO2-e.\""
+    },
+    "South Korea": {
+        "status": "60-80% | 500-1,000 MtCO2-e",
+        "color": "#228B22",
+        "hover": "\"South Korea's emissions coverage is between 60% and 80%, with total emissions between 500 and 1,000 MtCO2-e.\""
+    },
+    "Australia": {
+        "status": "40-60% | 100-500 MtCO2-e",
+        "color": "#32CD32",
+        "hover": "\"Australia's emissions coverage is between 40% and 60%, with total emissions between 100 and 500 MtCO2-e.\""
+    },
+    "Canada": {
+        "status": "60-80% | 500-1,000 MtCO2-e",
+        "color": "#228B22",
+        "hover": "\"Canada's emissions coverage is between 60% and 80%, with total emissions between 500 and 1,000 MtCO2-e.\""
+    },
+    "Japan": {
+        "status": "20-40% | 10-100 MtCO2-e",
+        "color": "#98FB98",
+        "hover": "\"Japan's emissions coverage is between 20% and 40%, with total emissions between 10 and 100 MtCO2-e.\""
+    },
+    "South Africa": {
+        "status": "80-100% | >1,000 MtCO2-e",
+        "color": "#006400",
+        "hover": "\"South Africa's emissions coverage is above 80%, with total emissions exceeding 1,000 MtCO2-e.\""
+    }
+}

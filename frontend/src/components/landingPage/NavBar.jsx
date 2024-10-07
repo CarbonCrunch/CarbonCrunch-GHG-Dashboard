@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import logoCC from "./assets/logoCC.png";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { FaUser, FaCaretDown } from "react-icons/fa";
+import { FaUser, FaCaretDown, FaBars, FaTimes } from "react-icons/fa";
 import anomaly from "./assets/anomaly.png";
 import csri from "./assets/csri.png";
 import brsr from "./assets/brsr.png";
@@ -21,14 +21,14 @@ const ServiceItem = ({ text, imgSrc }) => (
   </div>
 );
 
-const ServiceGrid = () => {
+const ServiceGrid = ({ onClose }) => {
   const services = [
     {
       title: "Measure",
       items: [
         {
           text: "GHG Accounting - Scope 1, Scope 2, Scope 3",
-          imgSrc: ghg, 
+          imgSrc: ghg,
         },
       ],
     },
@@ -55,35 +55,39 @@ const ServiceGrid = () => {
 
   const handleExploreClick = () => {
     navigate("/services");
-    // Here you can add the navigation logic, such as navigate to a new route
-    // navigate(`/services/${title}`);
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex flex-grow flex-row md:flex-row justify-between space-x-6">
+    <div className="bg-white rounded-lg shadow-md p-6 max-h-[400px] md:max-h-[500px] overflow-y-auto">
+      <button
+        onClick={onClose}
+        className="float-right mb-4 px-4 py-2"
+      >
+        <FaTimes />
+      </button>
+      <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-6">
         {services.map((service, index) => (
           <div key={index} className="flex-1 min-w-[250px] px-4 mb-6 md:mb-0">
-            <h2 className="text-navy-600 font-semibold mb-4">
-              {service.title}
-            </h2>
+            <h2 className="text-navy-600 font-semibold mb-4">{service.title}</h2>
             {service.items.map((item, idx) => (
               <ServiceItem key={idx} text={item.text} imgSrc={item.imgSrc} />
             ))}
           </div>
         ))}
       </div>
-      {/* Add Explore Button */}
-      <button onClick={handleExploreClick} className="mt-4 px-4 py-2 text-white bg-[#002952] hover:bg-blue-600 rounded">
-              Explore More
-            </button>
+      <button
+        onClick={handleExploreClick}
+        className="mt-4 px-4 py-2 text-white bg-[#002952] hover:bg-blue-600 rounded"
+      >
+        Explore More
+      </button>
     </div>
-    
   );
 };
 
 const Navbar = ({ scrolltoContact, scrolltowhy }) => {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
   const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -95,7 +99,7 @@ const Navbar = ({ scrolltoContact, scrolltowhy }) => {
   };
 
   const handleRequestDemoClick = () => {
-    navigate('/request-demo')
+    navigate("/request-demo");
   };
 
   const handleAvatarClick = () => {
@@ -124,6 +128,10 @@ const Navbar = ({ scrolltoContact, scrolltowhy }) => {
     setIsModalOpen(false); // Close modal when called
   };
 
+  const closeDropdown = () => {
+    setIsServicesOpen(false);
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full shadow-md z-20 bg-white">
       <div className="container mx-auto px-4 py-1 flex justify-between items-center">
@@ -134,34 +142,31 @@ const Navbar = ({ scrolltoContact, scrolltowhy }) => {
             alt="Logo"
             style={{ height: 70, width: 70, cursor: "pointer" }}
           />
-          <Link to="/" className="font-bold text-xl px-4">
+          <Link to="/" className="font-bold text-xl px-4 hidden md:block">
             Carbon Crunch
           </Link>
-          <div className="hidden md:flex space-x-6">
-            <div className="relative group">
-              <button className="px-3 py-2" onClick={handleWhyUs}>Why Us</button>
-            </div>
-            <div className="relative group">
-              <button
-                className="px-3 py-2"
-                onClick={() => setIsServicesOpen(!isServicesOpen)}
-              >
-                Services ▼
-              </button>
-              {isServicesOpen && (
-                <div className="absolute left-0 mt-2 w-auto bg-white shadow-md rounded-lg">
-                  <ServiceGrid />
-                </div>
-              )}
-            </div>
-            <div className="relative group">
-              <button className="px-3 py-2" onClick={handleInsightsClick}>
-                Insights
-              </button>
-            </div>
-          </div>
         </div>
-        <div className="flex space-x-6">
+        {/* Desktop Menu */}
+        <div className="hidden md:flex space-x-6">
+          <button className="px-3 py-2" onClick={handleWhyUs}>
+            Why Us
+          </button>
+          <button
+            className="px-3 py-2"
+            onClick={() => setIsServicesOpen(!isServicesOpen)}
+          >
+            Services ▼
+          </button>
+          {isServicesOpen && (
+            <div className="absolute left-0 mt-2 w-full md:w-auto bg-white shadow-md rounded-lg z-10">
+              <ServiceGrid onClose={closeDropdown} />
+            </div>
+          )}
+          <button className="px-3 py-2" onClick={handleInsightsClick}>
+            Insights
+          </button>
+        </div>
+        <div className="hidden md:flex space-x-6">
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
@@ -195,27 +200,62 @@ const Navbar = ({ scrolltoContact, scrolltowhy }) => {
             Request a Demo
           </button>
         </div>
-      </div>
-      {/* Mobile Menu */}
-      <div className="md:hidden flex justify-between items-center">
-        <div className="flex space-x-6">
-          <button className="px-3 py-2">Why Us</button>
+        {/* Mobile Menu Icon */}
+        <div className="md:hidden mr-4">
           <button
-            className="px-3 py-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-2xl"
+          >
+            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white shadow-md py-4 space-y-4">
+          <button className="block w-full px-4 py-2 text-left" onClick={handleWhyUs}>
+            Why Us
+          </button>
+          <button
+            className="block w-full px-4 py-2 text-left"
             onClick={() => setIsServicesOpen(!isServicesOpen)}
           >
             Services ▼
           </button>
-          <button className="px-3 py-2" onClick={handleInsightsClick}>
+          {isServicesOpen && (
+            <div className="w-full px-4">
+              <ServiceGrid onClose={closeDropdown} />
+            </div>
+          )}
+          <button className="block w-full px-4 py-2 text-left" onClick={handleInsightsClick}>
             Insights
           </button>
-        </div>
-      </div>
-      {isServicesOpen && (
-        <div className="md:hidden w-auto">
-          <ServiceGrid />
+          <button
+            onClick={handleRequestDemoClick}
+            className="block w-full px-4 py-2 text-left"
+          >
+            Request a Demo
+          </button>
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="block w-full px-4 py-2 text-left"
+            >
+              Logout
+            </button>
+          )}
+          {!user && (
+            <button
+              onClick={handleSignInClick}
+              className="block w-full px-4 py-2 text-left"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       )}
+
       {/* Modal for Insights */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <h2 className="text-xl font-semibold mb-4">Coming Soon</h2>

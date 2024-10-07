@@ -71,7 +71,7 @@ const Services = () => {
     <div className="bg-gradient-to-b from-white to-[#F0F4F8] py-16">
       <div className="max-w-7xl mx-auto px-6">
         <Navbar/>
-        <h1 className="text-5xl font-bold text-center mb-14 text-[#002952] tracking-tight mt-12">
+        <h1 className="text-5xl font-bold text-center mb-14 text-[#002952] tracking-tight mt-16">
           Our Services
         </h1>
         <p className="text-lg text-center text-gray-600 mb-10 max-w-2xl mx-auto">

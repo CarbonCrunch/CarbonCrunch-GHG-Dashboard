@@ -28,7 +28,7 @@ const ContactForm = () => {
                 <strong>Country:</strong> India
               </p>
               <p>
-                <strong>Office:</strong> B-1, Front Ave, Institutional Area, Block B, Industrial Area, Sector 62, Noida, Uttar Pradesh 201307
+                <strong>Office:</strong>  IIM Lucknow Noida, B-1, Front Ave, Institutional Area, Block B, Industrial Area, Sector 62, Noida, Uttar Pradesh 201307
               </p>
               <p>
                 <strong>Phone:</strong> <a href="tel:7880802404" className="hover:underline">788 080 2404</a>
