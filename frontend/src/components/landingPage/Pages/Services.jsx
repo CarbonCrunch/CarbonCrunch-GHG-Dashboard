@@ -9,6 +9,7 @@ import repanalysis from '../assets/repanalysis.png';
 import selfai from '../assets/selfai.png';
 import supply from '../assets/supply.png';
 import Navbar from '../NavBar';
+import { useNavigate } from 'react-router-dom';
 
 const services = [
   {
@@ -66,7 +67,13 @@ const ServiceCard = ({ title, imgSrc, description }) => (
   </div>
 );
 
+
 const Services = () => {
+  const navigate = useNavigate();
+
+  const handleStarted = () => {
+    navigate('/request-demo');
+  }
   return (
     <div className="bg-gradient-to-b from-white to-[#F0F4F8] py-16">
       <div className="max-w-7xl mx-auto px-6">
@@ -89,7 +96,7 @@ const Services = () => {
         </div>
 
         <div className="text-center mt-14">
-          <button className="bg-[#002952] text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-[#004080] transition-colors duration-300 shadow-md">
+          <button className="bg-[#002952] text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-[#004080] transition-colors duration-300 shadow-md" onClick={handleStarted}>
             Get Started
           </button>
         </div>

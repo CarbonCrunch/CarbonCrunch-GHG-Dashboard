@@ -20,21 +20,19 @@ const Footer = () => {
               <h2 className="text-xl font-bold text-blue-900">Carbon Crunch</h2>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
-              euismod, nisi vel.
+              The only tool sustainability teams need to measure, track, and
+              improve ESG metrics, ensuring global compliance within budget.
             </p>
             <div>
               <p className="text-sm font-semibold mb-2">Follow us on :</p>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-600 hover:text-gray-800">
+                <a href="https://www.instagram.com/carboncrunch/" className="text-gray-600 hover:text-gray-800">
                   <img src={insta} style={{ height: 40, width: 40 }} />
                 </a>
-                <a href="#" className="text-gray-600 hover:text-gray-800">
+                <a href="https://www.linkedin.com/company/carbon-crunch/" className="text-gray-600 hover:text-gray-800">
                   <img src={link} style={{ height: 40, width: 40 }} />
                 </a>
-                <a href="#" className="text-gray-600 hover:text-gray-800">
-                  <img src={x} style={{ height: 40, width: 40 }} />
-                </a>
+                
               </div>
             </div>
           </div>

@@ -31,7 +31,7 @@ const ContactForm = () => {
                 <strong>Office:</strong>  IIM Lucknow Noida, B-1, Front Ave, Institutional Area, Block B, Industrial Area, Sector 62, Noida, Uttar Pradesh 201307
               </p>
               <p>
-                <strong>Phone:</strong> <a href="tel:7880802404" className="hover:underline">788 080 2404</a>
+                <strong>Phone:</strong> <a href="tel:7880802404" className="hover:underline">+91 788 080 2404</a>
               </p>
               <p>
                 <strong>Email:</strong> <a href="mailto:support@carboncrunch.in" className="hover:underline">support@carboncrunch.in</a>

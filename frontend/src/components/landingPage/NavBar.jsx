@@ -40,19 +40,19 @@ const ServiceGrid = ({ onClose }) => {
     {
       title: "Analyze",
       items: [
-        { text: "Self-Serve AI assistant", imgSrc: selfai, path: "/ai" },
-        { text: "Reporting Analysis", imgSrc: repanalysis, path: "/reporting" },
-        { text: "Anomaly Detection", imgSrc: anomaly, path: "/anomaly" },
-        { text: "Supply Chain analysis", imgSrc: supply, path: "/supplychain" },
+        { text: "Self-Serve AI assistant", imgSrc: selfai, path: "/services" },
+        { text: "Reporting Analysis", imgSrc: repanalysis, path: "/services" },
+        { text: "Anomaly Detection", imgSrc: anomaly, path: "/services" },
+        { text: "Supply Chain analysis", imgSrc: supply, path: "/services" },
       ],
     },
     {
       title: "Report",
       items: [
-        { text: "BRSR Reporting", imgSrc: brsr, path: "/brsr" },
-        { text: "GRI Reporting", imgSrc: gri, path: "/gri" },
-        { text: "CSRD", imgSrc: csri, path: "/csrd" },
-        { text: "ESRS", imgSrc: esrs, path: "/esrs" },
+        { text: "BRSR Reporting", imgSrc: brsr, path: "/services" },
+        { text: "GRI Reporting", imgSrc: gri, path: "/services" },
+        { text: "CSRD", imgSrc: csri, path: "/services" },
+        { text: "ESRS", imgSrc: esrs, path: "/services" },
       ],
     },
   ];
