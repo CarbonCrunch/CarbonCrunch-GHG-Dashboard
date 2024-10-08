@@ -31,11 +31,16 @@ import ManageUser from "./components/dashboard/settings/ManageUser";
 import Services from "./components/landingPage/Pages/Services"
 import RequestDemo from "./components/landingPage/Pages/RequestDemo";
 import GHG from "./components/landingPage/Pages/Services/GHG";
-import BRSRCore from "./components/landingPage/Pages/Services/BRSRCore";
-import Inventory from "./components/landingPage/Pages/Services/Inventory";
+import image from './components/landingPage/assets/image.png'
+import AI from "./components/landingPage/Pages/Services/AI";
+import BRSRReporting from "./components/landingPage/Pages/Services/BRSRReporting";
+import AnomalyDetection from "./components/landingPage/Pages/Services/AnomalyDetection";
+import CSRD from "./components/landingPage/Pages/Services/CSRD";
 import Reporting from "./components/landingPage/Pages/Services/Reporting";
-import ScopeAnalysis from "./components/landingPage/Pages/Services/ScopeAnalysis";
-import SupplierManagement from "./components/landingPage/Pages/Services/SupplierManagement";
+import SupplyChain from "./components/landingPage/Pages/Services/SuppyChain";
+import ESRS from "./components/landingPage/Pages/Services/ESRS";
+import GRIReporting from "./components/landingPage/Pages/Services/GRIReporting";
+
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -78,12 +83,15 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/services" element={<Services/>}/>
         <Route path="/request-demo" element={<RequestDemo/>}/>
-        <Route path='/ghg' element={<GHG/>}/>
-        <Route path='/brsrcore' element={<BRSRCore/>}/>
-        <Route path='/inventory' element={<Inventory/>}/>
-        <Route path='/reporting' element={<Reporting/>}/>
-        <Route path='/scopeanalysis' element={<ScopeAnalysis/>}/>
-        <Route path='/suppliermanagement' element={<SupplierManagement/>}/>
+        <Route path='/ghg' element={<GHG name='GHG Accounting' description='Something' image={image}/>}/>
+        <Route path='/ai' element={<AI name='AI Assistant' description='Something' image={image}/>}/>
+        <Route path='/brsr' element={<BRSRReporting name='BRSR Reporting' description='Something' image={image}/>}/>
+        <Route path='/anomaly' element={<AnomalyDetection name='Anomaly Detection' description='Something' image={image}/>}/>
+        <Route path='/csrd' element={<CSRD name='CSRD' description='Something' image={image}/>}/>
+        <Route path='/reporting' element={<Reporting name='Reporting Analysis' description='Something' image={image}/>}/>
+        <Route path='/supplychain' element={<SupplyChain name='Supply Chain' description='Something' image={image}/>}/>
+        <Route path='/esrs' element={<ESRS name='ESRS' description='Something' image={image}/>}/>
+        <Route path='/gri' element={<GRIReporting name='GRI Reporting' description='Something' image={image}/>}/>
         <Route
           path="/register"
           element={

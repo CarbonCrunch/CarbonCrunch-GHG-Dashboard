@@ -21,29 +21,27 @@ const RequestDemo = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add form submission logic here
     console.log(formData);
   };
 
   return (
-    
-    <section className="min-h-screen bg-gradient-to-b from-[#10240b] to-[#000000] flex justify-center items-center py-10">
+    <section className="min-h-screen bg-white flex flex-col justify-center items-center py-10 px-4 md:px-10">
       <NavBar/>
-      <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-8 mt-12">
+      <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 mt-12">
         {/* Left Section */}
-        <div className="text-white max-w-lg text-center">
-          <h1 className="text-4xl font-bold mb-4">
-            Learn how Carbon Crunch helps sustainability teams
+        <div className="text-black max-w-lg text-center lg:text-left mb-10 lg:mb-0">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-snug">
+            Learn how <span className="text-[#6DAC31]">Carbon Crunch</span> helps sustainability teams
           </h1>
-          <p className="text-lg mb-2">
+          <p className="text-base md:text-lg mb-4">
             The only tool sustainability teams need to measure, track, and
             improve ESG metrics, ensuring global compliance within budget.
           </p>
-          <img src={carbonele} alt="Carbonele" className="w-96 ml-16" />
+          <img src={carbonele} alt="Carbonele" className="w-80 md:w-96 mx-auto lg:mx-0" />
         </div>
 
         {/* Right Section (Form) */}
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full">
+        <div className="bg-[#a0e262] rounded-lg shadow-lg p-8 max-w-lg w-full">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Book a demo</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -125,7 +123,7 @@ const RequestDemo = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+              className="w-full bg-blue-700 text-white py-2 rounded-md hover:bg-blue-800 transition-colors"
             >
               Book a demo
             </button>

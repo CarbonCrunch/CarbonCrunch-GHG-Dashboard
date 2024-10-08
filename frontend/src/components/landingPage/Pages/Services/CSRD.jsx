@@ -1,7 +1,7 @@
 import React from 'react';
 import Navbar from '../../NavBar';
 
-const GHG = ({ name, description, image }) => {
+const CSRD = ({ name, description, image }) => {
   return (
     <div className="bg-white min-h-screen">
       <Navbar/>
@@ -31,4 +31,4 @@ const GHG = ({ name, description, image }) => {
   );
 };
 
-export default GHG;
+export default CSRD;
