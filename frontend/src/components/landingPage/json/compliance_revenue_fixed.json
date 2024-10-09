@@ -1,0 +1,367 @@
+{
+    "Finland": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Finland has implemented Carbon Tax Implemented.\""
+    },
+    "Poland": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Poland has implemented Carbon Tax Implemented.\""
+    },
+    "Norway": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Norway has implemented Carbon Tax Implemented.\""
+    },
+    "Sweden": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Sweden has implemented Carbon Tax Implemented.\""
+    },
+    "Denmark": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Denmark has implemented Carbon Tax Implemented.\""
+    },
+    "Latvia": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Latvia has implemented Carbon Tax Implemented.\""
+    },
+    "Slovenia": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Slovenia has implemented Carbon Tax Implemented.\""
+    },
+    "Estonia": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Estonia has implemented Carbon Tax Implemented.\""
+    },
+    "EU": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"EU has implemented ETS Implemented.\""
+    },
+    "Alberta": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Alberta has implemented Carbon Tax Implemented.\""
+    },
+    "Switzerland": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Switzerland has implemented Carbon Tax Implemented.\""
+    },
+    "New Zealand": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"New Zealand has implemented ETS Implemented.\""
+    },
+    "British Columbia": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"British Columbia has implemented ETS Implemented.\""
+    },
+    "RGGI": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"RGGI has implemented ETS Implemented.\""
+    },
+    "Iceland": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Iceland has implemented Carbon Tax Implemented.\""
+    },
+    "Tokyo": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Tokyo has implemented ETS Implemented.\""
+    },
+    "Ireland": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Ireland has implemented Carbon Tax Implemented.\""
+    },
+    "Saitama": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Saitama has implemented ETS Implemented.\""
+    },
+    "California": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"California has implemented ETS Implemented.\""
+    },
+    "Japan": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Japan has implemented Carbon Tax Implemented.\""
+    },
+    "Quebec": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Quebec has implemented ETS Implemented.\""
+    },
+    "Kazakhstan": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Kazakhstan has implemented ETS Implemented.\""
+    },
+    "United Kingdom": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"United Kingdom has implemented ETS Implemented.\""
+    },
+    "Shenzhen": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Shenzhen has implemented ETS Implemented.\""
+    },
+    "Shanghai": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Shanghai has implemented ETS Implemented.\""
+    },
+    "Beijing": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Beijing has implemented ETS Implemented.\""
+    },
+    "Guangdong (except Shenzhen)": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Guangdong (except Shenzhen) has implemented ETS Implemented.\""
+    },
+    "Tianjin": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Tianjin has implemented ETS Implemented.\""
+    },
+    "France": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"France has implemented Carbon Tax Implemented.\""
+    },
+    "Mexico": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Mexico has implemented ETS Implemented.\""
+    },
+    "Hubei": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Hubei has implemented ETS Implemented.\""
+    },
+    "Chongqing": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Chongqing has implemented ETS Implemented.\""
+    },
+    "Korea, Rep.": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Korea, Rep. has implemented ETS Implemented.\""
+    },
+    "Portugal": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Portugal has implemented Carbon Tax Implemented.\""
+    },
+    "Australia": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Australia has implemented ETS Implemented.\""
+    },
+    "South Africa": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"South Africa has implemented Carbon Tax Implemented.\""
+    },
+    "Chile": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Chile has implemented Carbon Tax Implemented.\""
+    },
+    "Colombia": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Colombia has implemented Carbon Tax Implemented.\""
+    },
+    "Ukraine": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Ukraine has implemented Carbon Tax Implemented.\""
+    },
+    "Liechtenstein": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Liechtenstein has implemented Carbon Tax Implemented.\""
+    },
+    "Washington": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Washington has implemented ETS Implemented.\""
+    },
+    "Fujian": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Fujian has implemented ETS Implemented.\""
+    },
+    "Canada": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Canada has implemented Carbon Tax Implemented.\""
+    },
+    "Singapore": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Singapore has implemented Carbon Tax Implemented.\""
+    },
+    "China": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"China has implemented ETS Implemented.\""
+    },
+    "Newfoundland and Labrador": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Newfoundland and Labrador has implemented Carbon Tax Implemented.\""
+    },
+    "Massachusetts": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Massachusetts has implemented ETS Implemented.\""
+    },
+    "Northwest Territories": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Northwest Territories has implemented Carbon Tax Implemented.\""
+    },
+    "Nova Scotia": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Nova Scotia has implemented ETS Implemented.\""
+    },
+    "Netherlands": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Netherlands has implemented Carbon Tax Implemented.\""
+    },
+    "Argentina": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Argentina has implemented Carbon Tax Implemented.\""
+    },
+    "Saskatchewan": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Saskatchewan has implemented ETS Implemented.\""
+    },
+    "Spain": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Spain has implemented Carbon Tax Implemented.\""
+    },
+    "New Brunswick": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"New Brunswick has implemented Carbon Tax Implemented.\""
+    },
+    "Ontario": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Ontario has implemented ETS Implemented.\""
+    },
+    "Indonesia": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Indonesia has implemented ETS Implemented.\""
+    },
+    "Germany": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Germany has implemented ETS Implemented.\""
+    },
+    "Luxembourg": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Luxembourg has implemented Carbon Tax Implemented.\""
+    },
+    "Montenegro": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Montenegro has implemented ETS Implemented.\""
+    },
+    "Zacatecas": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Zacatecas has implemented Carbon Tax Implemented.\""
+    },
+    "Austria": {
+        "status": "ETS Implemented",
+        "color": "#006400",
+        "hover": "\"Austria has implemented ETS Implemented.\""
+    },
+    "Uruguay": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Uruguay has implemented Carbon Tax Implemented.\""
+    },
+    "Taiwan, China": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Taiwan, China has implemented Carbon Tax Implemented.\""
+    },
+    "Queretaro": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Queretaro has implemented Carbon Tax Implemented.\""
+    },
+    "State of Mexico": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"State of Mexico has implemented Carbon Tax Implemented.\""
+    },
+    "Yucatan": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Yucatan has implemented Carbon Tax Implemented.\""
+    },
+    "Guanajuato": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Guanajuato has implemented Carbon Tax Implemented.\""
+    },
+    "Durango": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Durango has implemented Carbon Tax Implemented.\""
+    },
+    "Hungary": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Hungary has implemented Carbon Tax Implemented.\""
+    },
+    "Albania": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Albania has implemented Carbon Tax Implemented.\""
+    },
+    "Prince Edward Island": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Prince Edward Island has implemented Carbon Tax Implemented.\""
+    },
+    "Baja California": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Baja California has implemented Carbon Tax Implemented.\""
+    },
+    "Tamaulipas": {
+        "status": "Carbon Tax Implemented",
+        "color": "#32CD32",
+        "hover": "\"Tamaulipas has implemented Carbon Tax Implemented.\""
+    }
+}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4maps from "@amcharts/amcharts4/maps";
 import am4geodata_worldLow from "@amcharts/amcharts4-geodata/worldLow";
-import carbonCreditData from "./json/carbon_credits_markets.json";
+import carbonCreditData from "./json/compliance_revenue_fixed.json";
 import ghgCoverageData from "./json/ghg_emissions_coverage.json";
 import reportingStandardsData from "./json/reporting_standards.json";
 
@@ -77,23 +77,23 @@ const WorldMap = () => {
       <div className="font-bold mb-2">Carbon Credit Markets</div>
       <div className="flex items-center mb-1">
         <div className="w-4 h-4 mr-2" style={{ backgroundColor: "#006400" }}></div>
-        <span>80-100% Coverage</span>
+        <span>ETS and Carbon Tax Implemented (80-100% Coverage)</span>
       </div>
       <div className="flex items-center mb-1">
         <div className="w-4 h-4 mr-2" style={{ backgroundColor: "#228B22" }}></div>
-        <span>60-80% Coverage</span>
+        <span>ETS Implemented (60-80% Coverage)</span>
       </div>
       <div className="flex items-center mb-1">
         <div className="w-4 h-4 mr-2" style={{ backgroundColor: "#32CD32" }}></div>
-        <span>40-60% Coverage</span>
+        <span>Carbon Tax Implemented (40-60% Coverage)</span>
       </div>
       <div className="flex items-center mb-1">
         <div className="w-4 h-4 mr-2" style={{ backgroundColor: "#98FB98" }}></div>
-        <span>20-40% Coverage</span>
+        <span>In Progress (20-40% Coverage)</span>
       </div>
       <div className="flex items-center">
         <div className="w-4 h-4 mr-2" style={{ backgroundColor: "#C0FFC0" }}></div>
-        <span>&lt;20% Coverage</span>
+        <span>Under Consideration (&lt;20% Coverage)</span>
       </div>
     </div>
   );
