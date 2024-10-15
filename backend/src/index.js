@@ -1,6 +1,11 @@
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import {app} from "./app.js";
+import router from "./routes/route.js";
+
+const app = express();
+
+app.use('/', router)
 
 dotenv.config({
     path: "./.env.sample",

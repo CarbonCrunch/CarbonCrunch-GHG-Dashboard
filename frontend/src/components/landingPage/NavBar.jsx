@@ -121,7 +121,7 @@ const Navbar = ({ scrolltoContact, scrolltowhy }) => {
   };
 
   const handleInsightsClick = () => {
-    setIsModalOpen(true); // Open modal when Insights is clicked
+    navigate('/blog'); // Open modal when Insights is clicked
   };
 
   const closeModal = () => {

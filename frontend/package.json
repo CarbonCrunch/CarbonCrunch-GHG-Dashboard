@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host --port 5174", 
+    "dev": "vite --host --port 5174",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -22,7 +22,7 @@
     "animate.css": "^4.1.1",
     "anychart": "^8.13.0",
     "aos": "^2.3.4",
-    "axios": "^1.7.2",
+    "axios": "^1.7.7",
     "chart.js": "^4.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

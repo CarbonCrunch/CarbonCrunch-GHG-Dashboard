@@ -40,6 +40,9 @@ import Reporting from "./components/landingPage/Pages/Services/Reporting";
 import SupplyChain from "./components/landingPage/Pages/Services/SuppyChain";
 import ESRS from "./components/landingPage/Pages/Services/ESRS";
 import GRIReporting from "./components/landingPage/Pages/Services/GRIReporting";
+import BlogLP from "./components/BlogPage/frontend/BlogLP/BlogLP";
+import AuthForm from "./components/BlogPage/frontend/Blogauth/Auth";
+
 
 
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -92,6 +95,9 @@ function App() {
         <Route path='/supplychain' element={<SupplyChain name='Supply Chain' description='Something' image={image}/>}/>
         <Route path='/esrs' element={<ESRS name='ESRS' description='Something' image={image}/>}/>
         <Route path='/gri' element={<GRIReporting name='GRI Reporting' description='Something' image={image}/>}/>
+        <Route path='/blog' element={<BlogLP/>}/>
+        
+        <Route path="/auth" element={<AuthForm/>}/>
         <Route
           path="/register"
           element={
