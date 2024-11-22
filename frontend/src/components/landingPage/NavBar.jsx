@@ -16,9 +16,12 @@ import Modal from "./ComingSoon"; // Import the Modal component
 
 // ServiceItem component to handle individual service item clicks
 const ServiceItem = ({ text, imgSrc, path, navigate }) => (
-  <div className="flex items-center mb-4 cursor-pointer" onClick={() => navigate(path)}>
-    <img src={imgSrc} alt={text} className="w-16 h-16 mr-3" />
-    <span className="text-gray-700">{text}</span>
+  <div
+    className="flex items-center mb-4 cursor-pointer bg-white p-2 rounded-md shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 ease-in-out"
+    onClick={() => navigate(path)}
+  >
+    <img src={imgSrc} alt={text} className="w-12 h-12 mr-2" />
+    <span className="text-gray-700 font-medium text-sm">{text}</span>
   </div>
 );
 
