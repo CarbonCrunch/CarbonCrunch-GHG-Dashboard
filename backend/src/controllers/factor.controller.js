@@ -404,35 +404,61 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  // Define conversion rates
-  const conversionRates = {
-    Electricity: 0.6077,
-    "Heating and Steam": 0.1707,
-    "District Cooling": 0.5469,
-    "T&D_electricity": 0.0188,
-    "T&D_heat_steam": 0.009,
+  // Define emission factors and conversion rates
+  const emissionFactors = {
+    Electricity: {
+      lifecycleFactor: 0.6077,
+      combustionFactor: 0.4233,
+      TDLossFactor: 0.0188
+    },
+    "Heating and Steam": {
+      lifecycleFactor: 0.1707,
+      combustionFactor: 0.1232,
+      TDLossFactor: 0.009
+    },
+    "District Cooling": {
+      lifecycleFactor: 0.5469,
+      combustionFactor: 0.3845,
+      TDLossFactor: 0.0278
+    }
   };
 
-  // Update the EHCTD data with calculated CO2e and CO2eTD amounts
+  const TD_LOSS_RATE = 0.0278; // 2.78% standard loss rate
+
+  // Update the EHCTD data with calculated CO2e amounts
   const updatedEhctdData = report.ehctd.map((entry) => {
-    const conversionRate = conversionRates[entry.activity];
-    const CO2e = parseFloat(entry.amount) * conversionRate;
+    const { activity, amount, unit, entity, purpose } = entry;
+    const factors = emissionFactors[activity];
 
-    let CO2eTD = 0;
+    let CO2e = 0;
 
-    // Calculate CO2eTD based on activity type
-    if (entry.activity === "Electricity") {
-      CO2eTD = parseFloat(entry.amount) * conversionRates["T&D_electricity"];
-    } else if (entry.activity === "Heating and Steam") {
-      CO2eTD = parseFloat(entry.amount) * conversionRates["T&D_heat_steam"];
+    if (entity === "Reporting Company") {
+      // Upstream emissions calculation
+      const upstreamFactor = factors.lifecycleFactor - factors.combustionFactor - factors.TDLossFactor;
+      CO2e = parseFloat(amount) * upstreamFactor;
+    } else if (entity === "Suppliers") {
+      // T&D losses emissions calculation
+      CO2e = parseFloat(amount) * factors.lifecycleFactor * TD_LOSS_RATE;
     }
 
-    return { ...entry, CO2e, CO2eTD };
+    if (purpose === "Resale") {
+      // Resale emissions calculation
+      CO2e = parseFloat(amount) * factors.lifecycleFactor;
+    }
+
+    return { 
+      ...entry, 
+      CO2e: parseFloat(CO2e.toFixed(4)), // Round to 4 decimal places
+      unit: 'kgCO2e' // Change unit to kgCO2e
+    };
   });
+
+  // Calculate total CO2e for the report
+  const totalCO2e = updatedEhctdData.reduce((acc, curr) => acc + curr.CO2e, 0);
 
   // Update the report's EHCTD data and store CO2e
   report.ehctd = updatedEhctdData;
-  report.CO2eEhctd = updatedEhctdData.reduce((acc, curr) => acc + curr.CO2e, 0);
+  report.CO2eEhctd = parseFloat(totalCO2e.toFixed(4));
 
   await report.save();
 
@@ -440,6 +466,7 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
     success: true,
     message: "CO2e calculated successfully for EHCTD",
     data: report.ehctd,
+    totalCO2e: report.CO2eEhctd
   });
 });
 

@@ -7,25 +7,46 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../../context/AuthContext";
 
-const Ehctd = ({ report }) => {
-  const [ehctdData, setEhctdData] = useState([]);
-  const [newEhctd, setNewEhctd] = useState({
+const Utd = ({ report }) => {
+  const [utdData, setutdData] = useState([]);
+  const [newUtd, setnewUtd] = useState({
     date: null,
-    activity: "",
+    type: "",
+    utd: "",
     unit: "",
     amount: "",
-    entity: "",
-    purpose: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [isYearPicker, setIsYearPicker] = useState(false);
   const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
 
-  const typeOptions = ["Electricity", "Heat", "Steam", "District Cooling"];
-  const unitOptions = ["kWh", "Ton of refrigeration", "KG"];
-  const entityOptions = ["Reporting Company", "Suppliers"];
-  const purposeOptions = ["Own Use", "Resale"];
+  const typeOptions = ["Electricity"];
+  const utdOptions = [
+    "Carbon dioxide",
+    // ... (full list of utds as provided)
+    "Methane",
+    // ... other utds
+  ];
+  const unitOptions = ["KG"];
+
+  const permissions = user?.facilities?.[0]?.userRoles?.find(
+    (role) => role.username === user.username
+  )?.permissions;
+
+  const utdsPermissions = permissions?.find(
+    (perm) => perm.entity.toLowerCase() === "utd"
+  );
+
+  const hasReadPermission = utdsPermissions?.actions?.includes("read");
+  const hasCreatePermission = utdsPermissions?.actions?.includes("create");
+  const hasUpdatePermission = utdsPermissions?.actions?.includes("update");
+  const hasDeletePermission = utdsPermissions?.actions?.includes("delete");
+
+  // If no read permission, display a message
+  if (!hasReadPermission) {
+    return <p>You do not have permission to view this data.</p>;
+  }
 
   const reportData = report;
   const {
@@ -33,26 +54,20 @@ const Ehctd = ({ report }) => {
     facilityName = "",
     reportId = "",
     timePeriod = {},
-    ehctd = [],
+    utd = [],
   } = reportData || {};
 
   useEffect(() => {
-    if (report && report.ehctd && Array.isArray(report.ehctd)) {
-      setEhctdData(
-        report.ehctd.map((item) => ({
-          ...item,
-          date: new Date(item.date),
+    if (Array.isArray(utd)) {
+      setutdData(
+        utd.map((emission) => ({
+          ...emission,
+          date: new Date(emission.date),
         }))
       );
-    } else if (report && report.ehctd) {
-      setEhctdData([
-        {
-          ...report.ehctd,
-          date: new Date(report.ehctd.date),
-        },
-      ]);
     } else {
-      setEhctdData([]);
+      // If utd is not an array, set utdData to an empty array
+      setutdData([]);
     }
   }, [report]);
 
@@ -67,45 +82,28 @@ const Ehctd = ({ report }) => {
 
   const { start, end } = getDateRange();
 
-  const ehctdPermissions =
-    user?.facilities[0]?.userRoles[0]?.permissions.find(
-      (perm) => perm.entity.toLowerCase() === "ehctd"
-    )?.actions || [];
-
-  const hasReadPermission = ehctdPermissions.includes("read");
-  const hasCreatePermission = ehctdPermissions.includes("create");
-  const hasUpdatePermission = ehctdPermissions.includes("update");
-  const hasDeletePermission = ehctdPermissions.includes("delete");
-
-  const handleAddEhctd = () => {
-    if (!hasCreatePermission) {
-      toast.error("You don't have permission to create new entries");
-      return;
-    }
-
+  const handleAddUtd = () => {
     if (
-      newEhctd.date &&
-      newEhctd.activity &&
-      newEhctd.unit &&
-      newEhctd.amount &&
-      newEhctd.entity &&
-      newEhctd.purpose
+      newUtd.date &&
+      newUtd.type &&
+      newUtd.utd &&
+      newUtd.unit &&
+      newUtd.amount
     ) {
       if (editIndex === -1) {
-        setEhctdData([...ehctdData, newEhctd]);
+        setutdData([...utdData, newUtd]);
       } else {
-        const updatedEhctdData = [...ehctdData];
-        updatedEhctdData[editIndex] = newEhctd;
-        setEhctdData(updatedEhctdData);
+        const updatedutdData = [...utdData];
+        updatedutdData[editIndex] = newUtd;
+        setutdData(updatedutdData);
         setEditIndex(-1);
       }
-      setNewEhctd({
+      setnewUtd({
         date: null,
-        activity: "",
+        type: "",
+        utd: "",
         unit: "",
         amount: "",
-        entity: "",
-        purpose: "",
       });
     } else {
       toast.error("Please fill all fields");
@@ -113,23 +111,13 @@ const Ehctd = ({ report }) => {
   };
 
   const handleEdit = (index) => {
-    if (!hasUpdatePermission) {
-      toast.error("You don't have permission to update existing entries");
-      return;
-    }
-
-    setNewEhctd(ehctdData[index]);
+    setnewUtd(utdData[index]);
     setEditIndex(index);
   };
 
   const handleDelete = (index) => {
-    if (!hasDeletePermission) {
-      toast.error("You don't have permission to delete existing entries");
-      return;
-    }
-
-    const updatedEhctdData = ehctdData.filter((_, i) => i !== index);
-    setEhctdData(updatedEhctdData);
+    const updatedutdData = utdData.filter((_, i) => i !== index);
+    setutdData(updatedutdData);
     toast.info("Now click on save to permanently delete", {
       position: "top-right",
       autoClose: 5000,
@@ -144,8 +132,8 @@ const Ehctd = ({ report }) => {
   const handleSave = async () => {
     try {
       const response = await axios.patch(
-        `/api/reports/:reportId/ehctd/put`,
-        { ehctd: ehctdData },
+        `/api/reports/:reportId/utd/put`,
+        { utd: utdData },
         {
           params: {
             reportId,
@@ -161,78 +149,82 @@ const Ehctd = ({ report }) => {
       if (response.data.success) {
         toast.success(response.data.message);
       } else {
-        toast.error("Failed to update EHCTD data");
+        toast.error("Failed to update utd data");
       }
     } catch (error) {
-      console.error("Error saving EHCTD data:", error);
-      toast.error(error.response?.data?.message || "Failed to save EHCTD data");
+      console.error("Error saving utd data:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to save utd data"
+      );
     }
   };
-
-  if (!hasReadPermission) {
-    return <p>You don't have permission to view this data.</p>;
-  }
 
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white">
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">Activity</th>
+            <th className="py-3 px-6 text-left">Type</th>
+            <th className="py-3 px-6 text-left">UTD</th>
             <th className="py-3 px-6 text-left">Unit</th>
             <th className="py-3 px-6 text-left">Amount</th>
             <th className="py-3 px-6 text-left">Date</th>
-            <th className="py-3 px-6 text-left">Entity</th>
-            <th className="py-3 px-6 text-left">Purpose</th>
-            <th className="py-3 px-6 text-left">Actions</th>
+            <th className="py-3 px-6 text-left">Action</th>
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm font-light">
-          {ehctdData.map((item, index) => (
-            <tr
-              key={index}
-              className="border-b border-gray-200 hover:bg-gray-100"
-            >
-              <td className="py-3 px-6 text-left">{item.activity}</td>
-              <td className="py-3 px-6 text-left">{item.unit}</td>
-              <td className="py-3 px-6 text-left">{item.amount}</td>
-              <td className="py-3 px-6 text-left">
-                {item.date.toLocaleDateString()}
-              </td>
-              <td className="py-3 px-6 text-left">{item.entity}</td>
-              <td className="py-3 px-6 text-left">{item.purpose}</td>
-              <td className="py-3 px-6 text-left">
-                <button
-                  onClick={() => handleEdit(index)}
-                  className={`text-blue-500 hover:text-blue-700 mr-2 ${
-                    !hasUpdatePermission ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={!hasUpdatePermission}
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  onClick={() => handleDelete(index)}
-                  className={`text-red-500 hover:text-red-700 ${
-                    !hasDeletePermission ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={!hasDeletePermission}
-                >
-                  <FaTrash />
-                </button>
-              </td>
-            </tr>
-          ))}
+          {utdData.length === 0 ? (
+            <p></p>
+          ) : (
+            utdData.map((emission, index) => (
+              <tr
+                key={index}
+                className="border-b border-gray-200 hover:bg-gray-100"
+              >
+                <td className="py-3 px-6 text-left">{emission.type}</td>
+                <td className="py-3 px-6 text-left">{emission.utd}</td>
+                <td className="py-3 px-6 text-left">{emission.unit}</td>
+                <td className="py-3 px-6 text-left">{emission.amount}</td>
+                <td className="py-3 px-6 text-left">
+                  {emission.date.toLocaleDateString()}
+                </td>
+                <td className="py-3 px-6 text-left">
+                  <button
+                    onClick={() => handleEdit(index)}
+                    className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                      !hasUpdatePermission
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    disabled={!hasUpdatePermission}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(index)}
+                    className={`text-red-500 hover:text-red-700 ${
+                      !hasDeletePermission
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    disabled={!hasDeletePermission}
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
           <tr>
             <td className="py-3 px-6">
               <select
-                value={newEhctd.activity}
+                value={newUtd.type}
                 onChange={(e) =>
-                  setNewEhctd({ ...newEhctd, activity: e.target.value })
+                  setnewUtd({ ...newUtd, type: e.target.value })
                 }
                 className="border p-1 w-full"
               >
-                <option value="">Select Activity</option>
+                <option value="">Select Type</option>
                 {typeOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -242,9 +234,25 @@ const Ehctd = ({ report }) => {
             </td>
             <td className="py-3 px-6">
               <select
-                value={newEhctd.unit}
+                value={newUtd.utd}
                 onChange={(e) =>
-                  setNewEhctd({ ...newEhctd, unit: e.target.value })
+                  setnewUtd({ ...newUtd, utd: e.target.value })
+                }
+                className="border p-1 w-full"
+              >
+                <option value="">Select Emission</option>
+                {utdOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-3 px-6">
+              <select
+                value={newUtd.unit}
+                onChange={(e) =>
+                  setnewUtd({ ...newUtd, unit: e.target.value })
                 }
                 className="border p-1 w-full"
               >
@@ -259,9 +267,9 @@ const Ehctd = ({ report }) => {
             <td className="py-3 px-6">
               <input
                 type="number"
-                value={newEhctd.amount}
+                value={newUtd.amount}
                 onChange={(e) =>
-                  setNewEhctd({ ...newEhctd, amount: e.target.value })
+                  setnewUtd({ ...newUtd, amount: e.target.value })
                 }
                 placeholder="Amount"
                 className="border p-1 w-full"
@@ -269,8 +277,8 @@ const Ehctd = ({ report }) => {
             </td>
             <td className="py-3 px-6">
               <DatePicker
-                selected={newEhctd.date}
-                onChange={(date) => setNewEhctd({ ...newEhctd, date })}
+                selected={newUtd.date}
+                onChange={(date) => setnewUtd({ ...newUtd, date })}
                 minDate={start}
                 maxDate={end}
                 placeholderText="Select Date"
@@ -334,7 +342,7 @@ const Ehctd = ({ report }) => {
                 showYearPicker={isYearPicker}
                 showMonthYearPicker={isMonthPicker}
                 onSelect={(date) => {
-                  setNewEhctd({ ...newEhctd, date });
+                  setnewUtd({ ...newUtd, date });
                   if (isYearPicker) {
                     setIsYearPicker(false);
                     setIsMonthPicker(true);
@@ -345,40 +353,8 @@ const Ehctd = ({ report }) => {
               />
             </td>
             <td className="py-3 px-6">
-              <select
-                value={newEhctd.entity}
-                onChange={(e) =>
-                  setNewEhctd({ ...newEhctd, entity: e.target.value })
-                }
-                className="border p-1 w-full"
-              >
-                <option value="">Select Entity</option>
-                {entityOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </td>
-            <td className="py-3 px-6">
-              <select
-                value={newEhctd.purpose}
-                onChange={(e) =>
-                  setNewEhctd({ ...newEhctd, purpose: e.target.value })
-                }
-                className="border p-1 w-full"
-              >
-                <option value="">Select Purpose</option>
-                {purposeOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </td>
-            <td className="py-3 px-6">
               <button
-                onClick={handleAddEhctd}
+                onClick={handleAddUtd}
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
                   !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
                 }`}
@@ -393,7 +369,12 @@ const Ehctd = ({ report }) => {
       <div className="mt-4 flex justify-end space-x-2">
         <button
           onClick={handleSave}
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"
+          className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center ${
+            !hasCreatePermission && !hasUpdatePermission
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+          disabled={!hasCreatePermission && !hasUpdatePermission}
         >
           <FaSave className="mr-2" /> Save
         </button>
@@ -403,4 +384,4 @@ const Ehctd = ({ report }) => {
   );
 };
 
-export default Ehctd;
+export default Utd;

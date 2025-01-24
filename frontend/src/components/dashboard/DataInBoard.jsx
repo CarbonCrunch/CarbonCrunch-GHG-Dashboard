@@ -22,6 +22,7 @@ import Ehctd from "../reports/Ehctd";
 import Food from "../reports/Food";
 import HomeOffice from "../reports/HomeOffice";
 import Water from "../reports/Water";
+import Utd from "../reports/Utd";
 // import { toast, ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
 
@@ -33,6 +34,7 @@ const DataInBoard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("Fuels");
+  const [selectedFilter, setSelectedFilter] = useState("All");
   const { user } = useAuth();
   const today = new Date();
   const tenYearsAgo = new Date(today);
@@ -117,12 +119,12 @@ const DataInBoard = () => {
   const hasReadPermission = (entity) => {
     const userPermissions =
       user?.facilities[0]?.userRoles[0]?.permissions || [];
+    // console.log("User Permissions", userPermissions);
     const permission = userPermissions.find(
       (perm) => perm.entity.toLowerCase() === entity.toLowerCase()
     );
     return permission?.actions.includes("read");
   };
-
 
   const categories = [
     "Bioenergy",
@@ -140,7 +142,28 @@ const DataInBoard = () => {
     "WasteDisposal",
     "Water",
     "WTTFuel",
+    "Upstream Transportation and Distribution",
   ];
+
+  const filterOptions = [
+    { value: "All", label: "All Categories" },
+    { value: "CM-3", label: "CM-3 (Fuel and Electricity)" },
+    {
+      value: "CM-4",
+      label: "CM-4 (Upstream Transportation and Distribution)",
+    },
+    { value: "CM-5", label: "CM-5 (Waste Generated in Operations)" },
+    { value: "CM-6", label: "CM-6 (Business Travel)" },
+    { value: "CM-7", label: "CM-7 (Employee Commuting)" },
+  ];
+  // Filter categories based on the selected filter
+  const filteredCategories =
+    selectedFilter === "CM-3"
+      ? ["Bioenergy", "Electricity_Heating", "Fuels", "Refrigerants", "WTTFuel"]
+      : selectedFilter === "CM-4"
+      ? ["Upstream Transportation and Distribution"]
+      : categories;
+
 
   const componentMap = {
     Fuels: Fuel,
@@ -158,6 +181,7 @@ const DataInBoard = () => {
     Food: Food,
     HomeOffice: HomeOffice,
     Water: Water,
+    "Upstream Transportation and Distribution": Utd,
   };
 
   const categoryMap = {
@@ -176,6 +200,7 @@ const DataInBoard = () => {
     Food: "food",
     HomeOffice: "homeOffice",
     Water: "water",
+    "Upstream Transportation and Distribution": "utd",
   };
 
   const SelectedComponent = componentMap[selectedCategory];
@@ -186,7 +211,7 @@ const DataInBoard = () => {
     const key = categoryMap[selectedCategory];
     const items =
       user.role === "Admin" ? getAllCategoryItems(key) : report[key];
-      // console.log("items", items)
+    // console.log("items", items)
 
     if (!Array.isArray(items) || items.length === 0) {
       return { labels: [], datasets: [] };
@@ -229,30 +254,30 @@ const DataInBoard = () => {
           co2e = item.CO2e;
           break;
         case "Flights & Accomodations":
-         if (item.flightAccommodation) {
-          item.flightAccommodation.forEach((flight) => {
-            sector = "Flight Accommodation";
-            co2e = flight.CO2e;
-            if (sector in dataMap) {
-              dataMap[sector] += co2e;
-            } else {
-              dataMap[sector] = co2e;
-            }
-          });
-        }
-        // Calculate CO2e for hotel accommodations
-        if (item.hotelAccommodation) {
-          item.hotelAccommodation.forEach((hotel) => {
-            sector = "Hotel Accommodation";
-            co2e = hotel.CO2e;
-            if (sector in dataMap) {
-              dataMap[sector] += co2e;
-            } else {
-              dataMap[sector] = co2e;
-            }
-          });
-        }
-        break;
+          if (item.flightAccommodation) {
+            item.flightAccommodation.forEach((flight) => {
+              sector = "Flight Accommodation";
+              co2e = flight.CO2e;
+              if (sector in dataMap) {
+                dataMap[sector] += co2e;
+              } else {
+                dataMap[sector] = co2e;
+              }
+            });
+          }
+          // Calculate CO2e for hotel accommodations
+          if (item.hotelAccommodation) {
+            item.hotelAccommodation.forEach((hotel) => {
+              sector = "Hotel Accommodation";
+              co2e = hotel.CO2e;
+              if (sector in dataMap) {
+                dataMap[sector] += co2e;
+              } else {
+                dataMap[sector] = co2e;
+              }
+            });
+          }
+          break;
         case "EmployCommuting":
         case "Electricity_Heating":
         case "BusinessTravel":
@@ -358,7 +383,26 @@ const DataInBoard = () => {
                 </svg>
               </button>
             </div>
+
             <div className="flex flex-col items-start ml-auto mr-20 space-y-4">
+              <div className="flex items-center space-x-2">
+                <label htmlFor="filter" className="mr-2">
+                  Filter:
+                </label>
+                <select
+                  id="filter"
+                  value={selectedFilter}
+                  onChange={(e) => setSelectedFilter(e.target.value)}
+                  className="p-2 border rounded"
+                >
+                  {filterOptions.map((filter) => (
+                    <option key={filter.value} value={filter.value}>
+                      {filter.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="flex items-center space-x-2">
                 <label htmlFor="category" className="mr-2">
                   Category:
@@ -369,7 +413,7 @@ const DataInBoard = () => {
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="p-2 border rounded"
                 >
-                  {categories.map((category) => (
+                  {filteredCategories.map((category) => (
                     <option
                       key={category}
                       value={category}

@@ -22,6 +22,7 @@ import {
   updateMaterialUseData,
   updateOwnedVehiclesData,
   updateRefrigerantsData,
+  updateUtdData,
   updateWasteDisposalData,
   updateWaterData,
   updateWTTFuelData,
@@ -105,6 +106,7 @@ router
 router
   .route("/:reportId/fa/put")
   .patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateFAData);
+  router.route("/:reportId/utd/put").patch(verifyJWT, restrictTo("FacAdmin", "Admin"), updateUtdData);
 
 // router
 //   .route("/:reportId/tab/change")
@@ -138,29 +140,7 @@ router.route("/CO2eWasteDisposal").post(CO2eWaste);
 router.route("/CO2eHome").post(CO2eHome);
 
 router.route("/CO2eWater").post(CO2eWater);
+// router.route("/CO2eUtd").post(CO2eUtd);
 
-// router.route("/:reportId/postFuel/:specificDate").post(getFuelReport);
-// router.route("/:reportId/getBiogas/:specificDate").get(getBiogasReport);
-// router
-//   .route("/:reportId/getRefrigerants/:specificDate")
-//   .get(getRefrigerantsReport);
-// router.route("/:reportId/getEhtdc/:specificDate").get(getEhtdcReport);
-// //owned vechical skipped
-// router.route("/:reportId/getWtt/:specificDate").get(getWttReport);
-// router.route("/:reportId/getMaterial/:specificDate").get(getWttReport);
-// router.route("/:reportId/getWaste/:specificDate").get(getWasteReport);
-// router.route("/:reportId/getFa/:specificDate").get(getFaReport);
-// router.route("/:reportId/getBTLS/:specificDate").get(getBTLSReport);
-// router.route("/:reportId/getFg/:specificDate").get(getFgReport);
-// router.route("/:reportId/getEc/:specificDate").get(getEcReport);
-// router.route("/:reportId/getFood/:specificDate").get(getFoodReport);
-// router.route("/:reportId/getHomeOfiice/:specificDate").get(getHomeOfficeReport);
-// router.route("/:reportId/getWater/:specificDate").get(getWaterReport);
-// router.route("/:reportId/getFuelReport/:datatype").get(getFuelMonthReport);
-// router.route("/:reportId/dateRange").get(getDateRange);
-
-// //  food, ec btls waste material wtt ov refrigents bioenergy ehctd water fuel
-// // fg homeoffice
-// // fa
 
 export default router;

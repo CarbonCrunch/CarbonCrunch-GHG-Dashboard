@@ -5,8 +5,8 @@ import Cookies from "js-cookie"; // Import js-cookie
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);  
-  const [isLoading, setIsLoading] = useState(true); 
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   axios.defaults.baseURL = "http://127.0.0.1:8000"; // Set base URL for axios
   axios.defaults.withCredentials = true; // Allow cookies to be sent with requests
@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
           if (response.data.isValid) {
             console.log("User is valid, keeping the current user state.");
             setUser(JSON.parse(storedUser)); // Keep the user as is, based on cookie
+            // window.location.href = "/dashboard";
           } else {
             setUser(null);
             Cookies.remove("accessToken");
@@ -47,7 +48,6 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false); // No accessToken or user stored, set loading to false
     }
   }, []);
-
 
   const login = (userData, token) => {
     // Update user data to include accessToken

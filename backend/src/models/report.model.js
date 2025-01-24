@@ -36,6 +36,7 @@ const reportSchema = new Schema(
       default: {},
     },
     fa: { type: Object, default: {} },
+    utd: { type: Object, default: {} },
   },
   {
     timestamps: true,
