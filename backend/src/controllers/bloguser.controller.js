@@ -1,5 +1,5 @@
 import express from 'express';
-import BlogUser from '../models/bloguser.model';
+import BlogUser from '../models/bloguser.model.js';
 
 export const signUpUser = async (request, response) => {
     try {
