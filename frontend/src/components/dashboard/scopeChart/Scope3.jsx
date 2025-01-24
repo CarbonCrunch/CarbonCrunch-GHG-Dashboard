@@ -32,8 +32,11 @@ const Scope3 = ({ reports }) => {
   const [wasteData, setWasteData] = useState([]);
   const [waterData, setWaterData] = useState([]);
   const [homeOfficeData, setHomeOfficeData] = useState([]);
+  const [dtdData, setDtdData] = useState([]);
+  const [utdData, setUtdData] = useState([]);
+  const [ulaData, setUlaData] = useState([]);
   const [hotelAccommodationData, setHotelAccommodationData] = useState([]);
-
+  // console.log("dtdData", dtdData);
   // console.log("ecData", ecData);
   // console.log("btlsData", btlsData);
   // console.log("fgData", fgData);
@@ -44,6 +47,7 @@ const Scope3 = ({ reports }) => {
   // console.log("waterData", waterData);
   // console.log("homeOfficeData", homeOfficeData);
   // console.log("hotelAccommodationData", hotelAccommodationData);
+  console.log("reports1", reports);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,101 +68,131 @@ const Scope3 = ({ reports }) => {
             waste = [],
             water = [],
             homeOffice = [],
+            dtd = [],
+            utd = [],
+            ula = [],
           } = report;
-          const { hotelAccommodation } = fa;
+          const { hotelAccommodation = [] } = fa || {};
+          console.log("report", report);
 
           const requests = [];
 
-         if (ec.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eEc`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (ec.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eEc`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (btls.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eBtls`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (btls.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eBtls`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (fg.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eFg`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (fg.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eFg`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (wttfuel.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eWTTFuel`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (wttfuel.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eWTTFuel`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (food.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eFood`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (food.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eFood`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (material.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eMaterialsUsed`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (material.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eMaterialsUsed`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (waste.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eWasteDisposal`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (waste.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eWasteDisposal`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (water.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eWater`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (water.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eWater`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (homeOffice.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eHome`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (homeOffice.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eHome`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
-         if (hotelAccommodation && hotelAccommodation.length > 0) {
-           requests.push(
-             axios.post(`/api/reports/CO2eFa`, {
-               _id,
-               companyName,
-             })
-           );
-         }
+          if (hotelAccommodation && hotelAccommodation.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eFa`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
+          if (dtd.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eDtd`, {
+                _id,
+                companyName,
+              })
+            );
+          }
+
+          if (utd.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eUtd`, {
+                _id,
+                companyName,
+              })
+            );
+          }
+
+          if (ula.length > 0) {
+            requests.push(
+              axios.post(`/api/reports/CO2eUla`, {
+                _id,
+                companyName,
+              })
+            );
+          }
 
           const responses = await Promise.all(requests);
 
@@ -180,6 +214,9 @@ const Scope3 = ({ reports }) => {
             setWaterData(responses[responseIndex++].data.data);
           if (homeOffice.length > 0)
             setHomeOfficeData(responses[responseIndex++].data.data);
+          if (dtd.length > 0) setDtdData(responses[responseIndex++].data.data);
+          if (utd.length > 0) setUtdData(responses[responseIndex++].data.data);
+          if (ula.length > 0) setUlaData(responses[responseIndex++].data.data);
           if (hotelAccommodation && hotelAccommodation.length > 0)
             setHotelAccommodationData(responses[responseIndex++].data.data);
         } else {
@@ -193,147 +230,228 @@ const Scope3 = ({ reports }) => {
           const combinedWaste = [];
           const combinedWater = [];
           const combinedHomeOffice = [];
+          const combinedDtd = [];
+          const combinedUtd = [];
+          const combinedUla = [];
           const combinedHotelAccommodation = [];
+          console.log("reports", reports);
+          await Promise.all(
+            reports.map(async (report) => {
+              const {
+                companyName = "",
+                _id = "",
+                ec = [],
+                btls = [],
+                fg = [],
+                fa = [],
+                wttfuel = [],
+                food = [],
+                material = [],
+                waste = [],
+                water = [],
+                homeOffice = [],
+                dtd = [],
+                utd = [],
+                ula = [],
+              } = report;
+              const { hotelAccommodation } = fa;
 
-         await Promise.all(
-           reports.map(async (report) => {
-             const {
-               companyName = "",
-               _id = "",
-               ec = [],
-               btls = [],
-               fg = [],
-               fa = [],
-               wttfuel = [],
-               food = [],
-               material = [],
-               waste = [],
-               water = [],
-               homeOffice = [],
-             } = report;
-             const { hotelAccommodation } = fa;
+              const requests = [];
 
-             const requests = [];
+              if (ec.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eEc`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (ec.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eEc`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (btls.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eBtls`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (btls.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eBtls`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (fg.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eFg`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (fg.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eFg`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (wttfuel.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eWTTFuel`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (wttfuel.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eWTTFuel`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (food.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eFood`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (food.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eFood`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (material.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eMaterialsUsed`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (material.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eMaterialsUsed`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (waste.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eWasteDisposal`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (waste.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eWasteDisposal`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (water.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eWater`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (water.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eWater`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (homeOffice.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eHome`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (homeOffice.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eHome`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (dtd.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eDtd`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             if (hotelAccommodation && hotelAccommodation.length > 0) {
-               requests.push(
-                 axios.post(`/api/reports/CO2eFa`, {
-                   _id,
-                   companyName,
-                 })
-               );
-             }
+              if (utd.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eUtd`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             const responses = await Promise.all(requests);
+              if (ula.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eUla`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
-             // Process responses and combine data
-             let responseIndex = 0;
-             if (ec.length > 0)
-               combinedEc.push(...responses[responseIndex++].data.data);
-             if (btls.length > 0)
-               combinedBtls.push(...responses[responseIndex++].data.data);
-             if (fg.length > 0)
-               combinedFg.push(...responses[responseIndex++].data.data);
-             if (wttfuel.length > 0)
-               combinedWttFuel.push(...responses[responseIndex++].data.data);
-             if (food.length > 0)
-               combinedFood.push(...responses[responseIndex++].data.data);
-             if (material.length > 0)
-               combinedMaterial.push(...responses[responseIndex++].data.data);
-             if (waste.length > 0)
-               combinedWaste.push(...responses[responseIndex++].data.data);
-             if (water.length > 0)
-               combinedWater.push(...responses[responseIndex++].data.data);
-             if (homeOffice.length > 0)
-               combinedHomeOffice.push(...responses[responseIndex++].data.data);
-             if (hotelAccommodation && hotelAccommodation.length > 0)
-               combinedHotelAccommodation.push(
-                 ...responses[responseIndex++].data.data
-               );
-           })
-         );
+              if (hotelAccommodation && hotelAccommodation.length > 0) {
+                requests.push(
+                  axios.post(`/api/reports/CO2eFa`, {
+                    _id,
+                    companyName,
+                  })
+                );
+              }
 
+              const responses = await Promise.all(requests);
+
+              // Process responses and combine data
+              // console.log("responses", dtd,ec,btls,fg,wttfuel,food,material, waste, water, homeOffice, hotelAccommodation);
+              let responseIndex = 0;
+              if (
+                dtd.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedDtd.push(...responses[responseIndex++].data.data);
+                if (
+                utd.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedUtd.push(...responses[responseIndex++].data.data);
+                if (
+                ula.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedUla.push(...responses[responseIndex++].data.data);  
+              if (
+                ec.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedEc.push(...responses[responseIndex++].data.data);
+              if (
+                btls.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedBtls.push(...responses[responseIndex++].data.data);
+              if (
+                fg.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedFg.push(...responses[responseIndex++].data.data);
+              if (
+                wttfuel.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedWttFuel.push(...responses[responseIndex++].data.data);
+              if (
+                food.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedFood.push(...responses[responseIndex++].data.data);
+              if (
+                material.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedMaterial.push(...responses[responseIndex++].data.data);
+              if (
+                waste.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedWaste.push(...responses[responseIndex++].data.data);
+              if (
+                water.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedWater.push(...responses[responseIndex++].data.data);
+              if (
+                homeOffice.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedHomeOffice.push(
+                  ...responses[responseIndex++].data.data
+                );
+              if (
+                hotelAccommodation &&
+                hotelAccommodation.length > 0 &&
+                Array.isArray(responses[responseIndex]?.data?.data)
+              )
+                combinedHotelAccommodation.push(
+                  ...responses[responseIndex++].data.data
+                );
+            })
+          );
 
           // Set combined data states
           setEcData(combinedEc);
@@ -345,6 +463,9 @@ const Scope3 = ({ reports }) => {
           setWasteData(combinedWaste);
           setWaterData(combinedWater);
           setHomeOfficeData(combinedHomeOffice);
+          setDtdData(combinedDtd);
+          setUtdData(combinedUtd);
+          setUlaData(combinedUla);
           setHotelAccommodationData(combinedHotelAccommodation);
         }
       } catch (error) {

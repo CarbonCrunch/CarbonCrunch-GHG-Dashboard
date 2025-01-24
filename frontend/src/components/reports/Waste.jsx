@@ -104,6 +104,7 @@ const Waste = ({ report }) => {
     timePeriod = {},
     waste = [],
   } = reportData || {};
+  // console.log("waste", reportId);
   useEffect(() => {
     if (waste && Array.isArray(waste)) {
       setWasteData(

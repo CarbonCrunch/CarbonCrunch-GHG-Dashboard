@@ -23,6 +23,8 @@ import Food from "../reports/Food";
 import HomeOffice from "../reports/HomeOffice";
 import Water from "../reports/Water";
 import Utd from "../reports/Utd";
+import Dtd from "../reports/Dtd";
+import Ula from "../reports/Ula";
 // import { toast, ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
 
@@ -121,8 +123,9 @@ const DataInBoard = () => {
       user?.facilities[0]?.userRoles[0]?.permissions || [];
     // console.log("User Permissions", userPermissions);
     const permission = userPermissions.find(
-      (perm) => perm.entity.toLowerCase() === entity.toLowerCase()
+      (perm) => perm?.entity?.toLowerCase() === entity?.toLowerCase()
     );
+
     return permission?.actions.includes("read");
   };
 
@@ -142,7 +145,14 @@ const DataInBoard = () => {
     "WasteDisposal",
     "Water",
     "WTTFuel",
+    "Downstream Transportation and Distribution",
     "Upstream Transportation and Distribution",
+    "Upstream Leased Assets",
+    "Use of Sold Products",
+    "End of Life Treatment of Sold Products",
+    "Downstream Leased Assets",
+    "Franchises",
+    "Processing of Sold Products",
   ];
 
   const filterOptions = [
@@ -155,15 +165,39 @@ const DataInBoard = () => {
     { value: "CM-5", label: "CM-5 (Waste Generated in Operations)" },
     { value: "CM-6", label: "CM-6 (Business Travel)" },
     { value: "CM-7", label: "CM-7 (Employee Commuting)" },
+    {
+      value: "CM-9",
+      label: "CM-9 (Upstream Leased Assets)",
+    },
+    {
+      value: "CM-9",
+      label: "CM-9 (Downstream Transportation and Distribution)",
+    },
   ];
   // Filter categories based on the selected filter
   const filteredCategories =
     selectedFilter === "CM-3"
-      ? ["Bioenergy", "Electricity_Heating", "Fuels", "Refrigerants", "WTTFuel"]
+      ? [
+          "Select",
+          "Bioenergy",
+          "Electricity_Heating",
+          "Fuels",
+          "Refrigerants",
+          "WTTFuel",
+        ]
       : selectedFilter === "CM-4"
-      ? ["Upstream Transportation and Distribution"]
+      ? ["Select", "Upstream Transportation and Distribution"]
+      : selectedFilter === "CM-5"
+      ? ["Select", "WasteDisposal"]
+      : selectedFilter === "CM-6"
+      ? ["Select", "BusinessTravel", "Flights & Accomodations"]
+      : selectedFilter === "CM-7"
+      ? ["Select", "EmployCommuting"]
+      : selectedFilter === "CM-8"
+      ? ["Select", "Upstream Leased Assets"]
+      : selectedFilter === "CM-9"
+      ? ["Select", "Downstream Transportation and Distribution"]
       : categories;
-
 
   const componentMap = {
     Fuels: Fuel,
@@ -181,7 +215,14 @@ const DataInBoard = () => {
     Food: Food,
     HomeOffice: HomeOffice,
     Water: Water,
+    "Downstream Transportation and Distribution": Dtd,
     "Upstream Transportation and Distribution": Utd,
+    "Upstream Leased Assets": Ula,
+    "Use of Sold Products": null,
+    "End of Life Treatment of Sold Products": null,
+    "Downstream Leased Assets": null,
+    Franchises: null,
+    "Processing of Sold Products": null,
   };
 
   const categoryMap = {
@@ -200,7 +241,14 @@ const DataInBoard = () => {
     Food: "food",
     HomeOffice: "homeOffice",
     Water: "water",
+    "Downstream Transportation and Distribution": "dtd",
     "Upstream Transportation and Distribution": "utd",
+    "Upstream Leased Assets": "ula",
+    "Use of Sold Products": "usop",
+    "End of Life Treatment of Sold Products": "eol",
+    "Downstream Leased Assets": "dla",
+    Franchises: "franchises",
+    "Processing of Sold Products": "posp",
   };
 
   const SelectedComponent = componentMap[selectedCategory];

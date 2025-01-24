@@ -117,7 +117,7 @@ const calculateCO2eTotals = (report) => {
 
 
   const { total, scope1, scope2, scope3 } = calculateCO2eTotals(report);
-  console.log("total", total, "scope1", scope1, "scope2", scope2, "scope3", scope3);
+  // console.log("total", total, "scope1", scope1, "scope2", scope2, "scope3", scope3);
 
   return (
     <div className="flex flex-col min-h-screen">

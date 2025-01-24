@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
           });
 
           if (response.data.isValid) {
-            console.log("User is valid, keeping the current user state.");
+            // console.log("User is valid, keeping the current user state.");
             setUser(JSON.parse(storedUser)); // Keep the user as is, based on cookie
             // window.location.href = "/dashboard";
           } else {

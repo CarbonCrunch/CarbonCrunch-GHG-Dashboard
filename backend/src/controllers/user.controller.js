@@ -331,7 +331,7 @@ export const verifyToken = asyncHandler(async (req, res) => {
 
     // Find user by id
     const user = await User.findById(decoded._id).select("-password");
-    console.log('user1',user);
+    // console.log('user1',user);
     req.user = user;
     if (!user) {
       return res

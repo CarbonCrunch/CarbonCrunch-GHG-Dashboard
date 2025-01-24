@@ -573,7 +573,7 @@ const deliveryChartData = {
                   overflow: "hidden",
                 }}
               >
-                <iframe
+                {/* <iframe
                   src="https://www.youtube.com/embed/aXYqeRaRFS8?si=gkJIrfq8cWWYRtXu"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -586,7 +586,7 @@ const deliveryChartData = {
                     width: "100%",
                     height: "70%",
                   }}
-                ></iframe>
+                ></iframe> */}
               </div>
             </div>
             <div

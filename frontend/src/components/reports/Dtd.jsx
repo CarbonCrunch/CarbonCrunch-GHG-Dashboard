@@ -2,70 +2,48 @@ import React, { useState, useEffect } from "react";
 import { FaPlus, FaSave, FaTrash, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../../context/AuthContext";
 
-const Ec = ({ report }) => {
-  const [ecData, setEcData] = useState([]);
-  const [newEc, setNewEc] = useState({
+const Dtd = ({ report }) => {
+  const [dtdData, setDtdData] = useState([]);
+  const [newDtd, setNewDtd] = useState({
     date: null,
-    vehicle: "",
-    type: "",
-    fuel: "",
-    unit: "",
-    distance: "",
+    massOfGoodsTransported: "",
+    transportDistance: "",
+    transportMode: "",
     method: "",
-    quantityOfFuel: "",
-    totalNumberOfEmployees: "",
-    percentageOfEmployeesUsingModeOfTransport: "",
-    numberOfWorkingDays: "",
+    fuelType: "",
+    fuelConsumption: "",
+    financialExpenditure: "",
+    numberOfTrips: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [isYearPicker, setIsYearPicker] = useState(false);
   const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
 
+  const TransportModeOptions = [
+    "Truck",
+    "Rail",
+    "Ship",
+    "Air",
+    "Van",
+    "Cargo Plane",
+    "Container Ship",
+  ];
   const MethodOptions = [
-    "Fuel-based method",
-    "Distance-based method",
-    "Average-data method",
+    "Fuel-based Method",
+    "Distance-based Method",
+    "Spend-based Method",
   ];
-  const VehicleOptions = ["Car", "Ferry", "Motorbike", "Taxi", "Bus", "Rail"];
-  const Level2Options = [
-    "Small car",
-    "Medium car",
-    "Large car",
-    "Average car",
-    "Foot passenger",
-    "Car passenger",
-    "Average (all passenger)",
-    "Small",
-    "Medium",
-    "Large",
-    "Average",
-    "Regular taxi",
-    "Black cab",
-    "Local bus (not London)",
-    "Local London bus",
-    "Average local bus",
-    "Coach",
-    "National rail",
-    "International rail",
-    "Light rail and tram",
-    "London Underground",
-  ];
-  const FuelOptions = [
-    "Battery Electric Vehicle",
-    "CNG",
+  const FuelTypeOptions = [
     "Diesel",
-    "Hybrid",
-    "LPG",
-    "Petrol",
-    "Plug-in Hybrid Electric Vehicle",
+    "Gasoline",
+    "Natural Gas",
+    "Propane",
+    "Kerosene",
   ];
-  const UnitOptions = ["KM", "Passenger.KM"];
 
   const reportData = report;
   const {
@@ -73,13 +51,13 @@ const Ec = ({ report }) => {
     facilityName = "",
     reportId = "",
     timePeriod = {},
-    ec = [],
+    dtd = [],
   } = reportData || {};
 
   useEffect(() => {
-    if (ec && Array.isArray(ec)) {
-      setEcData(
-        ec.map((item) => ({
+    if (dtd && Array.isArray(dtd)) {
+      setDtdData(
+        dtd.map((item) => ({
           ...item,
           date: new Date(item.date),
         }))
@@ -98,49 +76,43 @@ const Ec = ({ report }) => {
 
   const { start, end } = getDateRange();
 
-  // Check user permissions for ec entity
-  const ecPermissions =
+  // Permission checks
+  const dtdPermissions =
     user?.facilities[0]?.userRoles[0]?.permissions.find(
-      (perm) => perm.entity.toLowerCase() === "ec"
+      (perm) => perm.entity.toLowerCase() === "dtd"
     )?.actions || [];
 
-  const hasReadPermission = ecPermissions.includes("read");
-  const hasCreatePermission = ecPermissions.includes("create");
-  const hasUpdatePermission = ecPermissions.includes("update");
-  const hasDeletePermission = ecPermissions.includes("delete");
+  const hasReadPermission = dtdPermissions.includes("read");
+  const hasCreatePermission = dtdPermissions.includes("create");
+  const hasUpdatePermission = dtdPermissions.includes("update");
+  const hasDeletePermission = dtdPermissions.includes("delete");
 
-  const handleAddEc = () => {
+  const handleAddDtd = () => {
     if (!hasCreatePermission) {
       toast.error("You don't have permission to create new entries");
       return;
     }
 
-    if (
-      newEc.date &&
-      newEc.vehicle &&
-      newEc.type &&
-      newEc.fuel &&
-      newEc.unit &&
-      newEc.distance
-    ) {
+    if (newDtd.date && newDtd.transportMode && newDtd.massOfGoodsTransported) {
       if (editIndex === -1) {
-        setEcData([...ecData, newEc]);
+        setDtdData([...dtdData, newDtd]);
       } else {
-        const updatedEcData = [...ecData];
-        updatedEcData[editIndex] = newEc;
-        setEcData(updatedEcData);
+        const updatedDtdData = [...dtdData];
+        updatedDtdData[editIndex] = newDtd;
+        setDtdData(updatedDtdData);
         setEditIndex(-1);
       }
-      setNewEc({
+      setNewDtd({
         date: null,
-        vehicle: "",
-        type: "",
-        fuel: "",
-        unit: "",
-        distance: "",
+        massOfGoodsTransported: "",
+        transportDistance: "",
+        transportMode: "",
+        fuelConsumption: "",
+        financialExpenditure: "",
+        numberOfTrips: "",
       });
     } else {
-      toast.error("Please fill all fields");
+      toast.error("Please fill required fields");
     }
   };
 
@@ -150,7 +122,7 @@ const Ec = ({ report }) => {
       return;
     }
 
-    setNewEc(ecData[index]);
+    setNewDtd(dtdData[index]);
     setEditIndex(index);
   };
 
@@ -160,44 +132,29 @@ const Ec = ({ report }) => {
       return;
     }
 
-    const updatedEcData = ecData.filter((_, i) => i !== index);
-    setEcData(updatedEcData);
-    toast.info("Now click on save to permanently delete", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    const updatedDtdData = dtdData.filter((_, i) => i !== index);
+    setDtdData(updatedDtdData);
+    toast.info("Click save to permanently delete", { position: "top-right" });
   };
 
   const handleSave = async () => {
     try {
       const response = await axios.patch(
-        `/api/reports/:reportId/ec/put`,
-        { ec: ecData },
+        `/api/reports/:reportId/dtd/put`,
+        { dtd: dtdData },
         {
-          params: {
-            reportId,
-            companyName,
-            facilityName,
-          },
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-          },
+          params: { reportId, companyName, facilityName },
+          headers: { Authorization: `Bearer ${user.accessToken}` },
           withCredentials: true,
         }
       );
-      if (response.data.success) {
-        toast.success(response.data.message);
-      } else {
-        toast.error("Failed to update EC data");
-      }
+
+      response.data.success
+        ? toast.success(response.data.message)
+        : toast.error("Failed to update DTD data");
     } catch (error) {
-      console.error("Error saving EC data:", error);
-      toast.error(error.response?.data?.message || "Failed to save EC data");
+      console.error("Error saving DTD data:", error);
+      toast.error(error.response?.data?.message || "Failed to save DTD data");
     }
   };
 
@@ -210,45 +167,36 @@ const Ec = ({ report }) => {
       <table className="min-w-full bg-white">
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">Vehicle</th>
-            <th className="py-3 px-6 text-left">Type</th>
-            <th className="py-3 px-6 text-left">Fuel</th>
-            <th className="py-3 px-6 text-left">Unit</th>
-            <th className="py-3 px-6 text-left">Distance (km)</th>
+            <th className="py-3 px-6 text-left">Mass of Goods (tonnes)</th>
+            <th className="py-3 px-6 text-left">Transport Distance (km)</th>
+            <th className="py-3 px-6 text-left">Transport Mode</th>
             <th className="py-3 px-6 text-left">Method</th>
-            <th className="py-3 px-6 text-left">Quantity of Fuel</th>
-            <th className="py-3 px-6 text-left">Total Number of Employees</th>
-            <th className="py-3 px-6 text-left">
-              % of Employees Using Mode of Transport
-            </th>
-            <th className="py-3 px-6 text-left">Number of Working Days</th>
+            <th className="py-3 px-6 text-left">Fuel Type</th>
+            <th className="py-3 px-6 text-left">Fuel Consumption</th>
+            <th className="py-3 px-6 text-left">Financial Expenditure</th>
+            <th className="py-3 px-6 text-left">Number of Trips</th>
             <th className="py-3 px-6 text-left">Date</th>
             <th className="py-3 px-6 text-left">Action</th>
           </tr>
         </thead>
-
         <tbody className="text-gray-600 text-sm font-light">
-          {ecData.map((item, index) => (
+          {dtdData.map((item, index) => (
             <tr
               key={index}
               className="border-b border-gray-200 hover:bg-gray-100"
             >
-              <td className="py-3 px-6 text-left">{item.vehicle}</td>
-              <td className="py-3 px-6 text-left">{item.type}</td>
-              <td className="py-3 px-6 text-left">{item.fuel}</td>
-              <td className="py-3 px-6 text-left">{item.unit}</td>
-              <td className="py-3 px-6 text-left">{item.distance}</td>
+              <td className="py-3 px-6 text-left">
+                {item.massOfGoodsTransported}
+              </td>
+              <td className="py-3 px-6 text-left">{item.transportDistance}</td>
+              <td className="py-3 px-6 text-left">{item.transportMode}</td>
               <td className="py-3 px-6 text-left">{item.method}</td>
-              <td className="py-3 px-6 text-left">{item.quantityOfFuel}</td>
+              <td className="py-3 px-6 text-left">{item.fuelType}</td>
+              <td className="py-3 px-6 text-left">{item.fuelConsumption}</td>
               <td className="py-3 px-6 text-left">
-                {item.totalNumberOfEmployees}
+                {item.financialExpenditure}
               </td>
-              <td className="py-3 px-6 text-left">
-                {item.percentageOfEmployeesUsingModeOfTransport}
-              </td>
-              <td className="py-3 px-6 text-left">
-                {item.numberOfWorkingDays}
-              </td>
+              <td className="py-3 px-6 text-left">{item.numberOfTrips}</td>
               <td className="py-3 px-6 text-left">
                 {item.date.toLocaleDateString()}
               </td>
@@ -276,78 +224,52 @@ const Ec = ({ report }) => {
           ))}
           <tr>
             <td className="py-3 px-6">
-              <select
-                value={newEc.vehicle}
+              <input
+                type="number"
+                value={newDtd.massOfGoodsTransported}
                 onChange={(e) =>
-                  setNewEc({ ...newEc, vehicle: e.target.value })
+                  setNewDtd({
+                    ...newDtd,
+                    massOfGoodsTransported: e.target.value,
+                  })
                 }
+                placeholder="Mass of Goods (tonnes)"
                 className="border p-1 w-full"
-              >
-                <option value="">Select Vehicle</option>
-                {VehicleOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </td>
-            <td className="py-3 px-6">
-              <select
-                value={newEc.type}
-                onChange={(e) => setNewEc({ ...newEc, type: e.target.value })}
-                className="border p-1 w-full"
-              >
-                <option value="">Select Type</option>
-                {Level2Options.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </td>
-            <td className="py-3 px-6">
-              <select
-                value={newEc.fuel}
-                onChange={(e) => setNewEc({ ...newEc, fuel: e.target.value })}
-                className="border p-1 w-full"
-              >
-                <option value="">Select Fuel</option>
-                {FuelOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </td>
-            <td className="py-3 px-6">
-              <select
-                value={newEc.unit}
-                onChange={(e) => setNewEc({ ...newEc, unit: e.target.value })}
-                className="border p-1 w-full"
-              >
-                <option value="">Select Unit</option>
-                {UnitOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              />
             </td>
             <td className="py-3 px-6">
               <input
                 type="number"
-                value={newEc.distance}
+                value={newDtd.transportDistance}
                 onChange={(e) =>
-                  setNewEc({ ...newEc, distance: e.target.value })
+                  setNewDtd({ ...newDtd, transportDistance: e.target.value })
                 }
-                placeholder="Distance (km)"
+                placeholder="Transport Distance (km)"
                 className="border p-1 w-full"
               />
             </td>
             <td className="py-3 px-6">
               <select
-                value={newEc.method}
-                onChange={(e) => setNewEc({ ...newEc, method: e.target.value })}
+                value={newDtd.transportMode}
+                onChange={(e) =>
+                  setNewDtd({ ...newDtd, transportMode: e.target.value })
+                }
+                className="border p-1 w-full"
+              >
+                <option value="">Select Transport Mode</option>
+                {TransportModeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-3 px-6">
+              <select
+                value={newDtd.method}
+                onChange={(e) =>
+                  setNewDtd({ ...newDtd, method: e.target.value })
+                }
                 className="border p-1 w-full"
               >
                 <option value="">Select Method</option>
@@ -358,57 +280,59 @@ const Ec = ({ report }) => {
                 ))}
               </select>
             </td>
+            <td>
+              <select
+                value={newDtd.fuelType}
+                onChange={(e) =>
+                  setNewDtd({ ...newDtd, fuelType: e.target.value })
+                }
+                className="border p-1 w-full"
+              >
+                <option value="">Select Fuel Type</option>
+                {FuelTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </td>
             <td className="py-3 px-6">
               <input
                 type="number"
-                value={newEc.quantityOfFuel}
+                value={newDtd.fuelConsumption}
                 onChange={(e) =>
-                  setNewEc({ ...newEc, quantityOfFuel: e.target.value })
+                  setNewDtd({ ...newDtd, fuelConsumption: e.target.value })
                 }
-                placeholder="Quantity of Fuel"
+                placeholder="Fuel Consumption"
                 className="border p-1 w-full"
               />
             </td>
             <td className="py-3 px-6">
               <input
                 type="number"
-                value={newEc.totalNumberOfEmployees}
+                value={newDtd.financialExpenditure}
                 onChange={(e) =>
-                  setNewEc({ ...newEc, totalNumberOfEmployees: e.target.value })
+                  setNewDtd({ ...newDtd, financialExpenditure: e.target.value })
                 }
-                placeholder="Total Number of Employees"
+                placeholder="Financial Expenditure"
                 className="border p-1 w-full"
               />
             </td>
             <td className="py-3 px-6">
               <input
                 type="number"
-                value={newEc.percentageOfEmployeesUsingModeOfTransport}
+                value={newDtd.numberOfTrips}
                 onChange={(e) =>
-                  setNewEc({
-                    ...newEc,
-                    percentageOfEmployeesUsingModeOfTransport: e.target.value,
-                  })
+                  setNewDtd({ ...newDtd, numberOfTrips: e.target.value })
                 }
-                placeholder="% of Employees Using Mode"
-                className="border p-1 w-full"
-              />
-            </td>
-            <td className="py-3 px-6">
-              <input
-                type="number"
-                value={newEc.numberOfWorkingDays}
-                onChange={(e) =>
-                  setNewEc({ ...newEc, numberOfWorkingDays: e.target.value })
-                }
-                placeholder="Number of Working Days"
+                placeholder="Number of Trips"
                 className="border p-1 w-full"
               />
             </td>
             <td className="py-3 px-6">
               <DatePicker
-                selected={newEc.date}
-                onChange={(date) => ({ ...newEc, date })}
+                selected={newDtd.date}
+                onChange={(date) => setNewDtd({ ...newDtd, date })}
                 minDate={start}
                 maxDate={end}
                 placeholderText="Select Date"
@@ -472,7 +396,7 @@ const Ec = ({ report }) => {
                 showYearPicker={isYearPicker}
                 showMonthYearPicker={isMonthPicker}
                 onSelect={(date) => {
-                  ({ ...newEc, date });
+                  setNewDtd({ ...newDtd, date });
                   if (isYearPicker) {
                     setIsYearPicker(false);
                     setIsMonthPicker(true);
@@ -484,7 +408,7 @@ const Ec = ({ report }) => {
             </td>
             <td className="py-3 px-6">
               <button
-                onClick={handleAddEc}
+                onClick={handleAddDtd}
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
                   !hasCreatePermission ? "opacity-50 cursor-not-allowed" : ""
                 }`}
@@ -509,4 +433,4 @@ const Ec = ({ report }) => {
   );
 };
 
-export default Ec;
+export default Dtd;

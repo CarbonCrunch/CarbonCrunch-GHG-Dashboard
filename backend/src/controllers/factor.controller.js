@@ -129,7 +129,6 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   const { _id, companyName } = req.body;
 
@@ -251,20 +250,18 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const CO2eOv = asyncHandler(async (req, res) => {
- const { _id, companyName } = req.body;
+  const { _id, companyName } = req.body;
 
- if (!companyName || !_id) {
-   throw new ApiError(400, "Company name and _id are required.");
- }
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
 
- const report = await Report.findById(_id);
+  const report = await Report.findById(_id);
 
- if (!report) {
-   throw new ApiError(404, "Report not found.");
- }
-
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(401, "Unauthorized access to update vehicle data.");
@@ -409,18 +406,18 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
     Electricity: {
       lifecycleFactor: 0.6077,
       combustionFactor: 0.4233,
-      TDLossFactor: 0.0188
+      TDLossFactor: 0.0188,
     },
     "Heating and Steam": {
       lifecycleFactor: 0.1707,
       combustionFactor: 0.1232,
-      TDLossFactor: 0.009
+      TDLossFactor: 0.009,
     },
     "District Cooling": {
       lifecycleFactor: 0.5469,
       combustionFactor: 0.3845,
-      TDLossFactor: 0.0278
-    }
+      TDLossFactor: 0.0278,
+    },
   };
 
   const TD_LOSS_RATE = 0.0278; // 2.78% standard loss rate
@@ -434,7 +431,10 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
 
     if (entity === "Reporting Company") {
       // Upstream emissions calculation
-      const upstreamFactor = factors.lifecycleFactor - factors.combustionFactor - factors.TDLossFactor;
+      const upstreamFactor =
+        factors.lifecycleFactor -
+        factors.combustionFactor -
+        factors.TDLossFactor;
       CO2e = parseFloat(amount) * upstreamFactor;
     } else if (entity === "Suppliers") {
       // T&D losses emissions calculation
@@ -446,10 +446,10 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
       CO2e = parseFloat(amount) * factors.lifecycleFactor;
     }
 
-    return { 
-      ...entry, 
+    return {
+      ...entry,
       CO2e: parseFloat(CO2e.toFixed(4)), // Round to 4 decimal places
-      unit: 'kgCO2e' // Change unit to kgCO2e
+      unit: "kgCO2e", // Change unit to kgCO2e
     };
   });
 
@@ -466,136 +466,178 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
     success: true,
     message: "CO2e calculated successfully for EHCTD",
     data: report.ehctd,
-    totalCO2e: report.CO2eEhctd
+    totalCO2e: report.CO2eEhctd,
   });
 });
 
-
 export const CO2eEc = asyncHandler(async (req, res) => {
- const { _id, companyName } = req.body;
+  const { _id, companyName } = req.body;
 
- if (!companyName || !_id) {
-   throw new ApiError(400, "Company name and _id are required.");
- }
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
 
- const report = await Report.findById(_id);
+  const report = await Report.findById(_id);
 
- if (!report) {
-   throw new ApiError(404, "Report not found.");
- }
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
 
-  // if (report.username !== req.user.username) {
-  //   throw new ApiError(
-  //     401,
-  //     "Unauthorized access to update employee commuting data."
-  //   );
-  // }
+  // Conversion rate function
+  function getConversionRate(vehicle, level, fuel, unit) {
+    const conversionRates = {
+      Car: {
+        "Small car": {
+          "Battery Electric Vehicle": 0.05,
+          CNG: 0,
+          Diesel: 0.14,
+          Hybrid: 0.1,
+          LPG: 0,
+          Petrol: 0.15,
+          "Plug-in Hybrid Electric Vehicle": 0.06,
+          Unknown: 0.15,
+        },
+        "Medium car": {
+          "Battery Electric Vehicle": 0.05,
+          CNG: 0.16,
+          Diesel: 0.16,
+          Hybrid: 0.11,
+          LPG: 0.18,
+          Petrol: 0.19,
+          "Plug-in Hybrid Electric Vehicle": 0.09,
+          Unknown: 0.18,
+        },
+        "Large car": {
+          "Battery Electric Vehicle": 0.06,
+          CNG: 0.24,
+          Diesel: 0.21,
+          Hybrid: 0.15,
+          LPG: 0.27,
+          Petrol: 0.28,
+          "Plug-in Hybrid Electric Vehicle": 0.1,
+          Unknown: 0.23,
+        },
+        "Average car": {
+          "Battery Electric Vehicle": 0.05,
+          CNG: 0.18,
+          Diesel: 0.17,
+          Hybrid: 0.12,
+          LPG: 0.2,
+          Petrol: 0.17,
+          "Plug-in Hybrid Electric Vehicle": 0.1,
+          Unknown: 0.17,
+        },
+      },
+      Ferry: {
+        "Foot passenger": 0.02,
+        "Car passenger": 0.13,
+        "Average (all passenger)": 0.11,
+      },
+      Motorbike: {
+        Small: 0.08,
+        Medium: 0.1,
+        Large: 0.13,
+        Average: 0.11,
+      },
+      Taxi: {
+        "Regular taxi": { km: 0.21, "passenger.km": 0.15 },
+        "Black cab": { km: 0.31, "passenger.km": 0.2 },
+      },
+      Bus: {
+        "Local bus (not London)": 0.12,
+        "Local London bus": 0.08,
+        "Average local bus": 0.1,
+        Coach: 0.03,
+      },
+      Rail: {
+        "National rail": 0.04,
+        "International rail": 0.0,
+        "Light rail and tram": 0.03,
+        "London Underground": 0.03,
+      },
+    };
 
-  const conversionRates = {
-    Car: {
-      "Small car": {
-        "Battery Electric Vehicle": 0.05,
-        CNG: 0,
-        Diesel: 0.14,
-        Hybrid: 0.1,
-        LPG: 0,
-        Petrol: 0.15,
-        "Plug-in Hybrid Electric Vehicle": 0.06,
-        Unknown: 0.15,
-      },
-      "Medium car": {
-        "Battery Electric Vehicle": 0.05,
-        CNG: 0.16,
-        Diesel: 0.16,
-        Hybrid: 0.11,
-        LPG: 0.18,
-        Petrol: 0.19,
-        "Plug-in Hybrid Electric Vehicle": 0.09,
-        Unknown: 0.18,
-      },
-      "Large car": {
-        "Battery Electric Vehicle": 0.06,
-        CNG: 0.24,
-        Diesel: 0.21,
-        Hybrid: 0.15,
-        LPG: 0.27,
-        Petrol: 0.28,
-        "Plug-in Hybrid Electric Vehicle": 0.1,
-        Unknown: 0.23,
-      },
-      "Average car": {
-        "Battery Electric Vehicle": 0.05,
-        CNG: 0.18,
-        Diesel: 0.17,
-        Hybrid: 0.12,
-        LPG: 0.2,
-        Petrol: 0.17,
-        "Plug-in Hybrid Electric Vehicle": 0.1,
-        Unknown: 0.17,
-      },
-    },
-    Ferry: {
-      "Foot passenger": 0.02,
-      "Car passenger": 0.13,
-      "Average (all passenger)": 0.11,
-    },
-    Motorbike: {
-      Small: 0.08,
-      Medium: 0.1,
-      Large: 0.13,
-      Average: 0.11,
-    },
-    Taxi: {
-      "Regular taxi": {
-        km: 0.21,
-        "passenger.km": 0.15,
-      },
-      "Black cab": {
-        km: 0.31,
-        "passenger.km": 0.2,
-      },
-    },
-    Bus: {
-      "Local bus (not London)": 0.12,
-      "Local London bus": 0.08,
-      "Average local bus": 0.1,
-      Coach: 0.03,
-    },
-    Rail: {
-      "National rail": 0.04,
-      "International rail": 0.0,
-      "Light rail and tram": 0.03,
-      "London Underground": 0.03,
-    },
-  };
+    // Handle Taxi separately due to unit-specific rates
+    if (vehicle === "Taxi") {
+      return conversionRates.Taxi[level]?.[unit.toLowerCase()] || 0;
+    }
+
+    // Handle Car with fuel type
+    if (vehicle === "Car") {
+      return conversionRates.Car[level]?.[fuel] || 0;
+    }
+
+    // Handle other vehicles without additional specifics
+    return conversionRates[vehicle]?.[level] || 0;
+  }
 
   const updatedEcData = report.ec.map((entry) => {
-    let conversionRate = 0;
+    let CO2e = 0;
 
-    if (entry.vehicle === "Car") {
-      conversionRate = conversionRates["Car"][entry.type][entry.fuel];
-    } else if (entry.vehicle === "Motorbike") {
-      conversionRate = conversionRates["Motorbike"][entry.type];
-    } else if (entry.vehicle === "Taxi") {
-      conversionRate =
-        conversionRates["Taxi"][entry.type][entry.unit.toLowerCase()];
-    } else if (entry.vehicle === "Ferry") {
-      conversionRate = conversionRates["Ferry"][entry.type];
-    } else if (entry.vehicle === "Bus") {
-      conversionRate = conversionRates["Bus"][entry.type];
-    } else if (entry.vehicle === "Rail") {
-      conversionRate = conversionRates["Rail"][entry.type];
+    switch (entry.method) {
+      case "Fuel-based method":
+        // Calculate emissions based on fuel quantity
+        const fuelConversionRate = getConversionRate(
+          entry.vehicle,
+          entry.type,
+          entry.fuel,
+          entry.unit
+        );
+        CO2e = parseFloat(entry.quantityOfFuel) * fuelConversionRate;
+        break;
+
+      case "Distance-based method":
+        // Calculate total distance
+        const totalDistance =
+          parseFloat(entry.distance) *
+          2 *
+          (parseFloat(entry.numberOfWorkingDays) || 250);
+        const distanceConversionRate = getConversionRate(
+          entry.vehicle,
+          entry.type,
+          entry.fuel,
+          entry.unit
+        );
+        CO2e = totalDistance * distanceConversionRate;
+        break;
+
+      case "Average-data method":
+        // Calculate emissions using employee count and transport mode
+        const averageDistance = parseFloat(entry.distance) * 2;
+        const averageConversionRate = getConversionRate(
+          entry.vehicle,
+          entry.type,
+          entry.fuel,
+          entry.unit
+        );
+        const totalEmployees = parseFloat(entry.totalNumberOfEmployees);
+        const percentageUsingTransport =
+          parseFloat(entry.percentageOfEmployeesUsingModeOfTransport) / 100;
+        const workingDays = parseFloat(entry.numberOfWorkingDays) || 250;
+
+        CO2e =
+          totalEmployees *
+          percentageUsingTransport *
+          averageDistance *
+          workingDays *
+          averageConversionRate;
+        break;
+
+      default:
+        // Fallback to default distance-based calculation
+        const defaultConversionRate = getConversionRate(
+          entry.vehicle,
+          entry.type,
+          entry.fuel,
+          entry.unit
+        );
+        CO2e = parseFloat(entry.distance) * defaultConversionRate;
     }
-
-    if (conversionRate === undefined) {
-      console.warn(`No conversion rate found for: ${JSON.stringify(entry)}`);
-      conversionRate = 0;
-    }
-
-    const CO2e = parseFloat(entry.distance) * conversionRate;
+    console.log("CO2e", CO2e);
     return { ...entry, CO2e };
   });
 
+  // Save updated report
   report.ec = updatedEcData;
   report.CO2eEc = updatedEcData.reduce(
     (acc, curr) => acc + (curr.CO2e || 0),
@@ -672,7 +714,7 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
       },
     },
     Taxi: {
-      "Regular taxi": {
+      "Average taxi": {
         km: 0.21,
         "passenger.km": 0.15,
       },
@@ -689,31 +731,85 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
     },
   };
 
+  const calculateEmissions = (btlsEntry) => {
+    const { vehicle, type, fuel, distance, method, unit, cost, quantity } =
+      btlsEntry;
+    let CO2e = 0;
+    // console.log("vehicle", btlsEntry);
+    // console.log(
+    //   "vehicle",
+    //   conversionRates[vehicle][type][fuel],
+    //   btlsEntry,
+    //   vehicle,
+    //   type,
+    //   fuel
+    // );
+
+    switch (method) {
+      case "Distance-based method":
+        let conversionRate = 0;
+        if (vehicle === "Cars (by size)") {
+          conversionRate = conversionRates[vehicle][type][fuel];
+        } else if (vehicle === "Motorbike") {
+          conversionRate = conversionRates[vehicle][type];
+        } else if (vehicle === "Taxi" && conversionRates[vehicle][type]) {
+          conversionRate = conversionRates[vehicle][type][unit.toLowerCase()];
+        }
+        CO2e = parseFloat(distance) * conversionRate;
+        break;
+
+      case "Fuel-based method":
+        const fuelEmissionFactors = {
+          "Plug-in Hybrid Electric Vehicle": 0.1,
+          "Battery Electric Vehicle": 0.05,
+          Diesel: 2.68,
+          Petrol: 2.31,
+          Hybrid: 1.5,
+          Unknown: 2.0,
+          CNG: 1.9,
+          LPG: 1.7,
+        };
+
+        CO2e = parseFloat(quantity) * (fuelEmissionFactors[fuel] || 0);
+        break;
+
+      case "Spend-based method":
+        const spendEmissionFactors = {
+          "Cars (by size)": {
+            "Small car": 0.3,
+            "Medium car": 0.5,
+            "Large car": 0.7,
+            "Average car": 0.5,
+          },
+          Motorbike: {
+            Small: 0.2,
+            Medium: 0.3,
+            Large: 0.4,
+            Average: 0.3,
+          },
+          Taxi: {
+            "Average taxi": 0.4,
+          },
+        };
+        CO2e = parseFloat(cost) * (spendEmissionFactors[vehicle] || 0);
+        break;
+
+      default:
+        console.warn(`Unknown method: ${method}`);
+        CO2e = 0;
+    }
+
+    return CO2e;
+  };
+
   // Update the BTLS data with calculated CO2e amounts
   const updatedBtlsData = report.btls.map((btlsEntry) => {
-    const { vehicle, type, fuel, distance, unit } = btlsEntry;
-    let conversionRate = 0;
-
-    if (vehicle === "Cars (by size)") {
-      conversionRate = conversionRates[vehicle]["Average car"][fuel];
-    } else if (vehicle === "Motorbike") {
-      conversionRate = conversionRates[vehicle]["Average"];
-    } else if (vehicle === "Taxi" && conversionRates[vehicle][type]) {
-      conversionRate = conversionRates[vehicle][type][unit.toLowerCase()];
-    }
-
-    if (conversionRate === undefined) {
-      console.warn(
-        `No conversion rate found for: ${JSON.stringify(btlsEntry)}`
-      );
-      conversionRate = 0;
-    }
-
-    const CO2e = parseFloat(distance) * conversionRate;
+    // console.log("btlsEntry", report.btls);
+    const CO2e = calculateEmissions(btlsEntry);
     return { ...btlsEntry, CO2e };
   });
 
-  // Update the report's BTLS data and store CO2e
+  // Update the report's BTLS data and store total CO2e
   report.btls = updatedBtlsData;
   report.CO2eBtls = updatedBtlsData.reduce((acc, curr) => acc + curr.CO2e, 0);
 
@@ -722,22 +818,23 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "CO2e calculated successfully for BTLS",
+    method: report.btlsMethod,
     data: report.btls,
   });
 });
 
 export const CO2eFg = asyncHandler(async (req, res) => {
- const { _id, companyName } = req.body;
+  const { _id, companyName } = req.body;
 
- if (!companyName || !_id) {
-   throw new ApiError(400, "Company name and _id are required.");
- }
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
 
- const report = await Report.findById(_id);
+  const report = await Report.findById(_id);
 
- if (!report) {
-   throw new ApiError(404, "Report not found.");
- }
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(
@@ -1103,17 +1200,17 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
 });
 
 export const CO2eFood = asyncHandler(async (req, res) => {
-const { _id, companyName } = req.body;
+  const { _id, companyName } = req.body;
 
-if (!companyName || !_id) {
-  throw new ApiError(400, "Company name and _id are required.");
-}
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
 
-const report = await Report.findById(_id);
+  const report = await Report.findById(_id);
 
-if (!report) {
-  throw new ApiError(404, "Report not found.");
-}
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(
@@ -1215,17 +1312,17 @@ export const CO2eWater = asyncHandler(async (req, res) => {
 });
 
 export const CO2eHome = asyncHandler(async (req, res) => {
- const { _id, companyName } = req.body;
+  const { _id, companyName } = req.body;
 
- if (!companyName || !_id) {
-   throw new ApiError(400, "Company name and _id are required.");
- }
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
 
- const report = await Report.findById(_id);
+  const report = await Report.findById(_id);
 
- if (!report) {
-   throw new ApiError(404, "Report not found.");
- }
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
 
   // if (report.username !== req.user.username) {
   //   throw new ApiError(401, "Unauthorized access to update home office data.");
@@ -1299,11 +1396,13 @@ export const CO2eFa = asyncHandler(async (req, res) => {
   const hotelFactor = 93.2;
 
   // Update the hotel accommodation data with calculated CO2e amounts
-  const updatedHotelAccommodationData = report.fa.hotelAccommodation.map((hotelEntry) => {
-    const { occupiedRooms, nightsPerRoom } = hotelEntry;
-    const CO2e = occupiedRooms * nightsPerRoom * hotelFactor;
-    return { ...hotelEntry, CO2e };
-  });
+  const updatedHotelAccommodationData = report.fa.hotelAccommodation.map(
+    (hotelEntry) => {
+      const { occupiedRooms, nightsPerRoom } = hotelEntry;
+      const CO2e = occupiedRooms * nightsPerRoom * hotelFactor;
+      return { ...hotelEntry, CO2e };
+    }
+  );
 
   // Update the report's accommodation data and store CO2e using findOneAndUpdate
   const updatedReport = await Report.findByIdAndUpdate(
@@ -1322,3 +1421,319 @@ export const CO2eFa = asyncHandler(async (req, res) => {
     data: updatedReport.fa.hotelAccommodation,
   });
 });
+
+export const CO2eDtd = asyncHandler(async (req, res) => {
+  const { _id, companyName } = req.body;
+
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
+
+  const report = await Report.findById(_id);
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  const emissionFactors = {
+    mode: {
+      Truck: 0.2, // kg CO2e/tonne-km
+      Rail: 0.05, // kg CO2e/tonne-km
+      Marine: 0.015, // kg CO2e/tonne-km
+      Air: 0.6, // kg CO2e/tonne-km
+    },
+    spend: {
+      Trucking: 0.05, // kg CO2e/USD
+      Rail: 0.02, // kg CO2e/USD
+    },
+    fuel: {
+      Diesel: 2.68, // kg CO2e/liter
+      Gasoline: 2.31, // kg CO2e/liter
+      "Natural Gas": 1.91, // kg CO2e/liter equivalent
+      Propane: 1.53, // kg CO2e/liter
+      Kerosene: 2.54, // kg CO2e/liter
+    },
+    electricity: {
+      global_average: 0.475, // kg CO2e/kWh
+      renewable: 0.05, // kg CO2e/kWh
+      coal: 0.9, // kg CO2e/kWh
+      natural_gas: 0.4, // kg CO2e/kWh
+    },
+  };
+
+  const calculateCO2e = (entry) => {
+    const {
+      method,
+      transportMode,
+      massOfGoodsTransported,
+      transportDistance,
+      fuelConsumption,
+      financialExpenditure,
+      fuelType,
+    } = entry;
+
+    switch (method) {
+      case "Fuel-based Method":
+        console;
+        return fuelConsumption * emissionFactors.fuel[fuelType];
+
+      case "Distance-based Method":
+        return (
+          massOfGoodsTransported *
+          transportDistance *
+          emissionFactors.mode[transportMode]
+        );
+
+      case "Spend-based Method":
+        return financialExpenditure * emissionFactors.spend[transportMode];
+
+      default:
+        throw new ApiError(400, "Invalid calculation method");
+    }
+  };
+
+  const updatedDtdData = report.dtd.map((dtdEntry) => {
+    // console.log("dtdEntry", dtdEntry);
+    const CO2e = calculateCO2e(dtdEntry);
+    return { ...dtdEntry, CO2e };
+  });
+
+  const updatedReport = await Report.findByIdAndUpdate(
+    _id,
+    { dtd: updatedDtdData },
+    { new: true }
+  );
+
+  if (!updatedReport) {
+    throw new ApiError(404, "Failed to update report accommodation data.");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully",
+    data: updatedReport,
+  });
+});
+
+export const CO2eUtd = asyncHandler(async (req, res) => {
+  const { _id, companyName } = req.body;
+  // console.log("req.body", req.body);
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
+
+  const report = await Report.findById(_id);
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  const emissionFactors = {
+    fuelTypes: {
+      "Jet Fuel": 3.16, // kg CO2e/liter
+      Diesel: 2.68, // kg CO2e/liter
+      Gasoline: 2.31, // kg CO2e/liter
+      Biodiesel: 2.5, // kg CO2e/liter
+      Ethanol: 1.9, // kg CO2e/liter
+      Hydrogen: 0, // Near-zero direct emissions
+      "Natural Gas": 2.0, // kg CO2e/liter equivalen
+    },
+    electricityTypes: {
+      "Natural Gas": 0.4, // kg CO2e/kWh
+      "Grid Electricity": 0.475, // kg CO2e/kWh
+      "Coal-based": 0.9, // kg CO2e/kWh
+      Renewable: 0.05, // kg CO2e/kWh
+      Nuclear: 0.012, // Very low kg CO2e/kWh
+    },
+    refrigerantTypes: {
+      "R-410A": 2088, // Global Warming Potential
+      "R-22": 1810,
+      "R-134a": 1430,
+      "R-404A": 3922,
+    },
+    transportModes: {
+      Truck: 0.2, // kg CO2e/tonne-km
+      Rail: 0.05, // kg CO2e/tonne-km
+      Ship: 0.015, // kg CO2e/tonne-km
+      Air: 0.6, // kg CO2e/tonne-km
+    },
+  };
+
+  const calculateCO2e = (entry) => {
+    const {
+      method,
+      fuelType,
+      electricityType,
+      refrigerantType,
+      distance,
+
+      totalMassTransported,
+      cost,
+      reportingCompanyMass,
+    } = entry;
+
+    let co2eEmissions = 0;
+
+    switch (method) {
+      case "Fuel-based Method":
+        // Fuel consumption emissions
+        const fuelEmissionFactor = emissionFactors.fuelTypes[fuelType] || 0;
+        const fuelQuantity = parseFloat(distance) * 0.1; // Estimated fuel consumption
+        const fuelAllocationRatio =
+          parseFloat(reportingCompanyMass) / parseFloat(totalMassTransported);
+        const fuelCO2e =
+          fuelQuantity * fuelEmissionFactor * fuelAllocationRatio;
+
+        // Electricity consumption emissions
+        const electricityEmissionFactor =
+          emissionFactors.electricityTypes[electricityType] || 0;
+        const electricityConsumption = parseFloat(distance) * 0.05; // Estimated electricity consumption
+        const electricityCO2e =
+          electricityConsumption * electricityEmissionFactor;
+
+        // Refrigerant leakage emissions
+        const refrigerantGWP =
+          emissionFactors.refrigerantTypes[refrigerantType] || 0;
+        const refrigerantLeakage = 0.1; // Estimated refrigerant leakage
+        const refrigerantCO2e = refrigerantLeakage * refrigerantGWP;
+
+        co2eEmissions = fuelCO2e + electricityCO2e + refrigerantCO2e;
+        break;
+
+      case "Distance-based Method":
+        const transportEmissionFactor =
+          emissionFactors.transportModes[entry.transportMode] || 0;
+        co2eEmissions =
+          parseFloat(totalMassTransported) *
+          parseFloat(distance) *
+          transportEmissionFactor;
+        break;
+
+      case "Spend-based Method":
+        const spendEmissionFactor = 0.05; // kg CO2e per dollar spent
+        co2eEmissions = parseFloat(cost) * spendEmissionFactor;
+        break;
+
+      default:
+        co2eEmissions = 0;
+    }
+
+    return co2eEmissions;
+  };
+
+  const updatedUtdData = report.utd.map((utdEntry) => {
+    const CO2e = calculateCO2e(utdEntry);
+    return { ...utdEntry, CO2e };
+  });
+
+  const updatedReport = await Report.findByIdAndUpdate(
+    _id,
+    { utd: updatedUtdData },
+    { new: true }
+  );
+
+  if (!updatedReport) {
+    throw new ApiError(404, "Failed to update report UTD data.");
+  }
+  // console.log("updatedReport", updatedReport);
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully",
+    data: updatedReport,
+  });
+});
+
+export const CO2eUla = asyncHandler(async (req, res) => {
+  const { _id, companyName } = req.body;
+
+  if (!companyName || !_id) {
+    throw new ApiError(400, "Company name and _id are required.");
+  }
+
+  const report = await Report.findById(_id);
+
+  if (!report) {
+    throw new ApiError(404, "Report not found.");
+  }
+
+  const calculateCO2e = (entry) => {
+    const {
+      method,
+      companyArea,
+      buildingTotalArea,
+      occupancyRate,
+      totalEnergyUse,
+      leasedAssetArea,
+      totalLesorAssetsArea,
+      floorSpace,
+      scope1Emissions,
+      scope2Emissions,
+    } = entry;
+
+    let co2eEmissions = 0;
+
+    switch (method) {
+      case "Asset-specific Method":
+        // Scope 1 and Scope 2 emissions for each leased asset
+        const scope1 = parseFloat(scope1Emissions) || 0;
+        const scope2 = parseFloat(scope2Emissions) || 0;
+
+        // Energy allocation for buildings without sub-meters
+        const energyAllocation =
+          (parseFloat(companyArea) /
+            (parseFloat(buildingTotalArea) * parseFloat(occupancyRate))) *
+          parseFloat(totalEnergyUse);
+
+        co2eEmissions = scope1 + scope2 + energyAllocation;
+        break;
+
+      case "Lessor-specific Method":
+        // Collect lessor's scope 1 and scope 2 emissions
+        const lessorScope1 = parseFloat(scope1Emissions) || 0;
+        const lessorScope2 = parseFloat(scope2Emissions) || 0;
+
+        // Apply allocation factor
+        const allocationFactor =
+          parseFloat(leasedAssetArea) / parseFloat(totalLesorAssetsArea);
+
+        co2eEmissions =
+          (lessorScope1 + lessorScope2 + parseFloat(totalEnergyUse)) *
+          allocationFactor;
+        break;
+
+      case "Average-data Method":
+        // Emissions based on floor space and average emission factor
+        const averageEmissionFactor = 0.05; // kg CO2e per square meter
+        co2eEmissions = parseFloat(floorSpace) * averageEmissionFactor;
+        break;
+
+      default:
+        co2eEmissions = 0;
+    }
+
+    return co2eEmissions;
+  };
+
+  const updatedUlaData = report.ula.map((ulaEntry) => {
+    const CO2e = calculateCO2e(ulaEntry);
+    return { ...ulaEntry, CO2e };
+  });
+
+  const updatedReport = await Report.findByIdAndUpdate(
+    _id,
+    { ula: updatedUlaData },
+    { new: true }
+  );
+
+  if (!updatedReport) {
+    throw new ApiError(404, "Failed to update report ULA data.");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "CO2e calculated successfully",
+    data: updatedReport,
+  });
+});
+

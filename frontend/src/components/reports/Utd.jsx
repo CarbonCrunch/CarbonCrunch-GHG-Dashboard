@@ -2,72 +2,79 @@ import React, { useState, useEffect } from "react";
 import { FaPlus, FaSave, FaTrash, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../../context/AuthContext";
 
 const Utd = ({ report }) => {
-  const [utdData, setutdData] = useState([]);
-  const [newUtd, setnewUtd] = useState({
+  const [utdData, setUtdData] = useState([]);
+  const [newUtd, setNewUtd] = useState({
     date: null,
-    type: "",
-    utd: "",
-    unit: "",
-    amount: "",
+    method: "",
+    fuelType: "",
+    electricityType: "",
+    refrigerantType: "",
+    distance: "",
+    transportMode: "",
+    totalMassTransported: "",
+    cost: "",
+    reportingCompanyMass: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
-  const [isYearPicker, setIsYearPicker] = useState(false);
-  const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
 
-  const typeOptions = ["Electricity"];
-  const utdOptions = [
-    "Carbon dioxide",
-    // ... (full list of utds as provided)
-    "Methane",
-    // ... other utds
+  const MethodOptions = [
+    "Fuel-based Method",
+    "Distance-based Method",
+    "Spend-based Method",
   ];
-  const unitOptions = ["KG"];
+  const TransportModeOptions = ["Truck", "Rail", "Ship", "Air"];
 
-  const permissions = user?.facilities?.[0]?.userRoles?.find(
-    (role) => role.username === user.username
-  )?.permissions;
+  const FuelTypeOptions = [
+    "Diesel",
+    "Gasoline",
+    "Jet Fuel",
+    "Biodiesel",
+    "Ethanol",
+    "Hydrogen",
+    "Natural Gas",
+  ];
 
-  const utdsPermissions = permissions?.find(
-    (perm) => perm.entity.toLowerCase() === "utd"
-  );
+  const ElectricityTypeOptions = [
+    "Grid Electricity",
+    "Renewable",
+    "Coal-based",
+    "Natural Gas",
+    "Nuclear",
+  ];
 
-  const hasReadPermission = utdsPermissions?.actions?.includes("read");
-  const hasCreatePermission = utdsPermissions?.actions?.includes("create");
-  const hasUpdatePermission = utdsPermissions?.actions?.includes("update");
-  const hasDeletePermission = utdsPermissions?.actions?.includes("delete");
-
-  // If no read permission, display a message
-  if (!hasReadPermission) {
-    return <p>You do not have permission to view this data.</p>;
-  }
+  const RefrigerantTypeOptions = [
+    "R-22",
+    "R-134a",
+    "R-404A",
+    "R-410A",
+    // "Natural Refrigerants",
+  ];
 
   const reportData = report;
   const {
     companyName = "",
     facilityName = "",
     reportId = "",
+    _id = "",
     timePeriod = {},
     utd = [],
   } = reportData || {};
+  //   reportId = _id;
 
+  //   console.log("user", reportData, _id);
   useEffect(() => {
-    if (Array.isArray(utd)) {
-      setutdData(
-        utd.map((emission) => ({
-          ...emission,
-          date: new Date(emission.date),
+    if (utd && Array.isArray(utd)) {
+      setUtdData(
+        utd.map((item) => ({
+          ...item,
+          date: new Date(item.date),
         }))
       );
-    } else {
-      // If utd is not an array, set utdData to an empty array
-      setutdData([]);
     }
   }, [report]);
 
@@ -82,51 +89,68 @@ const Utd = ({ report }) => {
 
   const { start, end } = getDateRange();
 
+  // Permission checks (similar to previous implementation)
+  const utdPermissions =
+    user?.facilities[0]?.userRoles[0]?.permissions.find(
+      (perm) => perm.entity.toLowerCase() === "utd"
+    )?.actions || [];
+
+  const hasReadPermission = utdPermissions.includes("read");
+  const hasCreatePermission = utdPermissions.includes("create");
+  const hasUpdatePermission = utdPermissions.includes("update");
+  const hasDeletePermission = utdPermissions.includes("delete");
+
   const handleAddUtd = () => {
-    if (
-      newUtd.date &&
-      newUtd.type &&
-      newUtd.utd &&
-      newUtd.unit &&
-      newUtd.amount
-    ) {
+    if (!hasCreatePermission) {
+      toast.error("You don't have permission to create new entries");
+      return;
+    }
+
+    if (newUtd.date && newUtd.method) {
       if (editIndex === -1) {
-        setutdData([...utdData, newUtd]);
+        setUtdData([...utdData, newUtd]);
       } else {
-        const updatedutdData = [...utdData];
-        updatedutdData[editIndex] = newUtd;
-        setutdData(updatedutdData);
+        const updatedUtdData = [...utdData];
+        updatedUtdData[editIndex] = newUtd;
+        setUtdData(updatedUtdData);
         setEditIndex(-1);
       }
-      setnewUtd({
+      setNewUtd({
         date: null,
-        type: "",
-        utd: "",
-        unit: "",
-        amount: "",
+        method: "",
+        fuelType: "",
+        electricityType: "",
+        refrigerantType: "",
+        distance: "",
+        massOfGoods: "",
+        totalMassTransported: "",
+        cost: "",
+        reportingCompanyMass: "",
       });
     } else {
-      toast.error("Please fill all fields");
+      toast.error("Please fill required fields");
     }
   };
 
   const handleEdit = (index) => {
-    setnewUtd(utdData[index]);
+    if (!hasUpdatePermission) {
+      toast.error("You don't have permission to update existing entries");
+      return;
+    }
+
+    setNewUtd(utdData[index]);
     setEditIndex(index);
   };
 
   const handleDelete = (index) => {
-    const updatedutdData = utdData.filter((_, i) => i !== index);
-    setutdData(updatedutdData);
-    toast.info("Now click on save to permanently delete", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    if (!hasDeletePermission) {
+      toast.error("You don't have permission to delete existing entries");
+      return;
+    }
+
+    const updatedUtdData = utdData.filter((_, i) => i !== index);
+    setUtdData(updatedUtdData);
+    toast.info("Click save to permanently delete", { position: "top-right" });
   };
 
   const handleSave = async () => {
@@ -135,97 +159,98 @@ const Utd = ({ report }) => {
         `/api/reports/:reportId/utd/put`,
         { utd: utdData },
         {
-          params: {
-            reportId,
-            companyName,
-            facilityName,
-          },
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-          },
+          params: { reportId, companyName, facilityName },
+          headers: { Authorization: `Bearer ${user.accessToken}` },
           withCredentials: true,
         }
       );
-      if (response.data.success) {
-        toast.success(response.data.message);
-      } else {
-        toast.error("Failed to update utd data");
-      }
+
+      response.data.success
+        ? toast.success(response.data.message)
+        : toast.error("Failed to update UTD data");
     } catch (error) {
-      console.error("Error saving utd data:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to save utd data"
-      );
+      console.error("Error saving UTD data:", error);
+      toast.error(error.response?.data?.message || "Failed to save UTD data");
     }
   };
+
+  if (!hasReadPermission) {
+    return <p>You don't have permission to view this data.</p>;
+  }
 
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white">
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">Type</th>
-            <th className="py-3 px-6 text-left">UTD</th>
-            <th className="py-3 px-6 text-left">Unit</th>
-            <th className="py-3 px-6 text-left">Amount</th>
+            <th className="py-3 px-6 text-left">Method</th>
+            <th className="py-3 px-6 text-left">Fuel Type</th>
+            <th className="py-3 px-6 text-left">Electricity Type</th>
+            <th className="py-3 px-6 text-left">Refrigerant Type</th>
+            <th className="py-3 px-6 text-left">Distance (km)</th>
+            <th className="py-3 px-6 text-left">Transport Mode</th>
+            <th className="py-3 px-6 text-left">Total Mass Transported</th>
+            <th className="py-3 px-6 text-left">Cost</th>
+            <th className="py-3 px-6 text-left">Reporting Company Mass</th>
             <th className="py-3 px-6 text-left">Date</th>
             <th className="py-3 px-6 text-left">Action</th>
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm font-light">
-          {utdData.length === 0 ? (
-            <p></p>
-          ) : (
-            utdData.map((emission, index) => (
-              <tr
-                key={index}
-                className="border-b border-gray-200 hover:bg-gray-100"
-              >
-                <td className="py-3 px-6 text-left">{emission.type}</td>
-                <td className="py-3 px-6 text-left">{emission.utd}</td>
-                <td className="py-3 px-6 text-left">{emission.unit}</td>
-                <td className="py-3 px-6 text-left">{emission.amount}</td>
-                <td className="py-3 px-6 text-left">
-                  {emission.date.toLocaleDateString()}
-                </td>
-                <td className="py-3 px-6 text-left">
-                  <button
-                    onClick={() => handleEdit(index)}
-                    className={`text-blue-500 hover:text-blue-700 mr-2 ${
-                      !hasUpdatePermission
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                    disabled={!hasUpdatePermission}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(index)}
-                    className={`text-red-500 hover:text-red-700 ${
-                      !hasDeletePermission
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                    disabled={!hasDeletePermission}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
+          {utdData.map((item, index) => (
+            <tr
+              key={index}
+              className="border-b border-gray-200 hover:bg-gray-100"
+            >
+              <td className="py-3 px-6 text-left">{item.method}</td>
+              <td className="py-3 px-6 text-left">{item.fuelType}</td>
+              <td className="py-3 px-6 text-left">{item.electricityType}</td>
+              <td className="py-3 px-6 text-left">{item.refrigerantType}</td>
+              <td className="py-3 px-6 text-left">{item.distance}</td>
+              <td className="py-3 px-6 text-left">{item.transportMode}</td>
+              <td className="py-3 px-6 text-left">
+                {item.totalMassTransported}
+              </td>
+              <td className="py-3 px-6 text-left">{item.cost}</td>
+              <td className="py-3 px-6 text-left">
+                {item.reportingCompanyMass}
+              </td>
+              <td className="py-3 px-6 text-left">
+                {item.date.toLocaleDateString()}
+              </td>
+              <td className="py-3 px-6 text-left">
+                <button
+                  onClick={() => handleEdit(index)}
+                  className={`text-blue-500 hover:text-blue-700 mr-2 ${
+                    !hasUpdatePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasUpdatePermission}
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  onClick={() => handleDelete(index)}
+                  className={`text-red-500 hover:text-red-700 ${
+                    !hasDeletePermission ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={!hasDeletePermission}
+                >
+                  <FaTrash />
+                </button>
+              </td>
+            </tr>
+          ))}
           <tr>
             <td className="py-3 px-6">
               <select
-                value={newUtd.type}
+                value={newUtd.method}
                 onChange={(e) =>
-                  setnewUtd({ ...newUtd, type: e.target.value })
+                  setNewUtd({ ...newUtd, method: e.target.value })
                 }
                 className="border p-1 w-full"
               >
-                <option value="">Select Type</option>
-                {typeOptions.map((option) => (
+                <option value="">Select Method</option>
+                {MethodOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -234,14 +259,14 @@ const Utd = ({ report }) => {
             </td>
             <td className="py-3 px-6">
               <select
-                value={newUtd.utd}
+                value={newUtd.fuelType}
                 onChange={(e) =>
-                  setnewUtd({ ...newUtd, utd: e.target.value })
+                  setNewUtd({ ...newUtd, fuelType: e.target.value })
                 }
                 className="border p-1 w-full"
               >
-                <option value="">Select Emission</option>
-                {utdOptions.map((option) => (
+                <option value="">Select Fuel Type</option>
+                {FuelTypeOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -250,14 +275,30 @@ const Utd = ({ report }) => {
             </td>
             <td className="py-3 px-6">
               <select
-                value={newUtd.unit}
+                value={newUtd.electricityType}
                 onChange={(e) =>
-                  setnewUtd({ ...newUtd, unit: e.target.value })
+                  setNewUtd({ ...newUtd, electricityType: e.target.value })
                 }
                 className="border p-1 w-full"
               >
-                <option value="">Select Unit</option>
-                {unitOptions.map((option) => (
+                <option value="">Select Electricity Type</option>
+                {ElectricityTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-3 px-6">
+              <select
+                value={newUtd.refrigerantType}
+                onChange={(e) =>
+                  setNewUtd({ ...newUtd, refrigerantType: e.target.value })
+                }
+                className="border p-1 w-full"
+              >
+                <option value="">Select Refrigerant Type</option>
+                {RefrigerantTypeOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -267,89 +308,69 @@ const Utd = ({ report }) => {
             <td className="py-3 px-6">
               <input
                 type="number"
-                value={newUtd.amount}
+                value={newUtd.distance}
                 onChange={(e) =>
-                  setnewUtd({ ...newUtd, amount: e.target.value })
+                  setNewUtd({ ...newUtd, distance: e.target.value })
                 }
-                placeholder="Amount"
+                placeholder="Distance (km)"
+                className="border p-1 w-full"
+              />
+            </td>
+            <td className="py-3 px-6">
+              <select
+                value={newUtd.transportMode}
+                onChange={(e) =>
+                  setNewUtd({ ...newUtd, transportMode: e.target.value })
+                }
+                className="border p-1 w-full"
+              >
+                <option value="">Select Transport Mode</option>
+                {TransportModeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-3 px-6">
+              <input
+                type="number"
+                value={newUtd.totalMassTransported}
+                onChange={(e) =>
+                  setNewUtd({ ...newUtd, totalMassTransported: e.target.value })
+                }
+                placeholder="Total Mass Transported"
+                className="border p-1 w-full"
+              />
+            </td>
+            <td className="py-3 px-6">
+              <input
+                type="number"
+                value={newUtd.cost}
+                onChange={(e) => setNewUtd({ ...newUtd, cost: e.target.value })}
+                placeholder="Cost"
+                className="border p-1 w-full"
+              />
+            </td>
+            <td className="py-3 px-6">
+              <input
+                type="number"
+                value={newUtd.reportingCompanyMass}
+                onChange={(e) =>
+                  setNewUtd({ ...newUtd, reportingCompanyMass: e.target.value })
+                }
+                placeholder="Reporting Company Mass"
                 className="border p-1 w-full"
               />
             </td>
             <td className="py-3 px-6">
               <DatePicker
                 selected={newUtd.date}
-                onChange={(date) => setnewUtd({ ...newUtd, date })}
+                onChange={(date) => setNewUtd({ ...newUtd, date })}
                 minDate={start}
                 maxDate={end}
                 placeholderText="Select Date"
                 className="border p-1 w-full"
-                showPopperArrow={false}
-                renderCustomHeader={({
-                  date,
-                  changeYear,
-                  changeMonth,
-                  decreaseMonth,
-                  increaseMonth,
-                  prevMonthButtonDisabled,
-                  nextMonthButtonDisabled,
-                }) => (
-                  <div
-                    className="react-datepicker__header"
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <button
-                      onClick={decreaseMonth}
-                      disabled={prevMonthButtonDisabled}
-                      className="react-datepicker__navigation react-datepicker__navigation--previous"
-                    >
-                      {"<"}
-                    </button>
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <div
-                        className="react-datepicker__current-month"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => {
-                          setIsMonthPicker(true);
-                          setIsYearPicker(false);
-                        }}
-                      >
-                        {date.toLocaleString("default", { month: "long" })}
-                      </div>
-                      <div
-                        className="react-datepicker__current-year"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => {
-                          setIsYearPicker(true);
-                          setIsMonthPicker(false);
-                        }}
-                      >
-                        {date.getFullYear()}
-                      </div>
-                    </div>
-                    <button
-                      onClick={increaseMonth}
-                      disabled={nextMonthButtonDisabled}
-                      className="react-datepicker__navigation react-datepicker__navigation--next"
-                    >
-                      {">"}
-                    </button>
-                  </div>
-                )}
-                showYearPicker={isYearPicker}
-                showMonthYearPicker={isMonthPicker}
-                onSelect={(date) => {
-                  setnewUtd({ ...newUtd, date });
-                  if (isYearPicker) {
-                    setIsYearPicker(false);
-                    setIsMonthPicker(true);
-                  } else if (isMonthPicker) {
-                    setIsMonthPicker(false);
-                  }
-                }}
               />
             </td>
             <td className="py-3 px-6">
@@ -363,7 +384,7 @@ const Utd = ({ report }) => {
                 {editIndex === -1 ? <FaPlus /> : <FaEdit />}
               </button>
             </td>
-          </tr>
+          </tr>{" "}
         </tbody>
       </table>
       <div className="mt-4 flex justify-end space-x-2">

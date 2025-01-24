@@ -165,11 +165,13 @@ const Fa = ({ report }) => {
 
   const handleSave = async () => {
     try {
+      console.log("hotelData", reportId);
       const response = await axios.patch(
-        `/api/reports/${reportId}/fa/put`,
+        `/api/reports/:reportId/fa/put`,
         { hotelAccommodation: hotelData, flightAccommodation: flightData },
         {
           params: {
+            reportId,
             companyName,
             facilityName,
           },

@@ -39,7 +39,9 @@ const ManageUser = () => {
     "Bill",
     "Role",
     "Facility",
+    "dtd",
     "utd",
+    "ula",
   ];
 
   useEffect(() => {

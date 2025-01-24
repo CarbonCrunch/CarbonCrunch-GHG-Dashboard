@@ -16,6 +16,9 @@ const Btls = ({ report }) => {
     fuel: "",
     unit: "km",
     distance: "",
+    cost: "",
+    quantity: "",
+    method: "Fuel-based method",
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [isYearPicker, setIsYearPicker] = useState(false);
@@ -45,6 +48,11 @@ const Btls = ({ report }) => {
     "LPG",
   ];
   const UnitOptions = ["km"];
+  const MethodOptions = [
+    "Fuel-based method",
+    "Distance-based method",
+    "Spend-based method",
+  ];
 
   const reportData = report;
   const {
@@ -61,6 +69,9 @@ const Btls = ({ report }) => {
         btls.map((item) => ({
           ...item,
           date: new Date(item.date),
+          method: item.method || "Fuel-based method",
+          cost: item.cost || "",
+          quantity: item.quantity || "",
         }))
       );
     }
@@ -151,6 +162,7 @@ const Btls = ({ report }) => {
       progress: undefined,
     });
   };
+  // console.log("bltsData", btlsData);
 
   const handleSave = async () => {
     try {
@@ -194,7 +206,10 @@ const Btls = ({ report }) => {
             <th className="py-3 px-6 text-left">Fuel</th>
             <th className="py-3 px-6 text-left">Unit</th>
             <th className="py-3 px-6 text-left">Distance</th>
+            <th className="py-3 px-6 text-left">Cost of transit</th>
+            <th className="py-3 px-6 text-left">Quantity of fuel</th>
             <th className="py-3 px-6 text-left">Date</th>
+            <th className="py-3 px-6 text-left">Method</th>
             <th className="py-3 px-6 text-left">Action</th>
           </tr>
         </thead>
@@ -209,9 +224,12 @@ const Btls = ({ report }) => {
               <td className="py-3 px-6 text-left">{item.fuel}</td>
               <td className="py-3 px-6 text-left">{item.unit}</td>
               <td className="py-3 px-6 text-left">{item.distance}</td>
+              <td className="py-3 px-6 text-left">{item.cost}</td>
+              <td className="py-3 px-6 text-left">{item.quantity}</td>
               <td className="py-3 px-6 text-left">
                 {item.date.toLocaleDateString()}
               </td>
+              <td className="py-3 px-6 text-left">{item.method}</td>
               <td className="py-3 px-6 text-left">
                 <button
                   onClick={() => handleEdit(index)}
@@ -310,6 +328,28 @@ const Btls = ({ report }) => {
               />
             </td>
             <td className="py-3 px-6">
+              <input
+                type="number"
+                value={newBtls.cost}
+                onChange={(e) =>
+                  setNewBtls({ ...newBtls, cost: e.target.value })
+                }
+                placeholder="Cost"
+                className="border p-1 w-full"
+              />
+            </td>
+            <td className="py-3 px-6">
+              <input
+                type="number"
+                value={newBtls.quantity}
+                onChange={(e) =>
+                  setNewBtls({ ...newBtls, quantity: e.target.value })
+                }
+                placeholder="Quantity"
+                className="border p-1 w-full"
+              />
+            </td>
+            <td className="py-3 px-6">
               <DatePicker
                 selected={newBtls.date}
                 onChange={(date) => setNewBtls({ ...newBtls, date })}
@@ -385,6 +425,21 @@ const Btls = ({ report }) => {
                   }
                 }}
               />
+            </td>
+            <td className="py-3 px-6">
+              <select
+                value={newBtls.method}
+                onChange={(e) =>
+                  setNewBtls({ ...newBtls, method: e.target.value })
+                }
+                className="border p-1 w-full"
+              >
+                {MethodOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </td>
             <td className="py-3 px-6">
               <button
