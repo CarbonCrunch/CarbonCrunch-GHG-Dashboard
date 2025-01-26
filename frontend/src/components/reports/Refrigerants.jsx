@@ -9,12 +9,13 @@ import { useAuth } from "../../context/AuthContext";
 
 const Refrigerants = ({ report }) => {
   const [refrigerantData, setRefrigerantData] = useState([]);
-  const [newRefrigerant, setNewRefrigerant] = useState({
-    date: null,
-    emission: "",
-    unit: "",
-    amount: "",
-  });
+ const [newRefrigerant, setNewRefrigerant] = useState({
+   date: null,
+   emission: "",
+   unit: "",
+   amount: "",
+   type: "",
+ });
   const [editIndex, setEditIndex] = useState(-1);
   const [isYearPicker, setIsYearPicker] = useState(false);
   const [isMonthPicker, setIsMonthPicker] = useState(false);
@@ -41,6 +42,13 @@ const Refrigerants = ({ report }) => {
     return <p>You do not have permission to view this data.</p>;
   }
 
+  const typeOptions = [
+    "Kyoto protocol products",
+    "Blends",
+    "Montreal protocol products",
+    "Fluorinated ethers",
+    "Other products",
+  ];
   const emissionOptions = [
     "Carbon dioxide",
     "Carbon tetrachloride",
@@ -241,6 +249,7 @@ const Refrigerants = ({ report }) => {
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
             <th className="py-3 px-6 text-left">Emission</th>
+            <th className="py-3 px-6 text-left">Type</th>
             <th className="py-3 px-6 text-left">Unit</th>
             <th className="py-3 px-6 text-left">Amount kg</th>
             <th className="py-3 px-6 text-left">Date</th>
@@ -254,6 +263,7 @@ const Refrigerants = ({ report }) => {
               className="border-b border-gray-200 hover:bg-gray-100"
             >
               <td className="py-3 px-6 text-left">{refrigerant.emission}</td>
+              <td className="py-3 px-6 text-left">{refrigerant.type}</td>
               <td className="py-3 px-6 text-left">{refrigerant.unit}</td>
               <td className="py-3 px-6 text-left">{refrigerant.amount}</td>
               <td className="py-3 px-6 text-left">
@@ -303,6 +313,25 @@ const Refrigerants = ({ report }) => {
             </td>
             <td className="py-3 px-6">
               <select
+                value={newRefrigerant.type}
+                onChange={(e) =>
+                  setNewRefrigerant({
+                    ...newRefrigerant,
+                    type: e.target.value,
+                  })
+                }
+                className="border p-1 w-full"
+              >
+                <option value="">Select Type</option>
+                {typeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-3 px-6">
+              <select
                 value={newRefrigerant.unit}
                 onChange={(e) =>
                   setNewRefrigerant({ ...newRefrigerant, unit: e.target.value })
@@ -342,72 +371,6 @@ const Refrigerants = ({ report }) => {
                 placeholderText="Select Date"
                 className="border p-1 w-full"
                 showPopperArrow={false}
-                renderCustomHeader={({
-                  date,
-                  changeYear,
-                  changeMonth,
-                  decreaseMonth,
-                  increaseMonth,
-                  prevMonthButtonDisabled,
-                  nextMonthButtonDisabled,
-                }) => (
-                  <div
-                    className="react-datepicker__header"
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <button
-                      onClick={decreaseMonth}
-                      disabled={prevMonthButtonDisabled}
-                      className="react-datepicker__navigation react-datepicker__navigation--previous"
-                    >
-                      {"<"}
-                    </button>
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <div
-                        className="react-datepicker__current-month"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => {
-                          setIsMonthPicker(true); // Show month picker when month is clicked
-                          setIsYearPicker(false); // Hide year picker
-                        }}
-                      >
-                        {date.toLocaleString("default", { month: "long" })}
-                      </div>
-                      <div
-                        className="react-datepicker__current-year"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => {
-                          setIsYearPicker(true); // Show year picker when year is clicked
-                          setIsMonthPicker(false); // Hide month picker
-                        }}
-                      >
-                        {date.getFullYear()}
-                      </div>
-                    </div>
-                    <button
-                      onClick={increaseMonth}
-                      disabled={nextMonthButtonDisabled}
-                      className="react-datepicker__navigation react-datepicker__navigation--next"
-                    >
-                      {">"}
-                    </button>
-                  </div>
-                )}
-                showYearPicker={isYearPicker} // Show only year picker if isYearPicker is true
-                showMonthYearPicker={isMonthPicker} // Show month picker if isMonthPicker is true
-                onSelect={(date) => {
-                  setNewRefrigerant({ ...newRefrigerant, date });
-                  if (isYearPicker) {
-                    setIsYearPicker(false); // Switch to date picker after selecting a year
-                    setIsMonthPicker(true); // Show month picker after selecting a year
-                  } else if (isMonthPicker) {
-                    setIsMonthPicker(false); // Switch to date picker after selecting a month
-                  }
-                }}
               />
             </td>
             <td className="py-3 px-6">

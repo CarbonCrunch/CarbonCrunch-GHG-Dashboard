@@ -18,14 +18,14 @@ const Btls = ({ report }) => {
     distance: "",
     cost: "",
     quantity: "",
-    method: "Fuel-based method",
+    method: " ",
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [isYearPicker, setIsYearPicker] = useState(false);
   const [isMonthPicker, setIsMonthPicker] = useState(false);
   const { user } = useAuth();
 
-  const VehicleOptions = ["Cars (by size)", "Motorbike", "Taxi"];
+  const VehicleOptions = ["Cars (by size)", "Motorbike", "Taxi", "Air", "Rail"];
   const TypeOptions = [
     "Small car",
     "Medium car",
@@ -34,12 +34,13 @@ const Btls = ({ report }) => {
     "Small",
     "Medium",
     "Large",
-    "Average",
+    "Air",
+    "Rail",
     "Average taxi",
   ];
   const FuelOptions = [
-    "Plug-in Hybrid Electric Vehicle",
-    "Battery Electric Vehicle",
+    "Unknown",
+    "All fuels",
     "Diesel",
     "Petrol",
     "Hybrid",

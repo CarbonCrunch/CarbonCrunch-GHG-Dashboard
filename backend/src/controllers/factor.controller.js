@@ -21,46 +21,145 @@ export const CO2eFuel = asyncHandler(async (req, res) => {
   //   throw new ApiError(401, "Unauthorized access to update fuel data.");
   // }
 
-  // Define conversion rates
   const conversionRates = {
-    CNG: 0.44,
-    LNG: 1.16,
-    LPG: 1.56,
-    "Natural gas": 2.02,
-    "Natural gas (100% mineral blend)": 2.03,
-    "Other petroleum gas": 0.94,
-    "Aviation spirit": 2.33,
-    "Aviation turbine fuel": 2.55,
-    "Burning oil": 2.54,
-    "Diesel (average biofuel blend)": 2.51,
-    "Diesel (100% mineral diesel)": 2.71,
-    "Fuel oil": 3.18,
-    "Gas oil": 2.76,
-    Lubricants: 2.75,
-    Naphtha: 2.12,
-    "Petrol (average biofuel blend)": 2.19,
-    "Petrol (100% mineral petrol)": 2.34,
-    "Processed fuel oils - residual oil": 3.18,
-    "Processed fuel oils - distillate oil": 2.76,
-    "Waste oils": 2.75,
-    "Marine gas oil": 2.78,
-    "Marine fuel oil": 3.11,
-    "Coal (industrial)": 2403.84,
-    "Coal (electricity generation)": 2252.34,
-    "Coal (domestic)": 2883.26,
-    "Coking coal": 3165.24,
-    "Petroleum coke": 3386.86,
-    "Coal (electricity generation - home produced)": 2248.82,
+    // Gaseous fuels
+    Butane: {
+      tonnes: 3033.38067,
+      litres: 1.74532,
+    },
+    CNG: {
+      tonnes: 2568.16441,
+      litres: 0.44942,
+    },
+    LNG: {
+      tonnes: 2590.46441,
+      litres: 1.17216,
+    },
+    LPG: {
+      tonnes: 2939.36095,
+      litres: 1.55713,
+    },
+    "Natural Gas": {
+      tonnes: 2568.16441,
+      litres: 2.04542,
+    },
+    "Natural Gas (100% Mineral Blend)": {
+      tonnes: 2590.46441,
+      litres: 2.06318,
+    },
+    "Other Petroleum Gas": {
+      tonnes: 2578.24647,
+      litres: 0.94441,
+    },
+    Propane: {
+      tonnes: 2997.63233,
+      litres: 1.54357,
+    },
+    "Aviation Spirit": {
+      tonnes: 3193.6948,
+      litres: 2.33116,
+    },
+
+    // Liquid fuels
+    "Fuel Oil": {
+      tonnes: 3228.89019,
+      litres: 3.17493,
+    },
+    "Gas Oil": {
+      tonnes: 3226.57859,
+      litres: 2.75541,
+    },
+    Lubricants: {
+      tonnes: 3180.99992,
+      litres: 2.74934,
+    },
+    Naphtha: {
+      tonnes: 3142.3789,
+      litres: 2.11894,
+    },
+    "Petrol (average biofuel blend)": {
+      tonnes: 2778.52935,
+      litres: 2.0844,
+    },
+    "Petrol (100% mineral petrol)": {
+      tonnes: 3154.08213,
+      litres: 2.35372,
+    },
+    "Processed fuel oils - residual oil": {
+      tonnes: 3228.89019,
+      litres: 3.17493,
+    },
+    "Processed fuel oils - distillate oil": {
+      tonnes: 3226.57859,
+      litres: 2.75541,
+    },
+    "Refinery miscellaneous": {
+      tonnes: 2944.32093,
+      litres: 2.5649,
+    },
+    "Waste oils": {
+      tonnes: 3219.37916,
+      litres: 2.74923,
+    },
+    "Aviation Turbine Fuel": {
+      tonnes: 3178.3652,
+      litres: 2.54269,
+    },
+    "Burning Oil": {
+      tonnes: 3165.04181,
+      litres: 2.54015,
+    },
+    "Diesel (average biofuel blend)": {
+      tonnes: 3014.09462,
+      litres: 2.51279,
+    },
+    "Diesel (100% mineral diesel)": {
+      tonnes: 3203.91143,
+      litres: 2.66155,
+    },
+
+    // Solid fuels
+    "Coal (industrial)": {
+      tonnes: 2399.43994,
+      litres: null,
+    },
+    "Coal (electricity generation)": {
+      tonnes: 2262.11448,
+      litres: null,
+    },
+    "Coal (domestic)": {
+      tonnes: 2904.95234,
+      litres: null,
+    },
+    "Coking coal": {
+      tonnes: 3164.65002,
+      litres: null,
+    },
+    "Petroleum coke": {
+      tonnes: 3386.57168,
+      litres: null,
+    },
+    "Coal (electricity generation - home produced coal)": {
+      tonnes: 2258.5867,
+      litres: null,
+    },
   };
 
+  // Calculation function
   if (!Array.isArray(report.fuel)) {
     console.log("fuel", report);
     throw new ApiError(400, "Fuel data must be an array.");
   }
 
-  // Update the fuel data with calculated CO2e amounts
   const updatedFuelData = report.fuel.map((fuelEntry) => {
-    const conversionRate = conversionRates[fuelEntry.fuelType];
+    const fuelConversionRates = conversionRates[fuelEntry.fuelType];
+
+    // Determine the conversion rate based on the unit
+    const conversionRate =
+      fuelEntry.unit === "Tonnes"
+        ? fuelConversionRates.tonnes
+        : fuelConversionRates.litres;
+
     const CO2e = fuelEntry.amount * conversionRate;
     return { ...fuelEntry, CO2e };
   });
@@ -92,33 +191,126 @@ export const CO2eBioenergy = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  // Define conversion rates
   const conversionRates = {
-    Bioethanol: 0.01,
-    "Biodiesel ME": 0.17,
-    "Biodiesel ME (from used cooking oil)": 0.17,
-    "Biodiesel ME (from tallow)": 0.17,
-    "Wood logs": 61.82,
-    "Wood chips": 57.15,
-    "Wood pellets": 72.62,
-    "Grass/straw": 49.24,
-    Biogas: 1.22,
-    "Landfill gas": 0.69,
+    // Biofuels
+    Bioethanol: {
+      litres: 0.00901,
+      kg: 0.01135,
+      GJ: 0.42339,
+    },
+    "Biodiesel ME": {
+      litres: 0.16751,
+      kg: 0.18822,
+      GJ: 5.05961,
+    },
+    "Biomethane (compressed)": {
+      litres: 0.10625,
+      kg: 0.00521,
+      GJ: 5.05961,
+    },
+    "Biodiesel ME (from used cooking oil)": {
+      litres: 0.16751,
+      kg: 0.18822,
+      GJ: 5.05961,
+    },
+    "Biodiesel ME (from tallow)": {
+      litres: 0.16751,
+      kg: 0.18822,
+      GJ: 5.05961,
+    },
+    "Biodiesel HVO": {
+      litres: 0.03558,
+      kg: 0.04562,
+      GJ: 1.03677,
+    },
+    Biopropane: {
+      litres: 0.00214,
+      kg: 0.00415,
+      GJ: 0.08952,
+    },
+    "Development diesel": {
+      litres: 0.03705,
+      kg: 0.04461,
+      GJ: 1.03677,
+    },
+    "Development petrol": {
+      litres: 0.01409,
+      kg: 0.01888,
+      GJ: 0.42339,
+    },
+    "Off road biodiesel": {
+      litres: 0.16751,
+      kg: 0.18822,
+      GJ: 5.05961,
+    },
+    "Biomethane (liquified)": {
+      litres: 0.10625,
+      kg: 0.00521,
+      GJ: 5.05961,
+    },
+    "Methanol (bio)": {
+      litres: 0.00669,
+      kg: 0.00844,
+      GJ: 0.42339,
+    },
+    "Avtur (renewable)": {
+      litres: 0.02518,
+      kg: 0.03185,
+      GJ: 0.7234,
+    },
+
+    // Biomass
+    "Wood logs": {
+      tonnes: 46.25524,
+      kWh: 0.01132,
+    },
+    "Wood chips": {
+      tonnes: 42.76487,
+      kWh: 0.01132,
+    },
+    "Wood pellets": {
+      tonnes: 54.33654,
+      kWh: 0.01132,
+    },
+    "Grass/straw": {
+      tonnes: 54.08777,
+      kWh: 0.01454,
+    },
+
+    // Biogas
+    Biogas: {
+      tonnes: 1.26431,
+      kWh: 0.00023,
+    },
+    "Landfill gas": {
+      tonnes: 0.69619,
+      kWh: 0.0002,
+    },
   };
 
-  // Update the bioenergy data with calculated CO2e amounts
+  // Calculation function
+  if (!Array.isArray(report.bioenergy)) {
+    console.log("bioenergy", report);
+    throw new ApiError(400, "Bioenergy data must be an array.");
+  }
+
   const updatedBioenergyData = report.bioenergy.map((bioenergyEntry) => {
-    const conversionRate = conversionRates[bioenergyEntry.fuelType];
+    const fuelConversionRates = conversionRates[bioenergyEntry.fuelType];
+
+    // Determine the conversion rate based on the unit
+    const conversionRate =
+      fuelConversionRates[bioenergyEntry.unit.toLowerCase()];
+
     const CO2e = bioenergyEntry.amount * conversionRate;
     return { ...bioenergyEntry, CO2e };
   });
 
   // Update the report's bioenergy data and store CO2e
   report.bioenergy = updatedBioenergyData;
-  report.CO2eBioenergy = updatedBioenergyData.reduce(
-    (acc, curr) => acc + curr.CO2e,
-    0
-  );
+  // report.CO2eBioenergy = updatedBioenergyData.reduce(
+  //   (acc, curr) => acc + curr.CO2e,
+  //   0
+  // );
 
   await report.save();
 
@@ -142,90 +334,151 @@ export const CO2eRefrigerants = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  // Define conversion rates
   const conversionRates = {
+    // Blends (R-series)
+    R401A: 1236,
+    R401B: 1130,
+    R401C: 876,
+    R402A: 2261,
+    R402B: 3100,
+    R403A: 2547,
+    R403B: 4821,
+    R404A: 1780,
+    R405A: 1624,
+    R406A: 1674,
+    R407A: 1474,
+    R407B: 1924,
+    R407C: 1557,
+    R407D: 1659,
+    R408A: 2048,
+    R409A: 2172,
+    R410A: 1274,
+    R410B: 1375,
+    R411A: 1468,
+    R411B: 1619,
+    R412A: 925,
+    R413A: 1643,
+    R414A: 2127,
+    R415A: 1693,
+    R416A: 2688,
+    R417A: 2161,
+    R418A: 1382,
+    R419A: 2385,
+    R420A: 2890,
+    R421A: 2847,
+    R422A: 2290,
+    R423A: 2794,
+    R424A: 2473,
+    R425A: 2350,
+    R426A: 2274,
+    R427A: 2212,
+    R428A: 1431,
+    R429A: 1371,
+    R430A: 2024,
+    R431A: 3417,
+    R432A: 15.3,
+    R433A: 106,
+    R434A: 40,
+    R435A: 1.8,
+    R436A: 0.64,
+    R437A: 0.16,
+    R438A: 0.55,
+    R439A: 3076,
+    R440A: 28.4,
+    R441A: 1.35,
+    R442A: 1.47,
+    R443A: 1639,
+    R444A: 2059,
+    R445A: 1828,
+    R446A: 156,
+    R447A: 0.23,
+    R448A: 1130,
+    R449A: 876,
+
+    // Kyoto Protocol Products
     "Carbon dioxide": 1,
+    Methane: 28,
+    "Nitrous oxide": 265,
+    "HFC-23": 12400,
+    "HFC-32": 677,
+    "HFC-41": 116,
+    "HFC-125": 3170,
+    "HFC-134": 1120,
+    "HFC-134a": 1300,
+    "HFC-143a": 328,
+    "HFC-152a": 138,
+    "HFC-227ea": 3350,
+    "HFC-236fa": 8060,
+    "HFC-245fa": 858,
+    "HFC-43-10mee": 1650,
+    "Perfluoromethane (PFC-14)": 6630,
+    "Perfluoroethane (PFC-116)": 11100,
+    "Perfluoropropane (PFC-218)": 8900,
+    "Perfluorocyclobutane (PFC-318)": 9540,
+    "Perfluorobutane (PFC-4-1-10)": 9200,
+    "Perfluoropentane (PFC-5-1-12)": 8550,
+    "Perfluorohexane (PFC-6-1-14)": 7910,
+    "PFC-9-1-18": 7190,
+    Perfluorocyclopropane: 9200,
+    "Sulphur hexafluoride (SF6)": 23500,
+
+    // Montreal Protocol Products
+    "CFC-11/R11": 4660,
+    "CFC-12/R12": 10200,
+    "CFC-13": 13900,
+    "CFC-113": 5820,
+    "CFC-114": 8590,
+    "CFC-115": 7670,
+    "Halon-1211": 1750,
+    "Halon-1301": 6290,
+    "Halon-2402": 1470,
+    "Carbon tetrachloride": 1730,
+    "Methyl bromide": 2,
+    "Methyl chloroform": 160,
+    "HCFC-22/R22": 1760,
+    "HCFC-123": 79,
+    "HCFC-124": 527,
+    "HCFC-141b": 782,
+    "HCFC-142b": 1980,
+    "HCFC-225ca": 127,
+    "HCFC-225cb": 525,
+    "HCFC-21": 148,
+
+    // Fluorinated Ethers
+    "HFE-125": 12400,
+    "HFE-134a": 5560,
+    "HFE-143a": 523,
+    "HCFE-225da2": 491,
+    "HCFE-245cb2": 654,
+    "HCFE-245fa2": 812,
+    "HFE-254cb2": 301,
+    "HFE-347mcc3": 530,
+    "HFE-347pcf2": 889,
+    "HFE-356pcc3": 413,
+    "HFE-449sl (HFE-7100)": 421,
+    "HFE-569sf2 (HFE-7200)": 57,
+    "HFE-43-10pccc124 (H-Galden1040x)": 2820,
+    "HFE-236ca12 (HG-10)": 5350,
+    "HFE-338pcc13 (HG-01)": 2910,
+
+    // Other Products
+    "Trifluoromethyl sulphur pentafluoride": 17400,
+    PFPMIE: 9710,
     Dimethylether: 1,
-    "R290 = propane": 3,
-    "R600A = isobutane": 3,
-    "Methyl bromide": 5,
     "Methylene chloride": 9,
-    Methane: 25,
-    "Methyl chloride": 13,
-    "HFC-161": 12,
-    "HFC-152": 53,
-    "HFE-569sf2 (HFE-7200)": 59,
-    "HCFC-123": 77,
-    "HFC-41": 92,
-    "HFE-356pcc3": 110,
-    "HFC-152a": 124,
-    "HCFC-225ca": 122,
-    "HCFC-225cb": 595,
-    "HFE-347mcc3": 575,
-    "HFE-347pcf2": 580,
-    "HFE-245fa2": 659,
-    "HFE-245cb2": 708,
-    "HFC-245ca": 693,
-    "HCFC-124": 609,
-    "HFC-365mfc": 794,
-    "HFC-143": 353,
-    "HFE-254cb2": 359,
-    "HCFE-235da2": 350,
-    "HFC-236ea": 1370,
-    "HFC-236cb": 1340,
-    "HFC-143a": 4470,
-    "HFC-43-I0mee": 1640,
-    "Halon-2402": 1640,
-    R407C: 1774,
-    R407F: 1825,
-    "HCFC-142b": 2310,
-    "HCFC-22/R22 = chlorodifluoromethane": 1810,
-    "Halon-1211": 1890,
-    "Halon-1301": 7140,
-    R407A: 2107,
-    R410A: 2088,
-    "HFC-23": 14800,
-    R403A: 3124,
-    R408A: 3152,
-    R404A: 3922,
-    R507A: 3985,
-    "HFC-125": 3500,
-    "HFC-227ea": 3220,
-    "HFC-236fa": 9810,
-    "HFE-134": 6320,
-    "HFE-125": 14900,
-    "HFE-43-10pccc124 (H-Galden1040x)": 1870,
-    "HFC-32": 675,
-    R502: 4657,
-    "HFC-134a": 1430,
-    "HFC-134": 1100,
-    "HFC-245fa": 1030,
-    "Carbon tetrachloride": 1400,
-    PFPMIE: 10300,
-    "HFC-41": 92,
-    "Perfluoromethane (PFC-14)": 7390,
-    "CFC-12/R12 = dichlorodifluoromethane": 10900,
-    "Perfluorocyclobutane (PFC-318)": 10300,
-    "Perfluoropropane (PFC-218)": 8830,
-    "Perfluorobutane (PFC-3-1-10)": 8860,
-    "Perfluoroethane (PFC-116)": 12200,
-    "Perfluorohexane (PFC-5-1-14)": 9300,
-    "Nitrogen trifluoride": 17200,
-    "Trifluoromethyl sulphur pentafluoride": 17700,
-    "CFC-11/R11 = trichlorofluoromethane": 4750,
-    "CFC-13": 14400,
-    "CFC-113": 6130,
-    "CFC-114": 10000,
-    "CFC-115": 7370,
-    R406A: 1943,
-    R409A: 1585,
-    R508B: 13396,
-    Perfluorocyclopropane: 17340,
-    "Nitrous oxide": 298,
-    "Halon-2402": 1640,
+    "Methyl chloride": 12,
+    R290: 0.06,
+    R600a: 3,
+    R600: 0.006,
+    R601a: 5,
+    R601: 5,
+    R170: 0.437,
+    R1270: 2,
+    R1234yf: 1,
+    R1234ze: 1,
   };
 
-  // Update the refrigerants data with calculated CO2e amounts
+  // Calculation function
   const updatedRefrigerantsData = report.refrigerants.map(
     (refrigerantEntry) => {
       const conversionRate = conversionRates[refrigerantEntry.emission];
@@ -401,64 +654,74 @@ export const CO2eEhctd = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  // Define emission factors and conversion rates
-  const emissionFactors = {
-    Electricity: {
-      lifecycleFactor: 0.6077,
-      combustionFactor: 0.4233,
-      TDLossFactor: 0.0188,
-    },
-    "Heating and Steam": {
-      lifecycleFactor: 0.1707,
-      combustionFactor: 0.1232,
-      TDLossFactor: 0.009,
-    },
-    "District Cooling": {
-      lifecycleFactor: 0.5469,
-      combustionFactor: 0.3845,
-      TDLossFactor: 0.0278,
-    },
-  };
+ const emissionFactors = {
+   Electricity: {
+     lifecycleFactor: 0.6077,
+     combustionFactor: 0.4233,
+     TDLossFactor: 0.0188,
+     regionalFactors: {
+       "All India Average": 0.81,
+       Northern: 0.92,
+       Eastern: 0.95,
+       Western: 0.86,
+       Southern: 0.85,
+       "North-Eastern": 0.83,
+     },
+   },
+   "Heating and Steam": {
+     lifecycleFactor: 0.1707,
+     combustionFactor: 0.1232,
+     TDLossFactor: 0.009,
+   },
+   "District Cooling": {
+     lifecycleFactor: 0.5469,
+     combustionFactor: 0.3845,
+     TDLossFactor: 0.0278,
+   },
+ };
 
-  const TD_LOSS_RATE = 0.0278; // 2.78% standard loss rate
+ const TD_LOSS_RATE = 0.0278;
 
-  // Update the EHCTD data with calculated CO2e amounts
-  const updatedEhctdData = report.ehctd.map((entry) => {
-    const { activity, amount, unit, entity, purpose } = entry;
-    const factors = emissionFactors[activity];
+ const updatedEhctdData = report.ehctd.map((entry) => {
+   const { activity, amount, unit, entity, purpose, region } = entry;
+   const factors = emissionFactors[activity];
 
-    let CO2e = 0;
+   let CO2e = 0;
 
-    if (entity === "Reporting Company") {
-      // Upstream emissions calculation
-      const upstreamFactor =
-        factors.lifecycleFactor -
-        factors.combustionFactor -
-        factors.TDLossFactor;
-      CO2e = parseFloat(amount) * upstreamFactor;
-    } else if (entity === "Suppliers") {
-      // T&D losses emissions calculation
-      CO2e = parseFloat(amount) * factors.lifecycleFactor * TD_LOSS_RATE;
-    }
+   if (entity === "Reporting Company") {
+     const upstreamFactor =
+       factors.lifecycleFactor -
+       factors.combustionFactor -
+       factors.TDLossFactor;
+     CO2e = parseFloat(amount) * upstreamFactor;
+   } else if (entity === "Suppliers") {
+     CO2e = parseFloat(amount) * factors.lifecycleFactor * TD_LOSS_RATE;
+   }
 
-    if (purpose === "Resale") {
-      // Resale emissions calculation
-      CO2e = parseFloat(amount) * factors.lifecycleFactor;
-    }
+   if (purpose === "Resale") {
+     CO2e = parseFloat(amount) * factors.lifecycleFactor;
+   }
 
-    return {
-      ...entry,
-      CO2e: parseFloat(CO2e.toFixed(4)), // Round to 4 decimal places
-      unit: "kgCO2e", // Change unit to kgCO2e
-    };
-  });
+   // Apply regional factor for electricity if available
+   if (
+     activity === "Electricity" &&
+     region &&
+     factors.regionalFactors[region]
+   ) {
+     CO2e *= factors.regionalFactors[region];
+   }
 
-  // Calculate total CO2e for the report
-  const totalCO2e = updatedEhctdData.reduce((acc, curr) => acc + curr.CO2e, 0);
+   return {
+     ...entry,
+     CO2e: parseFloat(CO2e.toFixed(4)),
+     unit: "kgCO2e",
+   };
+ });
 
-  // Update the report's EHCTD data and store CO2e
-  report.ehctd = updatedEhctdData;
-  report.CO2eEhctd = parseFloat(totalCO2e.toFixed(4));
+ const totalCO2e = updatedEhctdData.reduce((acc, curr) => acc + curr.CO2e, 0);
+
+ report.ehctd = updatedEhctdData;
+ report.CO2eEhctd = parseFloat(totalCO2e.toFixed(4));
 
   await report.save();
 
@@ -723,6 +986,12 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
         "passenger.km": 0.2,
       },
     },
+    Air: {
+      Air: 0.29,
+    },
+    Rail: {
+      Rail: 0.08,
+    },
     Motorbike: {
       Small: 0.08,
       Medium: 0.1,
@@ -752,7 +1021,12 @@ export const CO2eBtls = asyncHandler(async (req, res) => {
           conversionRate = conversionRates[vehicle][type][fuel];
         } else if (vehicle === "Motorbike") {
           conversionRate = conversionRates[vehicle][type];
-        } else if (vehicle === "Taxi" && conversionRates[vehicle][type]) {
+        } else if (vehicle === "Air" && conversionRates[vehicle][type]) {
+          conversionRate = conversionRates[vehicle][type];
+        } else if (vehicle === "Rail" && conversionRates[vehicle][type]) {
+          conversionRate = conversionRates[vehicle][type];
+        }
+        else if (vehicle === "Taxi" && conversionRates[vehicle][type]) {
           conversionRate = conversionRates[vehicle][type][unit.toLowerCase()];
         }
         CO2e = parseFloat(distance) * conversionRate;
@@ -1131,6 +1405,9 @@ export const CO2eWaste = asyncHandler(async (req, res) => {
       Books: 1041.8,
       Glass: 8.9,
       Clothing: 444.94,
+      Landfill: 0.5,
+      Recycling: 0.1,
+      Incineration: 1.0,
     },
     Refuse: {
       "Household residual waste": 446.24,
@@ -1737,4 +2014,3 @@ export const CO2eUla = asyncHandler(async (req, res) => {
     data: updatedReport,
   });
 });
-

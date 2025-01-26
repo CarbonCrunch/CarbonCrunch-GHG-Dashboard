@@ -37,7 +37,7 @@ const Bioenergy = ({
     "Biogas",
     "Landfill gas",
   ];
-  const unitOptions = ["Litres", "Tonnes"];
+  const unitOptions = ["litres", "kg", "GJ", "kWh"];
   const reportData = report;
   const {
     companyName = "",

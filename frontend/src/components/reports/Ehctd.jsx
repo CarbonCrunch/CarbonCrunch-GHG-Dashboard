@@ -16,6 +16,7 @@ const Ehctd = ({ report }) => {
     amount: "",
     entity: "",
     purpose: "",
+    region: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [isYearPicker, setIsYearPicker] = useState(false);
@@ -23,10 +24,17 @@ const Ehctd = ({ report }) => {
   const { user } = useAuth();
 
   const typeOptions = ["Electricity", "Heat", "Steam", "District Cooling"];
-  const unitOptions = ["kWh", "Ton of refrigeration", "KG"];
+  const unitOptions = ["MWh", "Ton of refrigeration", "KG"];
   const entityOptions = ["Reporting Company", "Suppliers"];
   const purposeOptions = ["Own Use", "Resale"];
-
+  const regionOptions = [
+    "All India Average",
+    "Northern",
+    "Eastern",
+    "Western",
+    "Southern",
+    "North-Eastern",
+  ];
   const reportData = report;
   const {
     companyName = "",
@@ -89,7 +97,8 @@ const Ehctd = ({ report }) => {
       newEhctd.unit &&
       newEhctd.amount &&
       newEhctd.entity &&
-      newEhctd.purpose
+      newEhctd.purpose &&
+      newEhctd.region
     ) {
       if (editIndex === -1) {
         setEhctdData([...ehctdData, newEhctd]);
@@ -183,6 +192,7 @@ const Ehctd = ({ report }) => {
             <th className="py-3 px-6 text-left">Amount</th>
             <th className="py-3 px-6 text-left">Date</th>
             <th className="py-3 px-6 text-left">Entity</th>
+            <th className="py-3 px-6 text-left">Region</th>
             <th className="py-3 px-6 text-left">Purpose</th>
             <th className="py-3 px-6 text-left">Actions</th>
           </tr>
@@ -200,6 +210,8 @@ const Ehctd = ({ report }) => {
                 {item.date.toLocaleDateString()}
               </td>
               <td className="py-3 px-6 text-left">{item.entity}</td>
+              <td className="py-3 px-6 text-left">{item.region}</td>
+
               <td className="py-3 px-6 text-left">{item.purpose}</td>
               <td className="py-3 px-6 text-left">
                 <button
@@ -354,6 +366,22 @@ const Ehctd = ({ report }) => {
               >
                 <option value="">Select Entity</option>
                 {entityOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-3 px-6">
+              <select
+                value={newEhctd.region}
+                onChange={(e) =>
+                  setNewEhctd({ ...newEhctd, region: e.target.value })
+                }
+                className="border p-1 w-full"
+              >
+                <option value="">Select Region</option>
+                {regionOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>

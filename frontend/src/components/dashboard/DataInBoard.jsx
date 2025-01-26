@@ -153,6 +153,8 @@ const DataInBoard = () => {
     "Downstream Leased Assets",
     "Franchises",
     "Processing of Sold Products",
+    "Capital Goods",
+    "Purchased Goods and Services",
   ];
 
   const filterOptions = [
